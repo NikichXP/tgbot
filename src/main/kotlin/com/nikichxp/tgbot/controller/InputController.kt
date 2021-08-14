@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class InputController(
-        private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate
 ) {
 
-    @PostMapping("/")
+    @PostMapping("/handle")
     fun handle(@RequestBody body: Document): String {
         mongoTemplate.save(UnparsedMessage(body))
         return body.toJson()

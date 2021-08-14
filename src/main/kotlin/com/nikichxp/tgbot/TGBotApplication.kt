@@ -7,10 +7,5 @@ import org.springframework.boot.runApplication
 class TGBotApplication
 
 fun main(args: Array<String>) {
-    println("----------------- env")
-    System.getenv().forEach { (k, _) -> println(k) }
-    println("------------ props")
-    System.getProperties().forEach { (k, _) -> println(k) }
-    println("------- end this")
     runApplication<TGBotApplication>(*args)
 }
