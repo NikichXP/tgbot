@@ -20,9 +20,10 @@ class TgOperations(
     fun registerWebhook() {
         if (appConfig.appName.isEmpty()) return
         val response = restTemplate.getForEntity<String>(
-            "https://api.telegram.org/" +
-                    "bot$token/" +
-                    "setWebhook?url=${generateUrl()}"
+            "https://api.telegram.org" +
+                    "/bot$token" +
+                    "/setWebhook" +
+                    "?url=${generateUrl()}"
         )
         println(response)
     }
