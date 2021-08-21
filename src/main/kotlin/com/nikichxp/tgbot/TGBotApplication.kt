@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot
 
+import org.bson.Document
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 

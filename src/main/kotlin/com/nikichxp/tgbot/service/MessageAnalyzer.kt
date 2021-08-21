@@ -13,18 +13,27 @@ import javax.annotation.PostConstruct
 @Service
 class MessageAnalyzer(
     private val objectMapper: ObjectMapper,
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
+    private val messageClassifier: MessageClassifier
 ) {
+
+    /*
+    важно:
+    - если отредактировать сообщение, то message - не будет, будет edited_message
+
+     */
 
     val entriesMap = mutableMapOf<String, Int>()
 
-    //    @PostConstruct lol test function
+    @PostConstruct
     fun statistics() {
         mongoTemplate.stream<UnparsedMessage>(Query()).forEachRemaining {
             val map = JsonFlattener.flattenAsMap(it.content.toJson())
             map.keys.forEach { key -> entriesMap[key] = (entriesMap[key] ?: 0) + 1 }
+            messageClassifier.getMessageHandler(it.content)
         }
-        entriesMap.forEach { key, count -> println("---- $key\t\t$count") }
+//        entriesMap.forEach { key, count -> println("---- $key\t\t$count") }
+        println()
     }
 
     fun startMessageParse(json: String) {
