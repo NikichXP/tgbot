@@ -1,20 +1,19 @@
 package com.nikichxp.tgbot.controller
 
-import com.nikichxp.tgbot.entity.UnparsedMessage
+import com.nikichxp.tgbot.service.MessageParser
 import org.bson.Document
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class InputController(
-    private val mongoTemplate: MongoTemplate
+    private val messageParser: MessageParser
 ) {
 
     @PostMapping("/handle")
     fun handle(@RequestBody body: Document): String {
-        mongoTemplate.save(UnparsedMessage(body))
-        return body.toJson()
+        messageParser.proceedRawData(body)
+        return "ok"
     }
 }
