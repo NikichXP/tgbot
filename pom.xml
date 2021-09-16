@@ -26,6 +26,12 @@
             <artifactId>json-flattener</artifactId>
             <version>0.12.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.29</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

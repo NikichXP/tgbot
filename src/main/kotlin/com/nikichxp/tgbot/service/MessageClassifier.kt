@@ -1,54 +1,42 @@
 package com.nikichxp.tgbot.service
 
-import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.MessageInteractionResult
-import com.nikichxp.tgbot.util.listUpdated
-import org.bson.Document
+import com.nikichxp.tgbot.entity.UpdateMarker
+import com.nikichxp.tgbot.util.getMarkers
 import org.springframework.stereotype.Component
+import java.lang.IllegalArgumentException
 
 @Component
 class MessageClassifier(
-    private val handlers: List<UpdateHandler>
+    handlers: List<UpdateHandler>
 ) {
 
-//    fun getMessageHandler(document: Document) {
-//        val data = JsonFlattener(document.toJson()).flattenAsMap()
-//        val supportedHandlers = handlers.filter { it.canHandle(document, data) }
-//        if (supportedHandlers.size == 1) {
-//            supportedHandlers.first().getResult(document)
-//        } else {
-//            println("compatible handler count != 1: " + supportedHandlers.map { it::class.java.name })
-//        }
-//        println()
-//    }
+    private val handlerMarkers = handlers.associateBy { it.getMarkers() }
 
     fun proceedUpdate(update: Update) {
-        val supportedHandlers = handlers.filter { it.canHandle(update) }
-        if (supportedHandlers.size == 1) {
-            supportedHandlers.first().getResult(update)
-        } else {
-            println("compatible handler count != 1: " + supportedHandlers.map { it::class.java.name })
-        }
+        val handler = handlerMarkers[update.getMarkers()]
+            ?: throw IllegalArgumentException("cant proceed message cause no handler for ${update.getMarkers()} found")
+        handler.getResult(update) // then -> proceed results and give someone some karma
     }
 
 }
 
-// TODO weight of the handler - default is 0, most precise = 10000
 interface UpdateHandler {
-    fun canHandle(update: Update): Boolean
+    fun getMarkers(): Set<UpdateMarker>
     fun getResult(update: Update): MessageInteractionResult
 }
 
 @Component
 class TextUpdateHandler : UpdateHandler {
-    override fun canHandle(update: Update): Boolean {
-        val updated = update.listUpdated()
-
-        return true
+    override fun getMarkers(): Set<UpdateMarker> {
+        return setOf(UpdateMarker.MESSAGE_WITH_TEXT)
     }
 
     override fun getResult(update: Update): MessageInteractionResult {
+
+
+
         return MessageInteractionResult("")
     }
 }

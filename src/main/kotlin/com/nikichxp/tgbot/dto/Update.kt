@@ -22,22 +22,3 @@ data class Update(
     @JsonProperty("poll") val poll: Poll? = null,
     @JsonProperty("poll_answer") val pollAnswer: PollAnswer? = null
 )
-
-/**
- * Generate list of key-value from start payload.
- * For more info {@link https://core.telegram.org/bots#deep-linking}
- */
-fun Update.getStartPayload(delimiter: String = "-"): List<Pair<String, String>> {
-    return message?.let {
-        val parameters = it.text?.substringAfter("start ", "")
-        if (parameters == null || parameters.isEmpty()) {
-            return emptyList()
-        }
-
-        val split = parameters.split("&")
-        split.map {
-            val keyValue = it.split(delimiter)
-            Pair(keyValue[0], keyValue[1])
-        }
-    } ?: emptyList()
-}
