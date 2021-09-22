@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.stream
 import org.springframework.stereotype.Service
 
 @Service
-class MessageParser(
+class RawMessageParser(
     private val objectMapper: ObjectMapper,
     private val mongoTemplate: MongoTemplate,
     private val messageClassifier: MessageClassifier

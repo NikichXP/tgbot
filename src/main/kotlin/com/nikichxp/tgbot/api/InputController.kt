@@ -1,6 +1,6 @@
-package com.nikichxp.tgbot.controller
+package com.nikichxp.tgbot.api
 
-import com.nikichxp.tgbot.service.MessageParser
+import com.nikichxp.tgbot.service.RawMessageParser
 import org.bson.Document
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class InputController(
-    private val messageParser: MessageParser
+    private val rawMessageParser: RawMessageParser
 ) {
 
     @PostMapping("/handle")
     fun handle(@RequestBody body: Document): String {
-        messageParser.proceedRawData(body)
+        rawMessageParser.proceedRawData(body)
         return "ok"
     }
 }

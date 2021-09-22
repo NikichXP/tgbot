@@ -14,6 +14,7 @@ class MessageClassifier(
 
     private val handlerMarkers = handlers.associateBy { it.getMarkers() }
 
+    // TODO code here
     fun proceedUpdate(update: Update) {
         val handler = handlerMarkers[update.getMarkers()]
             ?: throw IllegalArgumentException("cant proceed message cause no handler for ${update.getMarkers()} found")
@@ -34,8 +35,6 @@ class TextUpdateHandler : UpdateHandler {
     }
 
     override fun getResult(update: Update): MessageInteractionResult {
-
-
 
         return MessageInteractionResult("")
     }
