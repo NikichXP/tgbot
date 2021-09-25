@@ -12,7 +12,7 @@ class TextClassifier {
 
     init {
         val content: String = try {
-            File(System.getProperty("user.dir") + "/src/main/resources/dictionary.yawml").readText()
+            File(System.getProperty("user.dir") + "/src/main/resources/dictionary.yaml").readText()
         } catch (e: Exception) {
             ""
         }
@@ -23,10 +23,23 @@ class TextClassifier {
         negative = obj["negative"] ?: listOf()
     }
 
+    // TODO когда-нибудь я доберусь сюда и будет збс определение силы эмоции человека
+    //      может даже с машинным обучением (нет)
     fun getReaction(text: String): Double {
+        val trimText = text.trim()
+        positive.forEach {
+            if (trimText.startsWith(it)) {
+                return 1.0
+            }
+        }
+        negative.forEach {
+            if (trimText.startsWith(it)) {
+                return -1.0
+            }
+        }
         return when {
-            text.trim().startsWith("+ ") -> 1.0
-            text.trim().startsWith("- ") -> -1.0
+            trimText.startsWith('+') -> 1.0
+            trimText.startsWith('-') -> -1.0
             else -> 0.0
         }
     }
