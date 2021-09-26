@@ -11,6 +11,8 @@ import javax.annotation.PostConstruct
 
 enum class UpdateMarker(val predicate: Function<Update, Any?>) {
 
+    MESSAGE_IN_GROUP({ it.message?.chat?.id?.let { i -> i < 0 } }),
+    MESSAGE_IN_CHAT({ it.message?.chat?.id?.let { i -> i > 0 } }),
     MESSAGE({ it.message }),
     EDIT_MESSAGE({ it.editedMessage }),
 

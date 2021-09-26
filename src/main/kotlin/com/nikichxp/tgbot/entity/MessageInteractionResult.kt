@@ -1,23 +1,25 @@
 package com.nikichxp.tgbot.entity
 
+import com.nikichxp.tgbot.dto.User
+
 data class MessageInteractionResult(
-    val users: MutableMap<Long, InteractionRole>,
-    val type: InteractionType,
+    val users: MutableMap<User, InteractionRole>,
+    val interactionType: InteractionType,
     val power: Double = .0
 ) {
 
     constructor(
-        users: MutableMap<Long, InteractionRole>,
+        users: MutableMap<User, InteractionRole>,
         power: Double = .0
     ) : this(
         users = users, power = power,
-        type = if (power == 0.0) InteractionType.NONE else InteractionType.RATING
+        interactionType = if (power == 0.0) InteractionType.NONE else InteractionType.RATING
     )
 
     companion object {
-        fun emptyFrom(userId: Long): MessageInteractionResult {
+        fun emptyFrom(user: User): MessageInteractionResult {
             return MessageInteractionResult(
-                mutableMapOf(userId to InteractionRole.LIKED),
+                mutableMapOf(user to InteractionRole.NONE),
                 .0
             )
         }
@@ -26,9 +28,9 @@ data class MessageInteractionResult(
 }
 
 enum class InteractionRole {
-    LIKED, TARGET
+    NONE, LIKED, TARGET
 }
 
 enum class InteractionType {
-    RATING, NONE // TODO ban, etc in the future
+    NONE, RATING // TODO ban, etc in the future
 }

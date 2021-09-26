@@ -1,16 +1,20 @@
 package com.nikichxp.tgbot.service
 
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.dto.User
 import com.nikichxp.tgbot.entity.InteractionRole
+import com.nikichxp.tgbot.entity.InteractionType
 import com.nikichxp.tgbot.entity.MessageInteractionResult
 import com.nikichxp.tgbot.entity.UpdateMarker
+import com.nikichxp.tgbot.service.actions.LikedMessageService
 import com.nikichxp.tgbot.util.getMarkers
 import org.springframework.stereotype.Component
 import java.lang.IllegalArgumentException
 
 @Component
 class MessageClassifier(
-    handlers: List<UpdateHandler>
+    handlers: List<UpdateHandler>,
+    private val likedMessageService: LikedMessageService
 ) {
 
     private val handlerMarkers = handlers.associateBy { it.getMarkers() }
@@ -19,7 +23,18 @@ class MessageClassifier(
         val handler = handlerMarkers[update.getMarkers()]
             ?: throw IllegalArgumentException("cant proceed message cause no handler for ${update.getMarkers()} found")
         val result = handler.getResult(update) // then -> proceed results and give someone some karma
-        // TODO code here
+
+        // тут какой прикол, сейчас же я всё делаю чисто для бота с лайками
+        // потому для MVP нужен только этот функционал
+        // но потом я тут добавлю определение хендлеров и всё такое что бы делать разные штуки
+        // СНАЧАЛА MVP
+
+        when (result.interactionType) {
+            InteractionType.RATING -> likedMessageService.changeRating(result)
+            InteractionType.NONE -> {
+                /* nothing to do */
+            }
+        }
     }
 
 }
@@ -52,10 +67,10 @@ class TextUpdateHandler(
     }
 }
 
-fun getMessageAuthorId(update: Update): Long {
-    return update.message?.from?.id!!
+fun getMessageAuthorId(update: Update): User {
+    return update.message?.from!!
 }
 
-fun getMessageReplyTarget(update: Update): Long? {
-    return update.message?.replyToMessage?.from?.id
+fun getMessageReplyTarget(update: Update): User? {
+    return update.message?.replyToMessage?.from
 }
