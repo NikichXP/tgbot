@@ -3,7 +3,6 @@ package com.nikichxp.tgbot.service
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.dto.User
 import com.nikichxp.tgbot.entity.InteractionRole
-import com.nikichxp.tgbot.entity.InteractionType
 import com.nikichxp.tgbot.entity.MessageInteractionResult
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.service.actions.LikedMessageService
@@ -29,9 +28,9 @@ class MessageClassifier(
         // но потом я тут добавлю определение хендлеров и всё такое что бы делать разные штуки
         // СНАЧАЛА MVP
 
-        when (result.interactionType) {
-            InteractionType.RATING -> likedMessageService.changeRating(result)
-            InteractionType.NONE -> {
+        when {
+            result.isLikeInteraction() -> likedMessageService.changeRating(result)
+            result.isNoInteraction() -> {
                 /* nothing to do */
             }
         }
@@ -54,12 +53,14 @@ class TextUpdateHandler(
 
     override fun getResult(update: Update): MessageInteractionResult {
         val messageAuthor = getMessageAuthorId(update)
-        val replyTarget = getMessageReplyTarget(update) ?: return MessageInteractionResult.emptyFrom(messageAuthor)
+        val replyTarget = getMessageReplyTarget(update)
+            ?: return MessageInteractionResult.emptyFrom(update, messageAuthor)
 
         val reaction = textClassifier.getReaction(update.message!!.text!!)
         return MessageInteractionResult(
+            update,
             mutableMapOf(
-                messageAuthor to InteractionRole.LIKED,
+                messageAuthor to InteractionRole.ACTOR,
                 replyTarget to InteractionRole.TARGET
             ),
             reaction

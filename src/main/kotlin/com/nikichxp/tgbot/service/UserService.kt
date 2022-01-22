@@ -7,12 +7,24 @@ import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service
 
 @Service
-class UserInfoProvider(
+class UserService(
     private val mongoTemplate: MongoTemplate
 ) {
 
     fun getUserInfo(user: User): UserInfo {
         return mongoTemplate.findById(user.id) ?: UserInfo(user).also { mongoTemplate.insert(user) }
+    }
+
+    fun modifyUser(id: Long, action: (UserInfo) -> Unit) {
+        val userInfo: UserInfo = mongoTemplate.findById(id) ?: throw IllegalArgumentException("user not found")
+        action(userInfo)
+        mongoTemplate.save(userInfo)
+    }
+
+    fun modifyUser(user: User, action: (UserInfo) -> Unit) {
+        val userInfo = mongoTemplate.findById(user.id) ?: UserInfo(user)
+        action(userInfo)
+        mongoTemplate.save(userInfo)
     }
 
 }

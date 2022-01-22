@@ -28,6 +28,14 @@ class TgOperations(
         println(response)
     }
 
+    /**
+     * Send message to chat
+     * @param chatId can be user/group id, or @nickname
+     */
+    fun sendMessage(chatId: String, text: String) {
+
+    }
+
     private fun generateUrl(): String = "https://${appConfig.appName}.herokuapp.com/handle"
 
 }
