@@ -5,6 +5,8 @@ import com.nikichxp.tgbot.dto.User
 import com.nikichxp.tgbot.entity.InteractionRole
 import com.nikichxp.tgbot.entity.MessageInteractionResult
 import com.nikichxp.tgbot.entity.UpdateMarker
+import com.nikichxp.tgbot.entity.UpdateMarker.MESSAGE_IN_CHAT
+import com.nikichxp.tgbot.entity.UpdateMarker.MESSAGE_WITH_TEXT
 import com.nikichxp.tgbot.service.actions.LikedMessageService
 import com.nikichxp.tgbot.util.getMarkers
 import org.springframework.stereotype.Component
@@ -42,6 +44,18 @@ interface UpdateHandler {
     fun getMarkers(): Set<UpdateMarker>
     fun getResult(update: Update): MessageInteractionResult
 }
+
+//@Component
+//class PrivateMessageUpdateMarker : UpdateHandler {
+//    override fun getMarkers(): Set<UpdateMarker> {
+//        return setOf(MESSAGE_IN_CHAT, MESSAGE_WITH_TEXT)
+//    }
+//
+//    override fun getResult(update: Update): MessageInteractionResult {
+//        MessageInteractionResult.
+//    }
+//
+//}
 
 @Component
 class TextUpdateHandler(
