@@ -24,7 +24,7 @@ data class MessageInteractionResult(
     fun getTarget(): User? = users.filterValues { it == InteractionRole.TARGET }.keys.firstOrNull()
 
     fun isNoInteraction(): Boolean = getTarget() == null
-    fun isLikeInteraction(): Boolean = getTarget() != null
+    fun isLikeInteraction(): Boolean = getTarget() != null && power != 0.0
 
     companion object {
         fun emptyFrom(update: Update, user: User): MessageInteractionResult {

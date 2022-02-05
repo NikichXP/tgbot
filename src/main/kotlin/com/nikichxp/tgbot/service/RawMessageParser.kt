@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class RawMessageParser(
     private val objectMapper: ObjectMapper,
     private val mongoTemplate: MongoTemplate,
-    private val messageClassifier: MessageClassifier,
+    private val updateRouter: UpdateRouter,
     private val currentUpdateProvider: CurrentUpdateProvider
 ) {
 
@@ -32,11 +32,12 @@ class RawMessageParser(
 
             if (source == control || flatSrc.keys == flatCtr.keys) {
                 currentUpdateProvider.update = update
-                messageClassifier.proceedUpdate(update)
+                updateRouter.proceedUpdate(update)
             } else {
                 mongoTemplate.save(UnparsedMessage(body))
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             mongoTemplate.save(UnparsedMessage(body))
         }
     }

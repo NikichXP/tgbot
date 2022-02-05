@@ -1,5 +1,8 @@
 package com.nikichxp.tgbot.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.context.annotation.Bean
@@ -16,5 +19,10 @@ class AppConfig {
     @Bean
     fun restTemplate() = RestTemplateBuilder()
         .build()!!
+
+    @Bean
+    fun objectMapper() = ObjectMapper()
+        .registerKotlinModule()
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 
 }
