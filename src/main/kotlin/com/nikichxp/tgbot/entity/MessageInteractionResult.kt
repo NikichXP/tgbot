@@ -26,16 +26,6 @@ data class MessageInteractionResult(
     fun isNoInteraction(): Boolean = getTarget() == null
     fun isLikeInteraction(): Boolean = getTarget() != null && power != 0.0
 
-    companion object {
-        fun emptyFrom(update: Update, user: User): MessageInteractionResult {
-            return MessageInteractionResult(
-                update,
-                mutableMapOf(user to InteractionRole.ACTOR),
-                .0
-            )
-        }
-    }
-
 }
 
 enum class InteractionRole {

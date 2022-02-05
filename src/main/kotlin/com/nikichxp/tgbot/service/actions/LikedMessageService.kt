@@ -34,7 +34,7 @@ class LikedMessageService(
     }
 
     private fun calculateKarmaDiff(actor: UserInfo, target: User, interaction: MessageInteractionResult): Double {
-        return 1 + (actor.rating / 10)
+        return (1 + (actor.rating / 10)) * interaction.power
     }
 
     fun getUserPrintName(user: User): String {
