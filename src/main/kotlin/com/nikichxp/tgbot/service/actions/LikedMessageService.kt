@@ -27,7 +27,7 @@ class LikedMessageService(
         val diff = calculateKarmaDiff(actorInfo, target, interaction)
         val result = AtomicReference(0.0)
         userService.modifyUser(target) {
-            it.rating += diff
+            it.rating = BigDecimal.valueOf(it.rating + diff).setScale(1).toDouble()
             result.set(it.rating)
         }
         val text = "${getUserPrintName(actor)} changed karma of ${getUserPrintName(target)} (${result.get()})"
@@ -35,8 +35,7 @@ class LikedMessageService(
     }
 
     private fun calculateKarmaDiff(actor: UserInfo, target: User, interaction: MessageInteractionResult): Double {
-        val basicRate = (1 + (actor.rating / 10)) * interaction.power
-        return BigDecimal.valueOf(basicRate).setScale(1).toDouble()
+        return (1 + (actor.rating / 10)) * interaction.power
     }
 
     fun getUserPrintName(user: User): String {
