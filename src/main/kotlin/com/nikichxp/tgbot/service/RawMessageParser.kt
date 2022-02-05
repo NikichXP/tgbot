@@ -22,7 +22,6 @@ class RawMessageParser(
 
     fun proceedRawData(body: Document) {
         val source = body.toJson()
-        logger.info("---- Processing JSON: $source")
         try {
             val update = objectMapper.readValue(source, Update::class.java)
             val control = objectMapper.writeValueAsString(update)

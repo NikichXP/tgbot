@@ -8,6 +8,7 @@ import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.UserService
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.util.concurrent.atomic.AtomicReference
 
 @Service
@@ -34,7 +35,8 @@ class LikedMessageService(
     }
 
     private fun calculateKarmaDiff(actor: UserInfo, target: User, interaction: MessageInteractionResult): Double {
-        return (1 + (actor.rating / 10)) * interaction.power
+        val basicRate = (1 + (actor.rating / 10)) * interaction.power
+        return BigDecimal.valueOf(basicRate).setScale(1).toDouble()
     }
 
     fun getUserPrintName(user: User): String {
