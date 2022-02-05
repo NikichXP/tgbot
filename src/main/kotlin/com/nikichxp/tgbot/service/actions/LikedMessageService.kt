@@ -9,6 +9,7 @@ import com.nikichxp.tgbot.service.UserService
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.concurrent.atomic.AtomicReference
 
 @Service
@@ -28,7 +29,7 @@ class LikedMessageService(
         val result = AtomicReference(0.0)
         userService.modifyUser(target) {
             val resultRating = it.rating + diff
-            it.rating = BigDecimal.valueOf(resultRating).setScale(1).toDouble()
+            it.rating = BigDecimal.valueOf(resultRating).setScale(1, RoundingMode.HALF_UP).toDouble()
             result.set(it.rating)
         }
         val text = "${getUserPrintName(actor)} changed karma of ${getUserPrintName(target)} (${result.get()})"
