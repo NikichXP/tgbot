@@ -6,7 +6,6 @@ import com.nikichxp.tgbot.entity.MessageInteractionResult
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.UserService
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -14,10 +13,10 @@ import java.util.concurrent.atomic.AtomicReference
 
 @Service
 class LikedMessageService(
-    private val mongoTemplate: MongoTemplate,
     private val userService: UserService,
     private val currentUpdateProvider: CurrentUpdateProvider,
-    private val tgOperations: TgOperations
+    private val tgOperations: TgOperations,
+    private val likedHistoryService: LikedHistoryService
 ) {
 
     // TODO save history of karma givers
@@ -37,6 +36,8 @@ class LikedMessageService(
     }
 
     private fun calculateKarmaDiff(actor: UserInfo, target: User, interaction: MessageInteractionResult): Double {
+        val messageId = currentUpdateProvider.update?.message?.messageId ?: throw IllegalStateException()
+        likedHistoryService.report(actor.id, target.id, messageId)
         return (1 + (actor.rating / 10)) * interaction.power
     }
 
