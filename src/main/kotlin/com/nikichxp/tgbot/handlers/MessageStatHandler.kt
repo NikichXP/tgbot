@@ -85,10 +85,10 @@ class MessageStatHandler(
 
 class UserStat {
     @Id
-    val date = LocalDate.now().toString()
-    private val userToCountMap = mutableMapOf<Long, MutableMap<Long, Int>>()
-    val userNames = mutableMapOf<Long, String>()
-    val hasReport = false
+    var date = LocalDate.now().toString()
+    var userToCountMap = mutableMapOf<Long, MutableMap<Long, Int>>()
+    var userNames = mutableMapOf<Long, String>()
+    var hasReport = false
 
     fun processNewMessage(chatId: Long, userId: Long, userName: String) {
         val map = userToCountMap[chatId] ?: mutableMapOf<Long, Int>().also { userToCountMap[chatId] = it }
