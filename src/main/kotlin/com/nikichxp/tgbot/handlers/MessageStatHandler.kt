@@ -12,10 +12,8 @@ import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.findById
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
-import org.springframework.data.mongodb.core.update
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import java.lang.StringBuilder
 import java.time.LocalDate
 import javax.annotation.PostConstruct
 
@@ -88,22 +86,22 @@ class MessageStatHandler(
 class UserStat {
     @Id
     val date = LocalDate.now().toString()
-    private val userToCountMap = mutableMapOf<Pair<Long, Long>, Int>()
+    private val userToCountMap = mutableMapOf<Long, MutableMap<Long, Int>>()
     val userNames = mutableMapOf<Long, String>()
     val hasReport = false
 
     fun processNewMessage(chatId: Long, userId: Long, userName: String) {
-        val id = chatId to userId
-        userToCountMap[id] = (userToCountMap[id] ?: 0) + 1
+        val map = userToCountMap[chatId] ?: mutableMapOf<Long, Int>().also { userToCountMap[chatId] = it }
+        map[userId] = (map[userId] ?: 0) + 1
         userNames[userId] = userName
     }
 
-    fun getChatIds() = userToCountMap.keys.map { it.first }.distinct()
+    fun getChatIds() = userToCountMap.keys
 
     /**
      * Get statistics for chat: userId to count of messages
      */
     fun getStatsForChat(chatId: Long): Map<Long, Int> =
-        userToCountMap.filterKeys { it.first == chatId }.mapKeys { it.key.second }
+        userToCountMap[chatId] ?: mapOf()
 
 }
