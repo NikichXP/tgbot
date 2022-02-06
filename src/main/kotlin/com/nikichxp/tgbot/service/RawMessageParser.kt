@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
@@ -35,6 +36,9 @@ class RawMessageParser(
             } else {
                 mongoTemplate.save(UnparsedMessage(body))
             }
+        } catch (parseException: UnrecognizedPropertyException) {
+            logger.warn("detected unparsed message, see db for more info")
+            mongoTemplate.save(UnparsedMessage(body))
         } catch (e: Exception) {
             e.printStackTrace()
             mongoTemplate.save(UnparsedMessage(body))
