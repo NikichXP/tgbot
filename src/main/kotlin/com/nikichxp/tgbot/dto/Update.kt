@@ -5,6 +5,8 @@ import com.nikichxp.tgbot.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.dto.polls.Poll
 import com.nikichxp.tgbot.dto.polls.PollAnswer
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.data.annotation.Id
 
 data class Update(
@@ -21,4 +23,10 @@ data class Update(
     @JsonProperty("pre_checkout_query") val preCheckoutQuery: PreCheckoutQuery? = null,
     @JsonProperty("poll") val poll: Poll? = null,
     @JsonProperty("poll_answer") val pollAnswer: PollAnswer? = null
-)
+) {
+
+    fun toJson(): String {
+        return ObjectMapper().registerKotlinModule().writeValueAsString(this)
+    }
+
+}

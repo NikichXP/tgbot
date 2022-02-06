@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.entity.MessageInteractionResult
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.UserService
+import com.nikichxp.tgbot.util.UserFormatter.getUserPrintName
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -39,14 +40,6 @@ class LikedMessageService(
         val messageId = currentUpdateProvider.update?.message?.messageId ?: throw IllegalStateException()
         likedHistoryService.report(actor.id, target.id, messageId)
         return (1 + (actor.rating / 10)) * interaction.power
-    }
-
-    fun getUserPrintName(user: User): String {
-        return when {
-            user.username != null -> user.username
-            user.lastName != null -> "${user.firstName} ${user.lastName}"
-            else -> user.firstName
-        }
     }
 
     // TODO this should be a part of some properties file with errors

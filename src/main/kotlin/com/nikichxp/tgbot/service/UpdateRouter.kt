@@ -1,9 +1,10 @@
 package com.nikichxp.tgbot.service
 
-import com.nikichxp.tgbot.core.DuplicatedRatingError
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.error.ExpectedError
 import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.util.getMarkers
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
@@ -11,6 +12,7 @@ class UpdateRouter(
     private val handlers: List<UpdateHandler>
 ) {
 
+    private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun proceedUpdate(update: Update) {
         val handlerList = getSupportedMarkerHandlers(update)
@@ -20,8 +22,10 @@ class UpdateRouter(
         handlerList.forEach {
             try {
                 it.handleUpdate(update)
-            } catch (dre: DuplicatedRatingError) {
-                // ignore it
+            } catch (expected: ExpectedError) {
+                if (expected.printJson) {
+                    logger.warn("Handler ${it::class.java.simpleName} didn't handled json: ${update.toJson()}")
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }

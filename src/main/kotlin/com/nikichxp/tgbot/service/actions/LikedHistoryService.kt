@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.service.actions
 
-import com.nikichxp.tgbot.core.DuplicatedRatingError
+import com.nikichxp.tgbot.error.DuplicatedRatingError
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Component
