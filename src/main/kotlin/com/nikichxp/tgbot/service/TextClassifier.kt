@@ -8,6 +8,7 @@ import java.io.File
 class TextClassifier {
 
     private val positive: List<String>
+    private val positiveDefined: List<String>
     private val negative: List<String>
 
     init {
@@ -20,6 +21,7 @@ class TextClassifier {
         val yaml = Yaml()
         val obj = yaml.load<Map<String, List<String>>>(content)
         positive = obj["positive"]?.map { it.lowercase() } ?: listOf()
+        positiveDefined = obj["positive_defined"]?.map { it.lowercase() } ?: listOf()
         negative = obj["negative"]?.map { it.lowercase() } ?: listOf()
     }
 
@@ -35,6 +37,11 @@ class TextClassifier {
         negative.forEach {
             if (trimText.startsWith(it)) {
                 return -1.0
+            }
+        }
+        positiveDefined.forEach {
+            if (trimText == it) {
+                return 1.0
             }
         }
         return when {
