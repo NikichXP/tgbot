@@ -36,15 +36,16 @@ class MessageStatHandler(
 
     @PostConstruct
     fun init() {
-        this.userStat = mongoTemplate.findById(LocalDate.now().toString()) ?: UserStat()
+        this.userStat = mongoTemplate.findById(getDateKey()) ?: UserStat()
         mongoTemplate.find<UserStat>(Query.query(Criteria.where("hasReport").`is`(false)))
+            .filter { it.date != getDateKey() }
             .forEach { reportInChat(it) }
     }
 
     @Scheduled(fixedDelay = 1000 * 10)
     fun saveData() {
         mongoTemplate.save(userStat)
-        if (LocalDate.now().toString() != userStat.date) {
+        if (getDateKey(LocalDate.now()) != userStat.date) {
             reportInChat(userStat)
             userStat = UserStat()
         }
@@ -87,9 +88,11 @@ class MessageStatHandler(
     }
 }
 
+fun getDateKey(date: LocalDate = LocalDate.now()) = date.toString()
+
 class UserStat {
     @Id
-    var date = LocalDate.now().toString()
+    var date = getDateKey()
     var userToCountMap = mutableMapOf<Long, MutableMap<Long, Int>>()
     var userNames = mutableMapOf<Long, String>()
     var hasReport = false
