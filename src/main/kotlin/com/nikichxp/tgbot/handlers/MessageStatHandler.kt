@@ -41,7 +41,7 @@ class MessageStatHandler(
             .forEach { reportInChat(it) }
     }
 
-    @Scheduled(fixedDelay = 1000 * 60 * 5)
+    @Scheduled(fixedDelay = 1000 * 10)
     fun saveData() {
         mongoTemplate.save(userStat)
         if (LocalDate.now().toString() != userStat.date) {
