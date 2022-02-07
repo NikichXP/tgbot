@@ -19,14 +19,14 @@ class TextClassifier {
 
         val yaml = Yaml()
         val obj = yaml.load<Map<String, List<String>>>(content)
-        positive = obj["positive"] ?: listOf()
-        negative = obj["negative"] ?: listOf()
+        positive = obj["positive"]?.map { it.lowercase() } ?: listOf()
+        negative = obj["negative"]?.map { it.lowercase() } ?: listOf()
     }
 
     // TODO когда-нибудь я доберусь сюда и будет збс определение силы эмоции человека
     //      может даже с машинным обучением (нет)
     fun getReaction(text: String): Double {
-        val trimText = text.trim()
+        val trimText = text.trim().lowercase()
         positive.forEach {
             if (trimText.startsWith(it)) {
                 return 1.0
