@@ -55,10 +55,14 @@ class MessageStatHandler(
         for (chatId in stats.getChatIds()) {
             val message = StringBuilder()
             message.append("Statistics for ${stats.date}:\n")
-            for ((userId, count) in stats.getStatsForChat(chatId)) {
+            var report = false
+            for ((userId, count) in stats.getStatsForChat(chatId).toList().sortedByDescending { it.second }) {
+                report = true
                 message.append("${stats.userNames[userId]} - $count messages\n")
             }
-            tgOperations.sendMessage(chatId.toString(), message.toString())
+            if (report) {
+                tgOperations.sendMessage(chatId.toString(), message.toString())
+            }
         }
         mongoTemplate.updateFirst(
             Query.query(Criteria.where("_id").`is`(stats.date)),
