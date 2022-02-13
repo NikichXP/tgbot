@@ -18,7 +18,7 @@ class LogAllMessagesHandler(
     @Value("\${ADMIN_USER:0}")
     private var adminUser: Long = 0
 
-    private val loggingToAllSet = mutableSetOf<Pair<Long, Boolean>>()
+    private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     override fun getMarkers(): Set<UpdateMarker> {
@@ -31,24 +31,29 @@ class LogAllMessagesHandler(
             chatId ?: return@also
             when (text) {
                 "/logging this on" -> {
-                    loggingToAllSet.add(chatId to false)
+                    loggingToModeMap[chatId] = false
                 }
                 "/logging" -> {
                     tgOperations.sendMessage(chatId.toString(), "[INFO] Logging status is: "
-                            + (loggingToAllSet.find { it.first == chatId }?.second ?: false)
+                            + (loggingToModeMap[chatId] ?: false)
                     )
                 }
                 "/logging this off" -> {
-                    loggingToAllSet.removeIf { it.first == chatId }
+                    loggingToModeMap.remove(chatId)
+                }
+                "/logging all on" -> {
+                    if (chatId == adminUser) {
+                        loggingToModeMap[chatId] = true
+                    }
                 }
             }
         }
 
-        if (loggingToAllSet.isNotEmpty()) {
+        if (loggingToModeMap.isNotEmpty()) {
             logger.info(objectMapper.writeValueAsString(update))
         }
-        loggingToAllSet.find { it.first == chatId }?.let {
-            if (!it.second) {
+        loggingToModeMap[chatId]?.let {
+            if (!it) {
                 if (update.message?.text?.startsWith(prefix) == false)
                     tgOperations.sendMessage(chatId.toString(), prefix + objectMapper.writeValueAsString(update))
             }
