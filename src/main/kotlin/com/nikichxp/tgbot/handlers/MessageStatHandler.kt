@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.annotation.PostConstruct
 
 /*
@@ -45,7 +46,7 @@ class MessageStatHandler(
     @Scheduled(fixedDelay = 1000 * 10)
     fun saveData() {
         mongoTemplate.save(userStat)
-        if (getDateKey(LocalDate.now()) != userStat.date) {
+        if (getDateKey() != userStat.date) {
             reportInChat(userStat)
             userStat = UserStat()
         }
@@ -88,7 +89,7 @@ class MessageStatHandler(
     }
 }
 
-fun getDateKey(date: LocalDate = LocalDate.now()) = date.toString()
+fun getDateKey(date: LocalDate = LocalDateTime.now().toLocalDate()) = date.toString()
 
 class UserStat {
     @Id
