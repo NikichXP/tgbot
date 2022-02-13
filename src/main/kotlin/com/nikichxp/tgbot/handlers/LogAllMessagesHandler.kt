@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.service.TgOperations
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
@@ -13,6 +14,9 @@ class LogAllMessagesHandler(
     private val tgOperations: TgOperations,
     private val objectMapper: ObjectMapper
 ) : UpdateHandler {
+
+    @Value("\${ADMIN_USER:0}")
+    private var adminUser: Long = 0
 
     private val loggingToAllSet = mutableSetOf<Pair<Long, Boolean>>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
