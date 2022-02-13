@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class GroupChatKarmaHandler(
-    private val textClassifier: TextClassifier, private val likedMessageService: LikedMessageService
+    private val textClassifier: TextClassifier,
+    private val likedMessageService: LikedMessageService
 ) : UpdateHandler {
     override fun getMarkers(): Set<UpdateMarker> {
         return setOf(MESSAGE_WITH_TEXT, MESSAGE_IN_GROUP)
