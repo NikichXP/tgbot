@@ -1,9 +1,10 @@
 package com.nikichxp.tgbot.handlers
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.dto.Message
+import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.UpdateMarker
+import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.service.TgOperations
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -12,7 +13,8 @@ import org.springframework.stereotype.Component
 @Component
 class LogAllMessagesHandler(
     private val tgOperations: TgOperations,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val updateProvider: CurrentUpdateProvider
 ) : UpdateHandler {
 
     @Value("\${ADMIN_USER:0}")
@@ -26,47 +28,64 @@ class LogAllMessagesHandler(
     }
 
     override fun handleUpdate(update: Update) {
-        val chatId = getContextChatId(update)
-        update.message?.text?.also { text ->
-            chatId ?: return@also
-            when (text) {
-                "/logging this on" -> {
+        val chatId = update.getContextChatId()
+
+        if (loggingToModeMap.isNotEmpty()) {
+            logger.info(objectMapper.writeValueAsString(update))
+        }
+        if (update.message?.text?.startsWith(prefix) == true) {
+            return
+        }
+        if (chatId != null) {
+            loggingToModeMap[chatId]?.let {
+                if (!it) {
+                    tgOperations.sendMessage(chatId.toString(), prefix + objectMapper.writeValueAsString(update))
+                }
+            }
+        }
+        loggingToModeMap.entries.filter { it.value }.forEach {
+            tgOperations.sendMessage(it.key.toString(), prefix + objectMapper.writeValueAsString(update))
+        }
+    }
+
+    fun configureLogging(query: List<String>): Boolean {
+        val chatId = updateProvider.update?.getContextChatId() ?: throw NotHandledSituationError()
+
+        fun notify(text: String) = tgOperations.sendMessage(chatId.toString(), prefix + text)
+
+        val menu = QueryAnalyzer {
+            end {
+                notify("Logging status is: " + (loggingToModeMap[chatId] ?: false))
+            }
+            nest("this") {
+                on("on") {
                     loggingToModeMap[chatId] = false
+                    notify("logging status is set to on")
                 }
-                "/logging" -> {
-                    tgOperations.sendMessage(chatId.toString(), "[INFO] Logging status is: "
-                            + (loggingToModeMap[chatId] ?: false)
-                    )
-                }
-                "/logging this off" -> {
+                on("off") {
                     loggingToModeMap.remove(chatId)
+                    notify("logging status is set to off")
                 }
-                "/logging all on" -> {
-                    if (chatId == adminUser) {
-                        loggingToModeMap[chatId] = true
+            }
+            nest("admin") {
+                nest("all") {
+                    on("on") {
+                        if (chatId == adminUser) {
+                            loggingToModeMap[chatId] = true
+                            notify("admin log on")
+                        } else {
+                            notify("no admin status found")
+                        }
+                    }
+                    on("off") {
+                        loggingToModeMap.remove(chatId)
+                        notify("logging status is set to off")
                     }
                 }
             }
         }
 
-        if (loggingToModeMap.isNotEmpty()) {
-            logger.info(objectMapper.writeValueAsString(update))
-        }
-        loggingToModeMap[chatId]?.let {
-            if (!it) {
-                if (update.message?.text?.startsWith(prefix) == false)
-                    tgOperations.sendMessage(chatId.toString(), prefix + objectMapper.writeValueAsString(update))
-            }
-        }
-    }
-
-    private fun getContextChatId(update: Update): Long? {
-        fun getChatId(message: Message?) = message?.chat?.id
-        return getChatId(update.message)
-            ?: getChatId(update.editedMessage)
-            ?: getChatId(update.editedChannelPost)
-            ?: getChatId(update.channelPost)
-            ?: getChatId(update.callbackQuery?.message)
+        return menu.process(query)
     }
 
     companion object {
@@ -74,3 +93,78 @@ class LogAllMessagesHandler(
     }
 
 }
+
+class QueryAnalyzer(private val processing: QueryAnalyzer.() -> Unit) {
+    private var endPoint: () -> Unit = {}
+    private val nests = mutableMapOf<String, QueryAnalyzer>()
+    private val handlers = mutableMapOf<String, () -> Unit>()
+
+    init {
+        processing()
+    }
+
+    fun process(args: List<String>): Boolean {
+        if (args.isEmpty()) {
+            endPoint()
+            return true
+        }
+        if (args.size == 1) {
+            handlers[args.first()]?.also { it() } ?: return false
+            return true
+        }
+        nests[args.first()]?.run {
+            return process(args.drop(1))
+        }
+        return false
+    }
+
+    fun nest(directive: String, handler: QueryAnalyzer.() -> Unit) {
+        nests[directive] = QueryAnalyzer(handler)
+    }
+
+    fun on(pattern: String, action: () -> Unit) {
+        handlers[pattern] = action
+    }
+
+    fun end(action: () -> Unit) {
+        endPoint = action
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

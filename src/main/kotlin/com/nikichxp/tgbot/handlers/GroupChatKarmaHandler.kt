@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.entity.InteractionRole
 import com.nikichxp.tgbot.entity.MessageInteractionResult
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.entity.UpdateMarker.MESSAGE_IN_GROUP
-import com.nikichxp.tgbot.entity.UpdateMarker.MESSAGE_WITH_TEXT
+import com.nikichxp.tgbot.entity.UpdateMarker.HAS_TEXT
 import com.nikichxp.tgbot.service.TextClassifier
 import com.nikichxp.tgbot.service.actions.LikedMessageService
 import org.springframework.stereotype.Component
@@ -17,7 +17,7 @@ class GroupChatKarmaHandler(
     private val likedMessageService: LikedMessageService
 ) : UpdateHandler {
     override fun getMarkers(): Set<UpdateMarker> {
-        return setOf(MESSAGE_WITH_TEXT, MESSAGE_IN_GROUP)
+        return setOf(HAS_TEXT, MESSAGE_IN_GROUP)
     }
 
     override fun handleUpdate(update: Update) {

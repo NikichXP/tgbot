@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.nikichxp.tgbot.dto.payments.PreCheckoutQuery
 import com.nikichxp.tgbot.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.dto.polls.Poll
@@ -27,6 +28,16 @@ data class Update(
 
     fun toJson(): String {
         return ObjectMapper().registerKotlinModule().writeValueAsString(this)
+    }
+
+    @JsonIgnore
+    fun getContextChatId(): Long? {
+        fun getChatId(message: Message?) = message?.chat?.id
+        return getChatId(this.message)
+            ?: getChatId(this.editedMessage)
+            ?: getChatId(this.editedChannelPost)
+            ?: getChatId(this.channelPost)
+            ?: getChatId(this.callbackQuery?.message)
     }
 
 }
