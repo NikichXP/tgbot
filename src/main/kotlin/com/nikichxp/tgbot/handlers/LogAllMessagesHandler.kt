@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.service.TgOperations
+import com.nikichxp.tgbot.service.menu.CommandHandler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -15,7 +16,7 @@ class LogAllMessagesHandler(
     private val tgOperations: TgOperations,
     private val objectMapper: ObjectMapper,
     private val updateProvider: CurrentUpdateProvider
-) : UpdateHandler {
+) : UpdateHandler, CommandHandler {
 
     @Value("\${ADMIN_USER:0}")
     private var adminUser: Long = 0
@@ -48,7 +49,9 @@ class LogAllMessagesHandler(
         }
     }
 
-    fun configureLogging(query: List<String>): Boolean {
+    override fun isCommandSupported(command: String): Boolean = command == "/logging"
+
+    override fun processCommand(args: List<String>): Boolean {
         val chatId = updateProvider.update?.getContextChatId() ?: throw NotHandledSituationError()
 
         fun notify(text: String) = tgOperations.sendMessage(chatId.toString(), prefix + text)
@@ -85,12 +88,13 @@ class LogAllMessagesHandler(
             }
         }
 
-        return menu.process(query)
+        return menu.process(args)
     }
 
     companion object {
         const val prefix = "[logger]: "
     }
+
 
 }
 
