@@ -24,8 +24,8 @@ class ChatCommandsHandler(
             ?.processCommand(query.drop(1))
             ?: false
         if (!result) {
-            val chatId = update.getContextChatId()!!
-            tgOperations.sendMessage(chatId.toString(), "Unknown command")
+//            val chatId = update.getContextChatId()!!
+//            tgOperations.sendMessage(chatId.toString(), "Unknown command")
         } else {
             logger.info("chadId = ${update.getContextChatId()} :: successfully handled command ${update.message.text}")
         }
