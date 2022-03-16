@@ -16,7 +16,7 @@ class TopKarmaHandler(
     private val updateProvider: CurrentUpdateProvider,
     private val mongoTemplate: MongoTemplate
 ) : CommandHandler {
-    override fun isCommandSupported(command: String): Boolean = command == "/top"
+    override fun isCommandSupported(command: String): Boolean = command.lowercase() in listOf("/top", "/realtop")
 
     override fun processCommand(args: List<String>): Boolean {
         if (args.isNotEmpty()) {
