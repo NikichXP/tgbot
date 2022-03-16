@@ -1,10 +1,11 @@
-package com.nikichxp.tgbot.handlers
+package com.nikichxp.tgbot.handlers.commands
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
+import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.menu.CommandHandler
 import org.slf4j.LoggerFactory
