@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.pow
 
 @Service
 class LikedMessageService(
@@ -20,7 +21,6 @@ class LikedMessageService(
     private val likedHistoryService: LikedHistoryService
 ) {
 
-    // TODO save history of karma givers
     fun changeRating(interaction: MessageInteractionResult) {
         val actor = interaction.getActor()
         val actorInfo = userService.getUserInfo(actor)
@@ -28,23 +28,34 @@ class LikedMessageService(
         val diff = calculateKarmaDiff(actorInfo, target, interaction)
         val result = AtomicReference(0.0)
         userService.modifyUser(target) {
-            val resultRating = it.rating + diff
-            it.rating = BigDecimal.valueOf(resultRating).setScale(1, RoundingMode.HALF_UP).toDouble()
+            it.rating += diff
             result.set(it.rating)
         }
-        val text = "${getUserPrintName(actor)} changed karma of ${getUserPrintName(target)} (${result.get()})"
+        sendKarmaMsg(
+            actor = getUserPrintName(actor),
+            target = getUserPrintName(target),
+            actorKarma = actorInfo.rating,
+            targetKarma = result.get(),
+            diff = diff
+        )
+    }
+
+    private fun sendKarmaMsg(actor: String, target: String, actorKarma: Double, targetKarma: Double, diff: Double) {
+        val text = "$actor ($actorKarma) changed karma of $target ($targetKarma) Δ=$diff"
         tgOperations.sendMessage(currentUpdateProvider.update?.message?.chat?.id?.toString()!!, text)
     }
 
     private fun calculateKarmaDiff(actor: UserInfo, target: User, interaction: MessageInteractionResult): Double {
         val messageId = currentUpdateProvider.update?.message?.messageId ?: throw IllegalStateException()
         likedHistoryService.report(actor.id, target.id, messageId)
-        return (1 + (actor.rating / 10)) * interaction.power
+        val calculatedDiff = (1 + actor.rating.pow(powerMultiplier)) * interaction.power
+        return BigDecimal.valueOf(calculatedDiff).setScale(1, RoundingMode.HALF_UP).toDouble()
     }
 
     // TODO this should be a part of some properties file with errors
     companion object {
-        const val impossibleStateOfNoTarget =
+        private const val powerMultiplier = 0.4
+        private const val impossibleStateOfNoTarget =
             "[INT0001: no interaction target found when it is supposed to be a target]"
     }
 
