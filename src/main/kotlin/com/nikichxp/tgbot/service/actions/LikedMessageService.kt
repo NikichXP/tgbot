@@ -49,7 +49,7 @@ class LikedMessageService(
         val messageId = currentUpdateProvider.update?.message?.messageId ?: throw IllegalStateException()
         likedHistoryService.report(actor.id, target.id, messageId)
         val calculatedDiff = (1 + actor.rating.pow(powerMultiplier)) * interaction.power
-        return BigDecimal.valueOf(calculatedDiff).setScale(1, RoundingMode.HALF_UP).toDouble()
+        return BigDecimal.valueOf(calculatedDiff).setScale(3, RoundingMode.HALF_UP).toDouble()
     }
 
     // TODO this should be a part of some properties file with errors
