@@ -28,7 +28,7 @@ class LikedMessageService(
         val diff = calculateKarmaDiff(actorInfo, target, interaction)
         val result = AtomicReference(0.0)
         userService.modifyUser(target) {
-            it.rating += diff
+            it.rating = roundF(it.rating + diff)
             result.set(it.rating)
         }
         sendKarmaMsg(
@@ -49,8 +49,13 @@ class LikedMessageService(
         val messageId = currentUpdateProvider.update?.message?.messageId ?: throw IllegalStateException()
         likedHistoryService.report(actor.id, target.id, messageId)
         val calculatedDiff = (1 + actor.rating.pow(powerMultiplier)) * interaction.power
-        return BigDecimal.valueOf(calculatedDiff).setScale(3, RoundingMode.HALF_UP).toDouble()
+        return roundF(calculatedDiff)
     }
+
+    /**
+     * F suffix in name to not mismatch with Math.round(..) or anything like that
+     */
+    private fun roundF(value: Double) = BigDecimal.valueOf(value).setScale(3, RoundingMode.HALF_UP).toDouble()
 
     // TODO this should be a part of some properties file with errors
     companion object {
