@@ -10,8 +10,8 @@ class LikedHistoryService(
     private val mongoTemplate: MongoTemplate
 ) {
 
-    fun report(actorId: Long, targetId: Long, messageId: Long) {
-        val report = LikeReport(LikeReportId(actorId, targetId, messageId))
+    fun report(actorId: Long, targetId: Long, messageId: Long, power: Double) {
+        val report = LikeReport(LikeReportId(actorId, targetId, messageId), power)
         try {
             mongoTemplate.insert(report)
         } catch (e: Exception) {
@@ -22,4 +22,4 @@ class LikedHistoryService(
 }
 
 data class LikeReportId(val authorId: Long, val targetId: Long, val messageId: Long)
-data class LikeReport(@Id val id: LikeReportId, val date: Long = System.currentTimeMillis())
+data class LikeReport(@Id val id: LikeReportId, val power: Double? = null, val date: Long = System.currentTimeMillis())
