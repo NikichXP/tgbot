@@ -35,7 +35,7 @@ class MessageStatHandler(
 
     private lateinit var userStat: UserStat
 
-    @PostConstruct
+//    @PostConstruct
     fun init() {
         this.userStat = mongoTemplate.findById(getDateKey()) ?: UserStat()
         mongoTemplate.find<UserStat>(Query.query(Criteria.where("hasReport").`is`(false)))
@@ -43,7 +43,7 @@ class MessageStatHandler(
             .forEach { reportInChat(it) }
     }
 
-    @Scheduled(fixedDelay = 1000 * 10)
+//    @Scheduled(fixedDelay = 1000 * 10)
     fun saveData() {
         mongoTemplate.save(userStat)
         if (getDateKey() != userStat.date) {

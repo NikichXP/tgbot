@@ -22,4 +22,9 @@ class LikedHistoryService(
 }
 
 data class LikeReportId(val authorId: Long, val targetId: Long, val messageId: Long)
-data class LikeReport(@Id val id: LikeReportId, val power: Double? = null, val date: Long = System.currentTimeMillis())
+data class LikeReport(
+    @Id val id: LikeReportId,
+    var power: Double? = null,
+    var date: Long = System.currentTimeMillis(),
+    var source: String? = null
+)
