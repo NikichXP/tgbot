@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.util.UserFormatter
+import org.slf4j.LoggerFactory
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -34,8 +35,9 @@ class MessageStatHandler(
 ) : UpdateHandler {
 
     private lateinit var userStat: UserStat
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
-//    @PostConstruct
+    @PostConstruct
     fun init() {
         this.userStat = mongoTemplate.findById(getDateKey()) ?: UserStat()
         mongoTemplate.find<UserStat>(Query.query(Criteria.where("hasReport").`is`(false)))
@@ -43,7 +45,7 @@ class MessageStatHandler(
             .forEach { reportInChat(it) }
     }
 
-//    @Scheduled(fixedDelay = 1000 * 10)
+    @Scheduled(fixedDelay = 1000 * 10)
     fun saveData() {
         mongoTemplate.save(userStat)
         if (getDateKey() != userStat.date) {
@@ -63,7 +65,11 @@ class MessageStatHandler(
                 message.append("${stats.userNames[userId]} - $count messages\n")
             }
             if (report) {
-                tgOperations.sendMessage(chatId.toString(), message.toString())
+                try {
+                    tgOperations.sendMessage(chatId.toString(), message.toString())
+                } catch (e: Exception) {
+                    logger.warn("Cannot send message report to chatId $chatId, reason: ${e.message}")
+                }
             }
         }
         mongoTemplate.updateFirst(
