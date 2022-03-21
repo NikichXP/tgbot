@@ -6,6 +6,7 @@ import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.UnparsedMessage
+import com.nikichxp.tgbot.tooling.RawJsonLogger
 import org.bson.Document
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -16,12 +17,14 @@ class RawMessageParser(
     private val objectMapper: ObjectMapper,
     private val mongoTemplate: MongoTemplate,
     private val updateRouter: UpdateRouter,
-    private val currentUpdateProvider: CurrentUpdateProvider
+    private val currentUpdateProvider: CurrentUpdateProvider,
+    private val rawJsonLogger: RawJsonLogger
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     fun proceedRawData(body: Document) {
+        rawJsonLogger.logEvent(body)
         val source = body.toJson()
         try {
             val update = objectMapper.readValue(source, Update::class.java)

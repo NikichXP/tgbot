@@ -34,7 +34,7 @@ class TgOperations(
      * @param chatId can be user/group id, or @nickname
      */
     fun sendMessage(chatId: String, text: String) {
-        restTemplate.postForEntity<String>(apiUrl + "/sendMessage", mapOf(
+        restTemplate.postForEntity<String>("$apiUrl/sendMessage", mapOf(
             "chat_id" to chatId,
             "text" to text
         ))

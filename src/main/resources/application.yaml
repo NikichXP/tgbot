@@ -1,0 +1,8 @@
+spring.data.mongodb:
+  uri: ${MONGO_URL}
+  database: tg-bot
+
+tracer:
+  store:
+    enabled: true
+    ttl: 24
