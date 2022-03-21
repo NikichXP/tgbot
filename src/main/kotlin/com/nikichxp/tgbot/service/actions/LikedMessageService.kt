@@ -26,7 +26,7 @@ class LikedMessageService(
         val actor = interaction.getActor()
         val actorInfo = userService.getUserInfo(actor)
         val target = interaction.getTarget() ?: throw IllegalStateException(impossibleStateOfNoTarget)
-        val diff = calculateKarmaDiff(actorInfo.rating, interaction)
+        val diff = calculateKarmaDiff(actorInfo.rating, interaction.power)
         val result = AtomicReference(0.0)
         userService.modifyUser(target) {
             it.rating = roundF(it.rating + diff)
@@ -57,15 +57,18 @@ class LikedMessageService(
         private const val impossibleStateOfNoTarget =
             "[INT0001: no interaction target found when it is supposed to be a target]"
 
-        fun calculateKarmaDiff(actorRating: Double, interaction: MessageInteractionResult): Double {
-            val calculatedDiff = (1 + actorRating.pow(powerMultiplier)) * interaction.power
-            return roundF(calculatedDiff)
+        fun calculateKarmaDiff(actorRating: Double, power: Double): Double {
+            if (actorRating < 0.0) {
+                return 0.0
+            }
+            val calculatedDiff = actorRating.pow(powerMultiplier) * power
+            return roundF(calculatedDiff).coerceAtLeast(1.0)
         }
 
         /**
          * F suffix in name to not mismatch with Math.round(..) or anything like that
          */
-        private fun roundF(value: Double) = BigDecimal.valueOf(value).setScale(3, RoundingMode.HALF_UP).toDouble()
+         fun roundF(value: Double) = BigDecimal.valueOf(value).setScale(3, RoundingMode.HALF_UP).toDouble()
     }
 
 }

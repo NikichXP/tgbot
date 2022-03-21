@@ -1,22 +1,24 @@
-package com.nikichxp.tgbot
+package com.nikichxp.tgbot.works
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.nikichxp.tgbot.service.TextClassifier
 import com.nikichxp.tgbot.service.TgOperations
+import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.actions.LikeReport
 import com.nikichxp.tgbot.service.actions.LikeReportId
 import com.nikichxp.tgbot.service.actions.LikedMessageService
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.springframework.context.annotation.Profile
+import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.exists
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.findById
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
+import org.springframework.data.mongodb.core.stream
 import org.springframework.stereotype.Component
 import java.io.File
 import java.time.LocalDateTime
@@ -24,16 +26,43 @@ import java.time.ZoneOffset
 import javax.annotation.PostConstruct
 import kotlin.concurrent.thread
 
-//@Component
+@Profile("dev")
+@Component
 class RecalculateKarmaJob(
     private val mongoTemplate: MongoTemplate,
     private val textClassifier: TextClassifier,
-    private val tgOperations: TgOperations,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val likedMessageService: LikedMessageService
 ) {
 
-//    @PostConstruct
-    fun work() {
+    fun recalculateNewKarma() {
+        val karmaDb = mutableMapOf<Long, Double>()
+        val reactedTo = mutableMapOf<Long, Int>()
+        mongoTemplate.stream<LikeReport>(Query().with(Sort.by("date").ascending())).forEachRemaining {
+            val actor = karmaDb[it.id.authorId] ?: 0.0
+            val diff = LikedMessageService.calculateKarmaDiff(actor, it.power)
+            val target = karmaDb[it.id.targetId] ?: 0.0
+            karmaDb[it.id.targetId] = target + diff
+            reactedTo[it.id.targetId] = (reactedTo[it.id.targetId] ?: 0) + 1
+        }
+
+        val endData = karmaDb.toList().sortedBy { -it.second }
+            .map {
+                (mongoTemplate.findById<UserInfo>(it.first)?.username ?: it.first) to (it.second to reactedTo[it.first])
+            }
+        println(endData)
+
+        karmaDb.forEach { (id, rating) ->
+            val user = mongoTemplate.findById<UserInfo>(id) ?: return@forEach
+            user.rating = LikedMessageService.roundF(rating)
+            mongoTemplate.save(user)
+        }
+        println()
+    }
+
+    // exportFile == "./messages.json"
+    @Suppress("unused")
+    fun importActionsFromChatHistoryExport(exportFile: String) {
 
         data class Snatch(
             val message: JsonNode,
@@ -41,7 +70,7 @@ class RecalculateKarmaJob(
             var reply: JsonNode? = null
         )
 
-        val messages = objectMapper.readTree(File("./messages.json").readText())["messages"].asIterable() as ArrayNode
+        val messages = objectMapper.readTree(File(exportFile).readText())["messages"].asIterable() as ArrayNode
         val messageDb = messages.associateBy { it["id"].asLong() }
         val relatedMessages = messages
             .asSequence()
@@ -87,22 +116,14 @@ class RecalculateKarmaJob(
                 }
             }
             thread(start = true) {
-                while (jobs.any { it.isActive }) {
-                    println("Updated $ctr/${jobs.size}")
+                do {
                     Thread.sleep(1_000)
-                }
+                    println("Updated $ctr/${jobs.size}")
+                } while (jobs.any { it.isActive })
             }
             jobs.forEach {
                 it.join()
             }
-        }
-
-        val karmaPoints = mutableMapOf<Long, Double>()
-        mongoTemplate.findAll<LikeReport>().forEach {
-            val actorKarma = karmaPoints[it.id.authorId] ?: 0.0
-            val targetKarma = karmaPoints[it.id.targetId] ?: 0.0
-//            LikedMessageService.calculateKarmaDiff(actorKarma, )
-            println(it)
         }
     }
 
