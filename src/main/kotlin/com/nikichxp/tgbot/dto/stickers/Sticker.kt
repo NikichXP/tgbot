@@ -14,6 +14,7 @@ data class Sticker(
     @JsonProperty(FilesFields.width) val width: Int,
     @JsonProperty(FilesFields.height) val height: Int,
     @JsonProperty(FilesFields.isAnimated) val isAnimated: Boolean,
+    @JsonProperty(FilesFields.isVideo) val isVideo: Boolean,
     @JsonProperty(FilesFields.thumb) val thumb: PhotoSize? = null,
     @JsonProperty(FilesFields.emoji) val emoji: String?,
     @JsonProperty(FilesFields.setName)val setName: String? = null,

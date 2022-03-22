@@ -14,6 +14,7 @@ internal object FilesFields {
     const val title = "title"
     const val length = "length"
     const val isAnimated = "is_animated"
+    const val isVideo = "is_video"
     const val emoji = "emoji"
     const val setName = "set_name"
     const val maskPosition = "mask_position"
