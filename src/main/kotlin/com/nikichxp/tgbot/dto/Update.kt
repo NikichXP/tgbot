@@ -1,13 +1,13 @@
 package com.nikichxp.tgbot.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.nikichxp.tgbot.dto.payments.PreCheckoutQuery
 import com.nikichxp.tgbot.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.dto.polls.Poll
 import com.nikichxp.tgbot.dto.polls.PollAnswer
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.data.annotation.Id
 
 data class Update(
@@ -40,4 +40,11 @@ data class Update(
             ?: getChatId(this.callbackQuery?.message)
     }
 
+    fun getMembers(): MembersOfUpdate = MembersOfUpdate(
+        author = this.message?.from,
+        target = this.message?.replyToMessage?.from
+    )
+
 }
+
+data class MembersOfUpdate(val author: User?, val target: User?)

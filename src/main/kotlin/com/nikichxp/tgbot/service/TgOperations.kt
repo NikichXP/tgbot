@@ -33,11 +33,15 @@ class TgOperations(
      * Send message to chat
      * @param chatId can be user/group id, or @nickname
      */
-    fun sendMessage(chatId: String, text: String) {
-        restTemplate.postForEntity<String>("$apiUrl/sendMessage", mapOf(
+    fun sendMessage(chatId: String, text: String, replyToMessageId: Long? = null) {
+        val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
             "text" to text
-        ))
+        )
+
+        replyToMessageId?.apply { args += "reply_to_message_id" to replyToMessageId }
+
+        restTemplate.postForEntity<String>("$apiUrl/sendMessage", args.toMap())
     }
 
     private fun generateUrl(): String = "https://${appConfig.appName}.herokuapp.com/handle"
