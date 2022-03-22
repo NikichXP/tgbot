@@ -40,6 +40,7 @@ data class Update(
             ?: getChatId(this.callbackQuery?.message)
     }
 
+    @JsonIgnore
     fun getMembers(): MembersOfUpdate = MembersOfUpdate(
         author = this.message?.from,
         target = this.message?.replyToMessage?.from
