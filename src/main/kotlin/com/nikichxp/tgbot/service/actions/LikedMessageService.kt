@@ -61,14 +61,14 @@ class LikedMessageService(
             if (actorRating < 0.0) {
                 return 0.0
             }
-            val calculatedDiff = actorRating.pow(powerMultiplier) * power
-            return roundF(calculatedDiff).coerceAtLeast(1.0)
+            val calculatedDiff = actorRating.pow(powerMultiplier)
+            return roundF(calculatedDiff).coerceAtLeast(1.0) * power
         }
 
         /**
          * F suffix in name to not mismatch with Math.round(..) or anything like that
          */
-         fun roundF(value: Double) = BigDecimal.valueOf(value).setScale(3, RoundingMode.HALF_UP).toDouble()
+        fun roundF(value: Double) = BigDecimal.valueOf(value).setScale(3, RoundingMode.HALF_UP).toDouble()
     }
 
 }
