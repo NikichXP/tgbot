@@ -16,6 +16,12 @@ class ChatCommandParser private constructor() {
         layerState = LayerState.PATH
     }
 
+    fun paths(vararg possiblePaths: String, function: ChatCommandParser.() -> Unit) {
+        for (path in possiblePaths) {
+            path(path, function)
+        }
+    }
+
     fun asArg(argName: String, function: ChatCommandParser.() -> Unit) {
         if (layerState == LayerState.PATH) {
             throw IllegalStateException()

@@ -62,7 +62,7 @@ class LogAllMessagesHandler(
             path("status") {
                 notify("Logging status is: " + (loggingToModeMap[chatId] ?: false))
             }
-            path("this") {
+            paths("this", "set") {
                 path("on") {
                     loggingToModeMap[chatId] = false
                     notify("logging status is set to on")
@@ -95,41 +95,3 @@ class LogAllMessagesHandler(
         const val prefix = "[logger]: "
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
