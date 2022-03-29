@@ -8,6 +8,7 @@ import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.menu.CommandHandler
+import com.nikichxp.tgbot.util.ChatCommandParser
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -57,23 +58,23 @@ class LogAllMessagesHandler(
 
         fun notify(text: String) = tgOperations.sendMessage(chatId.toString(), prefix + text)
 
-        val menu = QueryAnalyzer {
-            end {
+        return ChatCommandParser.analyze(args) {
+            path("status") {
                 notify("Logging status is: " + (loggingToModeMap[chatId] ?: false))
             }
-            nest("this") {
-                on("on") {
+            path("this") {
+                path("on") {
                     loggingToModeMap[chatId] = false
                     notify("logging status is set to on")
                 }
-                on("off") {
+                path("off") {
                     loggingToModeMap.remove(chatId)
                     notify("logging status is set to off")
                 }
             }
-            nest("admin") {
-                nest("all") {
-                    on("on") {
+            path("admin") {
+                path("all") {
+                    path("on") {
                         if (chatId == adminUser) {
                             loggingToModeMap[chatId] = true
                             notify("admin log on")
@@ -81,58 +82,17 @@ class LogAllMessagesHandler(
                             notify("no admin status found")
                         }
                     }
-                    on("off") {
+                    path("off") {
                         loggingToModeMap.remove(chatId)
                         notify("logging status is set to off")
                     }
                 }
             }
         }
-
-        return menu.process(args)
     }
 
     companion object {
         const val prefix = "[logger]: "
-    }
-
-
-}
-
-class QueryAnalyzer(private val processing: QueryAnalyzer.() -> Unit) {
-    private var endPoint: () -> Unit = {}
-    private val nests = mutableMapOf<String, QueryAnalyzer>()
-    private val handlers = mutableMapOf<String, () -> Unit>()
-
-    init {
-        processing()
-    }
-
-    fun process(args: List<String>): Boolean {
-        if (args.isEmpty()) {
-            endPoint()
-            return true
-        }
-        if (args.size == 1) {
-            handlers[args.first()]?.also { it() } ?: return false
-            return true
-        }
-        nests[args.first()]?.run {
-            return process(args.drop(1))
-        }
-        return false
-    }
-
-    fun nest(directive: String, handler: QueryAnalyzer.() -> Unit) {
-        nests[directive] = QueryAnalyzer(handler)
-    }
-
-    fun on(pattern: String, action: () -> Unit) {
-        handlers[pattern] = action
-    }
-
-    fun end(action: () -> Unit) {
-        endPoint = action
     }
 }
 
