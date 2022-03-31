@@ -48,7 +48,7 @@ class RegisterEmojiHandler(
                     else -> {
                         val str = emoji.split(",").map {
                             val status = emojiService.saveEmojiInfo(it, power)
-                            return@map "Add emoji $emoji status: $status; power = $power"
+                            return@map "Add emoji $it status: $status; power = $power"
                         }.joinToString(separator = "\n")
                         tgOperations.replyToCurrentMessage(str)
                     }
