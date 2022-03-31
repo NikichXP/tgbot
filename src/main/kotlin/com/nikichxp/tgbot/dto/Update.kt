@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -29,33 +28,4 @@ data class Update(
     fun toJson(): String {
         return ObjectMapper().registerKotlinModule().writeValueAsString(this)
     }
-
-    @JsonIgnore
-    fun getContextChatId(): Long? {
-        fun getChatId(message: Message?) = message?.chat?.id
-        return getChatId(this.message)
-            ?: getChatId(this.editedMessage)
-            ?: getChatId(this.editedChannelPost)
-            ?: getChatId(this.channelPost)
-            ?: getChatId(this.callbackQuery?.message)
-    }
-
-    @JsonIgnore
-    fun getContextMessageId(): Long? {
-        fun getId(message: Message?) = message?.messageId
-        return getId(this.message)
-            ?: getId(this.editedMessage)
-            ?: getId(this.editedChannelPost)
-            ?: getId(this.channelPost)
-            ?: getId(this.callbackQuery?.message)
-    }
-
-    @JsonIgnore
-    fun getMembers(): MembersOfUpdate = MembersOfUpdate(
-        author = this.message?.from,
-        target = this.message?.replyToMessage?.from
-    )
-
 }
-
-data class MembersOfUpdate(val author: User?, val target: User?)

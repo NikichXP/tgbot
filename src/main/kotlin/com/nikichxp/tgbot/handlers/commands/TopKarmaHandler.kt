@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.menu.CommandHandler
+import com.nikichxp.tgbot.util.getContextChatId
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.query.Criteria

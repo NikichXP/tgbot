@@ -75,7 +75,7 @@ class RecalculateKarmaJob(
         val relatedMessages = messages
             .asSequence()
             .filter { it["text"] != null && it["reply_to_message_id"] != null }
-            .map { Snatch(it, textClassifier.getReaction(it["text"].asText())) }
+            .map { Snatch(it, textClassifier.classify(it["text"].asText())) }
             .filter { it.rating != 0.0 }
             .filter {
                 it.reply = messageDb[it.message["reply_to_message_id"].asLong()]

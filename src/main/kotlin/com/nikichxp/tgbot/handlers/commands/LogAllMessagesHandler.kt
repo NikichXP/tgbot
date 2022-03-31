@@ -9,6 +9,7 @@ import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.util.ChatCommandParser
+import com.nikichxp.tgbot.util.getContextChatId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component

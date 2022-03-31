@@ -2,6 +2,8 @@ package com.nikichxp.tgbot.service
 
 import com.nikichxp.tgbot.config.AppConfig
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
+import com.nikichxp.tgbot.util.getContextChatId
+import com.nikichxp.tgbot.util.getContextMessageId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service

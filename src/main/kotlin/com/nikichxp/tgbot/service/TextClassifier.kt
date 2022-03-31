@@ -1,11 +1,12 @@
 package com.nikichxp.tgbot.service
 
+import com.nikichxp.tgbot.service.classifier.ClassifierInt
 import org.springframework.stereotype.Service
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 
 @Service
-class TextClassifier {
+class TextClassifier : ClassifierInt {
 
     private val positive: List<String>
     private val positiveDefined: List<String>
@@ -27,7 +28,7 @@ class TextClassifier {
 
     // TODO когда-нибудь я доберусь сюда и будет збс определение силы эмоции человека
     //      может даже с машинным обучением (нет)
-    fun getReaction(text: String): Double {
+    override fun classify(text: String): Double {
         val trimText = text.trim().lowercase()
         positive.forEach {
             if (trimText.startsWith(it)) {
