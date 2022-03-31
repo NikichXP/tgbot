@@ -66,7 +66,7 @@ class MessageStatHandler(
             }
             if (report) {
                 try {
-                    tgOperations.sendMessage(chatId.toString(), message.toString())
+                    tgOperations.sendMessage(chatId, message.toString())
                 } catch (e: Exception) {
                     logger.warn("Cannot send message report to chatId $chatId, reason: ${e.message}")
                 }

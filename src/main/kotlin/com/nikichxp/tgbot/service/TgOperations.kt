@@ -1,6 +1,8 @@
 package com.nikichxp.tgbot.service
 
 import com.nikichxp.tgbot.config.AppConfig
+import com.nikichxp.tgbot.core.CurrentUpdateProvider
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -10,6 +12,7 @@ import javax.annotation.PostConstruct
 
 @Service
 class TgOperations(
+    private val updateProvider: CurrentUpdateProvider,
     private val restTemplate: RestTemplate,
     private val appConfig: AppConfig
 ) {
@@ -29,11 +32,8 @@ class TgOperations(
         println(response)
     }
 
-    /**
-     * Send message to chat
-     * @param chatId can be user/group id, or @nickname
-     */
-    fun sendMessage(chatId: String, text: String, replyToMessageId: Long? = null) {
+
+    fun sendMessage(chatId: Long, text: String, replyToMessageId: Long? = null) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
             "text" to text
@@ -44,6 +44,15 @@ class TgOperations(
         restTemplate.postForEntity<String>("$apiUrl/sendMessage", args.toMap())
     }
 
+    fun replyToCurrentMessage(text: String) {
+        updateProvider.update?.getContextChatId()?.let {
+            sendMessage(it, text, updateProvider.update?.getContextMessageId())
+        } ?: logger.warn("Cannot send message reply in: $text")
+    }
+
     private fun generateUrl(): String = "https://${appConfig.appName}.herokuapp.com/handle"
 
+    companion object {
+        private val logger = LoggerFactory.getLogger(this::class.java)
+    }
 }

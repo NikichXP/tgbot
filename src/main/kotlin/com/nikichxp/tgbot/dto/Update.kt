@@ -41,6 +41,16 @@ data class Update(
     }
 
     @JsonIgnore
+    fun getContextMessageId(): Long? {
+        fun getId(message: Message?) = message?.messageId
+        return getId(this.message)
+            ?: getId(this.editedMessage)
+            ?: getId(this.editedChannelPost)
+            ?: getId(this.channelPost)
+            ?: getId(this.callbackQuery?.message)
+    }
+
+    @JsonIgnore
     fun getMembers(): MembersOfUpdate = MembersOfUpdate(
         author = this.message?.from,
         target = this.message?.replyToMessage?.from

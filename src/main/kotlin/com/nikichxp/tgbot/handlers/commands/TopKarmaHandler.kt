@@ -21,7 +21,7 @@ class TopKarmaHandler(
     override fun processCommand(args: List<String>): Boolean {
         if (args.isNotEmpty()) {
             tgOperations.sendMessage(
-                updateProvider.update?.getContextChatId().toString(),
+                updateProvider.update?.getContextChatId()!!,
                 "Additional args are not supported yet"
             )
             return true
@@ -32,7 +32,7 @@ class TopKarmaHandler(
             "${it.username ?: ("id=" + it.id.toString())}: ${it.rating}"
         }
         tgOperations.sendMessage(
-            updateProvider.update?.getContextChatId().toString(),
+            updateProvider.update?.getContextChatId()!!,
             "Top users are:\n$ratingStr"
         )
         return true
