@@ -46,8 +46,11 @@ class RegisterEmojiHandler(
                     messageAuthorId != ownerId -> tgOperations.replyToCurrentMessage("You can't do that")
                     emoji == null -> tgOperations.replyToCurrentMessage("Cannot find emoji info")
                     else -> {
-                        val status = emojiService.saveEmojiInfo(emoji, power)
-                        tgOperations.replyToCurrentMessage("Add emoji $emoji status: $status; power = $power")
+                        val str = emoji.toCharArray().map {
+                            val status = emojiService.saveEmojiInfo(emoji, power)
+                            return@map "Add emoji $emoji status: $status; power = $power"
+                        }.joinToString(separator = "\n")
+                        tgOperations.replyToCurrentMessage(str)
                     }
                 }
             }
