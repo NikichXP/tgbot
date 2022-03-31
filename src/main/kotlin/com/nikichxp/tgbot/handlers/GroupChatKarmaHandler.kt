@@ -23,9 +23,9 @@ class GroupChatKarmaHandler(
     override fun handleUpdate(update: Update) {
         val messageAuthor = getMessageAuthorId(update)
         val replyTarget = getMessageReplyTarget(update) ?: return
-        val reaction = textClassifier.getReaction(update.message!!.text!!)
+        val reaction = textClassifier.classify(update.message!!.text!!)
         val interactionResult = MessageInteractionResult(
-            update, mutableMapOf(
+            mutableMapOf(
                 messageAuthor to InteractionRole.ACTOR, replyTarget to InteractionRole.TARGET
             ), reaction
         )
