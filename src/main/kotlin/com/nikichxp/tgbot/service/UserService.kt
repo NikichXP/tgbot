@@ -15,8 +15,10 @@ class UserService(
         return mongoTemplate.findById(user.id) ?: UserInfo(user).also { mongoTemplate.insert(user) }
     }
 
+    fun getUserInfo(id: Long) = mongoTemplate.findById<UserInfo>(id)
+
     fun modifyUser(id: Long, action: (UserInfo) -> Unit) {
-        val userInfo: UserInfo = mongoTemplate.findById(id) ?: throw IllegalArgumentException("user not found")
+        val userInfo: UserInfo = mongoTemplate.findById(id) ?: throw IllegalArgumentException("user $id not found")
         action(userInfo)
         mongoTemplate.save(userInfo)
     }

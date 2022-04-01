@@ -1,10 +1,9 @@
-package com.nikichxp.tgbot.works
+package com.nikichxp.tgbot.jobs
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
 import com.nikichxp.tgbot.service.TextClassifier
-import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.actions.LikeReport
 import com.nikichxp.tgbot.service.actions.LikeReportId
@@ -14,16 +13,13 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.findById
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.stream
 import org.springframework.stereotype.Component
 import java.io.File
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import javax.annotation.PostConstruct
 import kotlin.concurrent.thread
 
 @Profile("dev")
