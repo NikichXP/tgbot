@@ -16,7 +16,6 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
-import kotlin.math.log
 
 @Service
 class StickerReplyHandler(
@@ -59,7 +58,8 @@ class StickerReplyHandler(
                 mongoTemplate.save(StickerReaction(
                     from = fromId,
                     to = toId,
-                    emoji = emoji
+                    emoji = emoji,
+                    messageId = update.getContextMessageId()
                 ))
             }
         }
@@ -80,7 +80,8 @@ data class StickerReaction(
     val emoji: String,
     val from: Long,
     val to: Long,
-    val date: Instant = Instant.now()
+    val date: Instant = Instant.now(),
+    var messageId: Long? = null
 ) {
     var id: String = UUID.randomUUID().toString()
 }
