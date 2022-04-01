@@ -7,10 +7,14 @@ import com.nikichxp.tgbot.util.getContextMessageId
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException.TooManyRequests
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.getForEntity
 import org.springframework.web.client.postForEntity
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
+
 
 @Service
 class TgOperations(
@@ -21,8 +25,9 @@ class TgOperations(
 
     @Value("\${TG_TOKEN}")
     private lateinit var token: String
-
     private lateinit var apiUrl: String
+
+    private val scheduler = Executors.newScheduledThreadPool(1)
 
     @PostConstruct
     fun registerWebhook() {
@@ -35,7 +40,7 @@ class TgOperations(
     }
 
 
-    fun sendMessage(chatId: Long, text: String, replyToMessageId: Long? = null) {
+    fun sendMessage(chatId: Long, text: String, replyToMessageId: Long? = null, retryNumber: Int = 0) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
             "text" to text
@@ -43,7 +48,20 @@ class TgOperations(
 
         replyToMessageId?.apply { args += "reply_to_message_id" to replyToMessageId }
 
-        restTemplate.postForEntity<String>("$apiUrl/sendMessage", args.toMap())
+        try {
+            restTemplate.postForEntity<String>("$apiUrl/sendMessage", args.toMap())
+        } catch (tooManyRequests: TooManyRequests) {
+            if (retryNumber <= 5) {
+                logger.warn("429 error reached: try #$retryNumber, chatId = $chatId, text = $text")
+                scheduler.schedule(
+                    { sendMessage(chatId, text, replyToMessageId, retryNumber + 1) },
+                    1,
+                    TimeUnit.MINUTES
+                )
+            } else {
+                tooManyRequests.printStackTrace()
+            }
+        }
     }
 
     fun replyToCurrentMessage(text: String) {
