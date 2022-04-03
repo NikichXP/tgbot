@@ -55,20 +55,19 @@ class StickerReplyHandler(
     fun saveUnIndentifiedEmoji(fromId: Long, toId: Long, emoji: String, update: Update) {
         runBlocking {
             launch {
-                mongoTemplate.save(StickerReaction(
-                    from = fromId,
-                    to = toId,
-                    emoji = emoji,
-                    messageId = update.getContextMessageId()
-                ))
+                mongoTemplate.save(
+                    StickerReaction(
+                        from = fromId,
+                        to = toId,
+                        emoji = emoji,
+                        chatId = update.getContextChatId(),
+                        messageId = update.getContextMessageId()
+                    )
+                )
             }
         }
 
-        tgOperations.sendMessage(
-            update.getContextChatId()!!,
-            "I CAN SEE THE STICKER REACTION! The reaction is: $emoji",
-            replyToMessageId = update.getContextMessageId()
-        )
+        tgOperations.replyToCurrentMessage("I CAN SEE THE STICKER REACTION! The reaction is: $emoji")
     }
 
     companion object {
@@ -81,6 +80,7 @@ data class StickerReaction(
     val from: Long,
     val to: Long,
     val date: Instant = Instant.now(),
+    var chatId: Long? = null,
     var messageId: Long? = null
 ) {
     var id: String = UUID.randomUUID().toString()

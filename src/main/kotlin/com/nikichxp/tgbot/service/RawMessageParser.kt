@@ -41,7 +41,7 @@ class RawMessageParser(
             }
         } catch (parseException: UnrecognizedPropertyException) {
             logger.warn("detected unparsed message, see db for more info")
-            mongoTemplate.save(UnparsedMessage(body))
+            mongoTemplate.save(UnparsedMessage(body, message = parseException.message))
         } catch (e: Exception) {
             e.printStackTrace()
             mongoTemplate.save(UnparsedMessage(body))

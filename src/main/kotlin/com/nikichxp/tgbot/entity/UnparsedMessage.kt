@@ -8,6 +8,7 @@ import java.util.*
 @org.springframework.data.mongodb.core.mapping.Document("unparsedMessage")
 data class UnparsedMessage(
         var content: Document,
+        var message: String? = null,
         @Indexed(name = "time_limited_index", expireAfter = "7d")
         var created: LocalDateTime = LocalDateTime.now()
 ) {

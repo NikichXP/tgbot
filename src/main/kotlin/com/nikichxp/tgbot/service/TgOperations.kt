@@ -39,7 +39,6 @@ class TgOperations(
         println(response)
     }
 
-
     fun sendMessage(chatId: Long, text: String, replyToMessageId: Long? = null, retryNumber: Int = 0) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
