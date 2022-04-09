@@ -67,7 +67,7 @@ class StickerReplyHandler(
             }
         }
 
-        tgOperations.replyToCurrentMessage("I CAN SEE THE STICKER REACTION! The reaction is: $emoji")
+        tgOperations.sendToCurrentChat("I CAN SEE THE STICKER REACTION! The reaction is: $emoji")
     }
 
     companion object {

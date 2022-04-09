@@ -63,6 +63,11 @@ class TgOperations(
         }
     }
 
+    fun sendToCurrentChat(text: String) {
+        updateProvider.update?.getContextChatId()?.let {
+            sendMessage(it, text)
+        } ?: logger.warn("Cannot send message reply in: $text")
+    }
     fun replyToCurrentMessage(text: String) {
         updateProvider.update?.getContextChatId()?.let {
             sendMessage(it, text, updateProvider.update?.getContextMessageId())
