@@ -7,6 +7,7 @@ import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.UnparsedMessage
 import com.nikichxp.tgbot.tooling.RawJsonLogger
+import com.nikichxp.tgbot.util.diffWith
 import org.bson.Document
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -37,7 +38,7 @@ class RawMessageParser(
                 currentUpdateProvider.update = update
                 updateRouter.proceedUpdate(update)
             } else {
-                mongoTemplate.save(UnparsedMessage(body, missedKeys = flatSrc.keys - flatCtr.keys))
+                mongoTemplate.save(UnparsedMessage(body, missedKeys = flatSrc.keys.diffWith(flatCtr.keys)))
             }
         } catch (parseException: UnrecognizedPropertyException) {
             logger.warn("detected unparsed message, see db for more info")
