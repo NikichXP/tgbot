@@ -37,7 +37,7 @@ class RawMessageParser(
                 currentUpdateProvider.update = update
                 updateRouter.proceedUpdate(update)
             } else {
-                mongoTemplate.save(UnparsedMessage(body))
+                mongoTemplate.save(UnparsedMessage(body, missedKeys = flatSrc.keys - flatCtr.keys))
             }
         } catch (parseException: UnrecognizedPropertyException) {
             logger.warn("detected unparsed message, see db for more info")
