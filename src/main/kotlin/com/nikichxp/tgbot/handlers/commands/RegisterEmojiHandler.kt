@@ -16,7 +16,7 @@ class RegisterEmojiHandler(
     appConfig: AppConfig
 ) : CommandHandler {
 
-    private var ownerId = appConfig.ownerId
+    private var ownerId = appConfig.ownerId.toLongOrNull() ?: 0
 
     override fun isCommandSupported(command: String): Boolean = command == "/emoji"
 

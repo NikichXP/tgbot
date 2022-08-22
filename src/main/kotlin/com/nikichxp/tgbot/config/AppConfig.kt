@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration
 class AppConfig {
 
     @Value("\${OWNER_ID:0}")
-    final var ownerId: Long = 0
+    final var ownerId: String = ""
     @Value("\${HEROKU_APP_NAME:}")
     final var appName: String = ""
     @Value("\${HEROKU_RELEASE_VERSION:}")
