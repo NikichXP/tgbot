@@ -15,5 +15,5 @@ data class User(
     @JsonProperty("can_join_groups") val canJoinGroups: Boolean? = null,
     @JsonProperty("can_read_all_group_messages") val canReadAllGroupMessages: Boolean? = null,
     @JsonProperty("supports_inline_queries") val supportsInlineQueries: Boolean? = null,
-    @JsonProperty("is_premium") val isPremium: Boolean? = false
+    @JsonProperty("is_premium") val isPremium: Boolean? = null
 )
