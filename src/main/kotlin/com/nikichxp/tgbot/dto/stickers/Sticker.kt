@@ -19,5 +19,7 @@ data class Sticker(
     @JsonProperty(FilesFields.emoji) val emoji: String?,
     @JsonProperty(FilesFields.setName)val setName: String? = null,
     @JsonProperty(FilesFields.maskPosition) val maskPosition: MaskPosition? = null,
-    @JsonProperty(FilesFields.fileSize) val fileSize: Int? = null
+    @JsonProperty(FilesFields.fileSize) val fileSize: Int? = null,
+    @JsonProperty("type") val type: String? = null,
+    @JsonProperty("is_premium") val isPremium: Boolean? = null
 )

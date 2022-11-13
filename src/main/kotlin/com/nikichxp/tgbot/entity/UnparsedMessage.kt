@@ -10,9 +10,13 @@ data class UnparsedMessage(
         var content: Document,
         var message: String? = null,
         @Indexed(name = "time_limited_index", expireAfter = "7d")
-        var created: LocalDateTime = LocalDateTime.now()
+        var created: LocalDateTime = LocalDateTime.now(),
+        var missedKeys: Set<String> = setOf()
 ) {
 
-    var id = UUID.randomUUID().toString()
+    var id = random.nextLong()
 
+    companion object {
+        private val random = Random()
+    }
 }
