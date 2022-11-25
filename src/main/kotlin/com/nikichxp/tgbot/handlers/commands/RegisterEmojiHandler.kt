@@ -24,7 +24,7 @@ class RegisterEmojiHandler(
         return ChatCommandParser.analyze(args) {
             path("set") {
                 asArg("emoji") {
-                    asArg("power") proceed@{
+                    asArg("power") {
                         onEmojiSet(vars["emoji"], vars["power"])
                     }
                 }
