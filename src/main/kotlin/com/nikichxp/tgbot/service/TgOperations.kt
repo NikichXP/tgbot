@@ -23,8 +23,10 @@ class TgOperations(
     private val appConfig: AppConfig
 ) {
 
-    @Value("\${TG_TOKEN}")
+    @Value("\${app.telegram-token}")
     private lateinit var token: String
+    @Value("\${app.webhook}")
+    private lateinit var webHookUrl: String
     private lateinit var apiUrl: String
 
     private val scheduler = Executors.newScheduledThreadPool(1)
@@ -32,9 +34,8 @@ class TgOperations(
     @PostConstruct
     fun registerWebhook() {
         apiUrl = "https://api.telegram.org/bot$token"
-        if (appConfig.appName.isEmpty()) return
         val response = restTemplate.getForEntity<String>(
-            apiUrl + "/setWebhook?url=${generateUrl()}"
+            "$apiUrl/setWebhook?url=$webHookUrl"
         )
         println(response)
     }
@@ -73,8 +74,6 @@ class TgOperations(
             sendMessage(it, text, updateProvider.update?.getContextMessageId())
         } ?: logger.warn("Cannot send message reply in: $text")
     }
-
-    private fun generateUrl(): String = "https://${appConfig.appName}.herokuapp.com/handle"
 
     companion object {
         private val logger = LoggerFactory.getLogger(this::class.java)

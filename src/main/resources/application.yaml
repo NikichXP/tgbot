@@ -2,6 +2,11 @@ spring.data.mongodb:
   uri: ${MONGO_URL}
   database: tg-bot
 
+app:
+  owner-id: ${OWNER_ID}
+  webhook: https://${HEROKU_APP_NAME}.herokuapp.com/handle
+  telegram-token: ${TG_TOKEN}
+
 tracer:
   store:
     enabled: true
