@@ -1,5 +1,7 @@
 src/main/resources/application-prod.yaml
 
+.gradle
+
 HELP.md
 local/
 target/
