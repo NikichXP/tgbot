@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class AppConfig {
 
-    @Value("\${app,owner-id}")
+    @Value("\${app.owner-id}")
     final var ownerId: String = ""
 
     @Bean
