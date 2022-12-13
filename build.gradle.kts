@@ -1,14 +1,23 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+val ktorVersion: String = "2.0.2"
+val kotlinVersion: String = "1.7.21"
+val coroutinesVersion: String = "1.6.4"
+
+group = "com.nikichxp"
+version = "1.0.0"
+description = "tgbot"
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 plugins {
-    java
-    `maven-publish`
+    id("org.springframework.boot") version "2.6.7"
+    id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    kotlin("jvm") version "1.7.21"
+    kotlin("plugin.spring") version "1.7.21"
 }
 
 repositories {
-    mavenLocal()
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2/")
-    }
+    mavenCentral()
 }
 
 dependencies {
@@ -27,17 +36,14 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test:2.7.6")
 }
 
-group = "com.nikichxp"
-version = "1.0.0"
-description = "tgbot"
-java.sourceCompatibility = JavaVersion.VERSION_1_8
 
-publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "11"
     }
 }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
+tasks.named<Jar>("jar") {
+    enabled = false
 }
