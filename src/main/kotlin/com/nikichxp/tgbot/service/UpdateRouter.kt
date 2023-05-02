@@ -38,17 +38,3 @@ class UpdateRouter(
     }
 
 }
-
-//@Component
-//class PrivateMessageUpdateMarker : UpdateHandler {
-//    override fun getMarkers(): Set<UpdateMarker> {
-//        return setOf(MESSAGE_IN_CHAT, MESSAGE_WITH_TEXT)
-//    }
-//
-//    override fun getResult(update: Update): MessageInteractionResult {
-//        MessageInteractionResult.
-//    }
-//
-//}
-
-
