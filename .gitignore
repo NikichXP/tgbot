@@ -1,4 +1,5 @@
 src/main/resources/application-prod.yaml
+.env
 
 .gradle/
 out/
