@@ -1,6 +1,7 @@
 src/main/resources/application-prod.yaml
 
-.gradle
+.gradle/
+out/
 
 HELP.md
 local/

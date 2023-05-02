@@ -1,28 +1,13 @@
 package com.nikichxp.tgbot.config
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 
-@Configuration
-class AppConfig {
-
-    @Value("\${app.owner-id}")
-    final var ownerId: String = ""
-
-    @Bean
-    fun restTemplate() = RestTemplateBuilder()
-        .build()!!
-
-    @Bean
-    fun objectMapper(): ObjectMapper = ObjectMapper()
-        .registerKotlinModule()
-        .registerModule(JavaTimeModule())
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-
-}
+@ConfigurationProperties(prefix = "app")
+@ConstructorBinding
+class AppConfig(
+    var adminId: Long,
+    var webhook: String,
+    var tokens: Tokens,
+    var tracer: Tracer
+)

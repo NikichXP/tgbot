@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.service
 
 import com.nikichxp.tgbot.config.AppConfig
+import com.nikichxp.tgbot.config.ApplicationBeans
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.util.getContextChatId
 import com.nikichxp.tgbot.util.getContextMessageId
@@ -20,13 +21,11 @@ import javax.annotation.PostConstruct
 class TgOperations(
     private val updateProvider: CurrentUpdateProvider,
     private val restTemplate: RestTemplate,
-    private val appConfig: AppConfig
+    appConfig: AppConfig
 ) {
 
-    @Value("\${app.telegram-token}")
-    private lateinit var token: String
-    @Value("\${app.webhook}")
-    private lateinit var webHookUrl: String
+    private var token = appConfig.tokens.nikichBot!!
+    private var webHookUrl = appConfig.webhook
     private lateinit var apiUrl: String
 
     private val scheduler = Executors.newScheduledThreadPool(1)
