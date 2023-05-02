@@ -3,6 +3,8 @@ package com.nikichxp.tgbot.service
 import com.nikichxp.tgbot.config.AppConfig
 import com.nikichxp.tgbot.config.ApplicationBeans
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
+import com.nikichxp.tgbot.entity.TgBot
+import com.nikichxp.tgbot.entity.TgBotConfig
 import com.nikichxp.tgbot.util.getContextChatId
 import com.nikichxp.tgbot.util.getContextMessageId
 import org.slf4j.LoggerFactory
@@ -21,22 +23,35 @@ import javax.annotation.PostConstruct
 class TgOperations(
     private val updateProvider: CurrentUpdateProvider,
     private val restTemplate: RestTemplate,
-    appConfig: AppConfig
+    appConfig: AppConfig,
+    private val tgBotConfig: TgBotConfig
 ) {
 
-    private var token = appConfig.tokens.nikichBot!!
+    private val bots = tgBotConfig.getInitializedBots()
     private var webHookUrl = appConfig.webhook
-    private lateinit var apiUrl: String
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val scheduler = Executors.newScheduledThreadPool(1)
 
     @PostConstruct
-    fun registerWebhook() {
-        apiUrl = "https://api.telegram.org/bot$token"
-        val response = restTemplate.getForEntity<String>(
-            "$apiUrl/setWebhook?url=$webHookUrl"
-        )
-        println(response)
+    fun registerWebhooks() {
+        logger.info("Registering bots: ${bots.map { it.bot }}")
+
+        bots.forEach { bot ->
+            val response = restTemplate.getForEntity<String>(
+                "${apiFor(bot.bot)}/setWebhook?url=$webHookUrl/${bot.name}"
+            )
+            println(response)
+        }
+    }
+
+    fun apiFor(): String {
+        return apiFor(updateProvider.bot)
+    }
+
+    fun apiFor(tgBot: TgBot): String {
+        return "https://api.telegram.org/bot${tgBotConfig.getBotInfo(tgBot)!!.token}"
     }
 
     fun sendMessage(chatId: Long, text: String, replyToMessageId: Long? = null, retryNumber: Int = 0) {
@@ -48,7 +63,7 @@ class TgOperations(
         replyToMessageId?.apply { args += "reply_to_message_id" to replyToMessageId }
 
         try {
-            restTemplate.postForEntity<String>("$apiUrl/sendMessage", args.toMap())
+            restTemplate.postForEntity<String>("${apiFor()}/sendMessage", args.toMap())
         } catch (tooManyRequests: TooManyRequests) {
             if (retryNumber <= 5) {
                 logger.warn("429 error reached: try #$retryNumber, chatId = $chatId, text = $text")

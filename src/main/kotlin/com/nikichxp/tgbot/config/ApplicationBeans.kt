@@ -21,13 +21,3 @@ class ApplicationBeans {
         .registerModule(JavaTimeModule())
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
 }
-
-class Tokens(
-    var nikichBot: String?,
-    var allMyStuffBot: String?
-)
-
-class Tracer(
-    var store: Boolean = false,
-    var ttl: Long = 1
-)

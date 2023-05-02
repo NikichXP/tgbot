@@ -10,4 +10,16 @@ class AppConfig(
     var webhook: String,
     var tokens: Tokens,
     var tracer: Tracer
-)
+) {
+    companion object {
+        class Tokens(
+            var nikichBot: String?,
+            var allMyStuffBot: String?
+        )
+
+        class Tracer(
+            var store: Boolean = false,
+            var ttl: Long = 1
+        )
+    }
+}

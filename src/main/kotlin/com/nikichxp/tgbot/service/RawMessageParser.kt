@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UnparsedMessage
 import com.nikichxp.tgbot.tooling.RawJsonLogger
 import com.nikichxp.tgbot.util.diffWith
@@ -27,13 +28,14 @@ class RawMessageParser(
     private val ignoreFieldsParser = objectMapper.copy()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    fun proceedRawData(body: Document) {
+    fun proceedRawData(body: Document, bot: TgBot = TgBot.NIKICHBOT) {
         rawJsonLogger.logEvent(body)
         val source = body.toJson()
         try {
             val (update, diff) = parseUpdateAndGetDiff(source)
             if (diff.isEmpty()) {
                 currentUpdateProvider.update = update
+                currentUpdateProvider.bot = bot
                 updateRouter.proceedUpdate(update)
             } else {
                 mongoTemplate.save(UnparsedMessage(body, missedKeys = diff))
