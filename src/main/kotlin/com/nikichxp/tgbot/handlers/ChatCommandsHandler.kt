@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.service.TgOperations
 import com.nikichxp.tgbot.service.menu.CommandHandler
@@ -15,6 +16,8 @@ class ChatCommandsHandler(
 ) : UpdateHandler {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
+
+    override fun botSupported(bot: TgBot) = true
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 

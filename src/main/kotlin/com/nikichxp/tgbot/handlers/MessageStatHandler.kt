@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.service.TgOperations
@@ -78,6 +79,8 @@ class MessageStatHandler(
             UserStat::class.java
         )
     }
+
+    override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
 
     override fun getMarkers(): Set<UpdateMarker> {
         return setOf(UpdateMarker.MESSAGE_IN_GROUP)

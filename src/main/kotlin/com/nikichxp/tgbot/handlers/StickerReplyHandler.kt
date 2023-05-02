@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.service.EmojiService
 import com.nikichxp.tgbot.service.TgOperations
@@ -24,6 +25,8 @@ class StickerReplyHandler(
     private val emojiService: EmojiService,
     private val likedMessageService: LikedMessageService
 ) : UpdateHandler {
+
+    override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY, UpdateMarker.HAS_STICKER)
 
     override fun handleUpdate(update: Update) {
