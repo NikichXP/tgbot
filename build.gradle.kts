@@ -48,5 +48,5 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.named<Jar>("jar") {
-    enabled = false
+    archiveFileName.set("app.jar")
 }
