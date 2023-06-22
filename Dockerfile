@@ -6,7 +6,6 @@ COPY build.gradle.kts .
 
 COPY src ./src
 RUN gradle clean build --no-daemon
-RUN gradle bootJar --no-daemon
 
 FROM openjdk:11-jre-slim
 
