@@ -49,4 +49,7 @@ tasks.withType<KotlinCompile> {
 
 tasks.named<Jar>("jar") {
     archiveFileName.set("app.jar")
+    manifest {
+        attributes["Main-Class"] = "com.nikichxp.tgbot.TGBotApplication"
+    }
 }
