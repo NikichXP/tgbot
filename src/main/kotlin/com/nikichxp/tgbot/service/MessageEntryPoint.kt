@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.service
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException
 import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
@@ -16,7 +15,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 
 @Service
-class RawMessageParser(
+class MessageEntryPoint(
     private val objectMapper: ObjectMapper,
     private val mongoTemplate: MongoTemplate,
     private val updateRouter: UpdateRouter,
@@ -25,18 +24,14 @@ class RawMessageParser(
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
-    private val ignoreFieldsParser = objectMapper.copy()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    fun proceedRawData(body: Document, bot: TgBot = TgBot.NIKICHBOT) {
+    fun proceedRawData(body: Document, bot: TgBot) {
         rawJsonLogger.logEvent(body)
         val source = body.toJson()
         try {
             val (update, diff) = parseUpdateAndGetDiff(source)
             if (diff.isEmpty()) {
-                currentUpdateProvider.update = update
-                currentUpdateProvider.bot = bot
-                updateRouter.proceedUpdate(update)
+                proceedUpdate(update, bot)
             } else {
                 mongoTemplate.save(UnparsedMessage(body, missedKeys = diff))
             }
@@ -46,9 +41,15 @@ class RawMessageParser(
         }
     }
 
+    fun proceedUpdate(update: Update, bot: TgBot) {
+        currentUpdateProvider.update = update
+        currentUpdateProvider.bot = bot
+        updateRouter.proceedUpdate(update)
+    }
+
     private fun parseUpdateAndGetDiff(source: String): Pair<Update, Set<String>> {
-        val update = ignoreFieldsParser.readValue(source, Update::class.java)
-        val control = ignoreFieldsParser.writeValueAsString(update)
+        val update = objectMapper.readValue(source, Update::class.java)
+        val control = objectMapper.writeValueAsString(update)
 
         val flatSrc = JsonFlattener.flattenAsMap(source)
         val flatCtr = JsonFlattener.flattenAsMap(control)

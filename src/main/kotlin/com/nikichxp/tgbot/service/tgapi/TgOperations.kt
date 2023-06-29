@@ -5,6 +5,7 @@ import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.TgBotConfig
 import com.nikichxp.tgbot.util.getContextChatId
 import com.nikichxp.tgbot.util.getContextMessageId
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException.TooManyRequests
@@ -20,6 +21,7 @@ class TgOperations(
     private val updateProvider: CurrentUpdateProvider,
     private val restTemplate: RestTemplate,
     private val tgSetWebhookService: TgBotSetWebhookService,
+    private val tgUpdatePollService: TgUpdatePollService,
     private val tgBotConfig: TgBotConfig
 ) {
 
@@ -30,7 +32,12 @@ class TgOperations(
     @PostConstruct
     fun registerWebhooks() {
         logger.info("Registering bots: ${bots.map { it.bot }}")
-        bots.forEach { tgSetWebhookService.register(it) }
+        bots.forEach {
+            val webhookSet = runBlocking { tgSetWebhookService.register(it) }
+            if (!webhookSet) {
+                tgUpdatePollService.startPollingFor(it)
+            }
+        }
     }
 
     fun apiFor(): String {
