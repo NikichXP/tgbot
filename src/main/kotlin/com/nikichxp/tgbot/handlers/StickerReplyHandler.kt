@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.service.EmojiService
-import com.nikichxp.tgbot.service.TgOperations
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.service.actions.LikedMessageService
 import com.nikichxp.tgbot.util.convertToMessageIntResult
 import com.nikichxp.tgbot.util.getContextChatId

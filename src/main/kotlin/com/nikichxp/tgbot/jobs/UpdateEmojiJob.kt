@@ -2,13 +2,12 @@ package com.nikichxp.tgbot.jobs
 
 import com.nikichxp.tgbot.handlers.StickerReaction
 import com.nikichxp.tgbot.service.EmojiService
-import com.nikichxp.tgbot.service.TgOperations
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.service.UserService
 import com.nikichxp.tgbot.service.actions.LikedMessageService
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
 
 @Component
 class UpdateEmojiJob(

@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.service.actions
 
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.entity.MessageInteractionResult
-import com.nikichxp.tgbot.service.TgOperations
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.service.UserService
 import com.nikichxp.tgbot.util.UserFormatter.getUserPrintName
 import kotlinx.coroutines.launch

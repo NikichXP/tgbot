@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.handlers.commands
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.nikichxp.tgbot.service.TgOperations
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.util.ChatCommandParser
 import io.ktor.client.*

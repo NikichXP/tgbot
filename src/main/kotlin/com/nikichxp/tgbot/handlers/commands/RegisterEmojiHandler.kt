@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.handlers.commands
 import com.nikichxp.tgbot.config.AppConfig
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.service.EmojiService
-import com.nikichxp.tgbot.service.TgOperations
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.util.ChatCommandParser
 import org.springframework.stereotype.Component

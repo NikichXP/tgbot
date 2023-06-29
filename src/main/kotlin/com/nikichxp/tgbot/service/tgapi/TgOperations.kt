@@ -1,18 +1,14 @@
-package com.nikichxp.tgbot.service
+package com.nikichxp.tgbot.service.tgapi
 
-import com.nikichxp.tgbot.config.AppConfig
-import com.nikichxp.tgbot.config.ApplicationBeans
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.TgBotConfig
 import com.nikichxp.tgbot.util.getContextChatId
 import com.nikichxp.tgbot.util.getContextMessageId
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException.TooManyRequests
 import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.getForEntity
 import org.springframework.web.client.postForEntity
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -23,27 +19,18 @@ import javax.annotation.PostConstruct
 class TgOperations(
     private val updateProvider: CurrentUpdateProvider,
     private val restTemplate: RestTemplate,
-    appConfig: AppConfig,
+    private val tgSetWebhookService: TgBotSetWebhookService,
     private val tgBotConfig: TgBotConfig
 ) {
 
     private val bots = tgBotConfig.getInitializedBots()
-    private var webHookUrl = appConfig.webhook
-
-    private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val scheduler = Executors.newScheduledThreadPool(1)
 
     @PostConstruct
     fun registerWebhooks() {
         logger.info("Registering bots: ${bots.map { it.bot }}")
-
-        bots.forEach { bot ->
-            val response = restTemplate.getForEntity<String>(
-                "${apiFor(bot.bot)}/setWebhook?url=$webHookUrl/${bot.name}"
-            )
-            println(response)
-        }
+        bots.forEach { tgSetWebhookService.register(it) }
     }
 
     fun apiFor(): String {
@@ -83,11 +70,13 @@ class TgOperations(
             sendMessage(it, text)
         } ?: logger.warn("Cannot send message reply in: $text")
     }
+
     fun replyToCurrentMessage(text: String) {
         updateProvider.update?.getContextChatId()?.let {
             sendMessage(it, text, updateProvider.update?.getContextMessageId())
         } ?: logger.warn("Cannot send message reply in: $text")
     }
+
 
     companion object {
         private val logger = LoggerFactory.getLogger(this::class.java)
