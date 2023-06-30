@@ -7,23 +7,24 @@ import org.springframework.stereotype.Service
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 
+// TODO Fix the docker resource bug
 @Service
 class TextClassifier(
-    @Value("classpath:dictionary.yaml")
-    private val dictionary: Resource
+//    @Value("classpath:dictionary.yaml")
+//    private val dictionary: Resource
 ) : ClassifierInt {
 
-    private val positive: List<String>
-    private val positiveDefined: List<String>
-    private val negative: List<String>
+    private val positive: List<String> = listOf()
+    private val positiveDefined: List<String> = listOf()
+    private val negative: List<String> = listOf()
 
     init {
-        val content = dictionary.file.readText()
-        val yaml = Yaml()
-        val obj = yaml.load<Map<String, List<String>>>(content)
-        positive = obj["positive"]?.map { it.lowercase() } ?: listOf()
-        positiveDefined = obj["positive_defined"]?.map { it.lowercase() } ?: listOf()
-        negative = obj["negative"]?.map { it.lowercase() } ?: listOf()
+//        val content = dictionary.file.readText()
+//        val yaml = Yaml()
+//        val obj = yaml.load<Map<String, List<String>>>(content)
+//        positive = obj["positive"]?.map { it.lowercase() } ?: listOf()
+//        positiveDefined = obj["positive_defined"]?.map { it.lowercase() } ?: listOf()
+//        negative = obj["negative"]?.map { it.lowercase() } ?: listOf()
     }
 
     // TODO когда-нибудь я доберусь сюда и будет збс определение силы эмоции человека
