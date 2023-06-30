@@ -1,9 +1,9 @@
 package com.nikichxp.tgbot.service.actions
 
-import com.nikichxp.tgbot.core.CurrentUpdateProvider
+import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.MessageInteractionResult
-import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.service.UserService
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.UserFormatter.getUserPrintName
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -16,13 +16,12 @@ import kotlin.math.pow
 @Service
 class LikedMessageService(
     private val userService: UserService,
-    private val currentUpdateProvider: CurrentUpdateProvider,
     private val tgOperations: TgOperations,
     private val likedHistoryService: LikedHistoryService
 ) {
 
-    fun changeRating(interaction: MessageInteractionResult) {
-        val messageId = currentUpdateProvider.update?.message?.messageId ?: throw IllegalStateException()
+    fun changeRating(interaction: MessageInteractionResult, update: Update) {
+        val messageId = update.message?.messageId ?: throw IllegalStateException()
         val actor = interaction.getActor()
         val actorInfo = userService.getUserInfo(actor)
         val target = interaction.getTarget() ?: throw IllegalStateException(impossibleStateOfNoTarget)
@@ -38,6 +37,7 @@ class LikedMessageService(
             }
         }
         sendKarmaMsg(
+            update = update,
             actor = getUserPrintName(actor),
             target = getUserPrintName(target),
             actorKarma = actorInfo.rating,
@@ -46,9 +46,16 @@ class LikedMessageService(
         )
     }
 
-    private fun sendKarmaMsg(actor: String, target: String, actorKarma: Double, targetKarma: Double, diff: Double) {
+    private fun sendKarmaMsg(
+        update: Update,
+        actor: String,
+        target: String,
+        actorKarma: Double,
+        targetKarma: Double,
+        diff: Double
+    ) {
         val text = "$actor ($actorKarma) changed karma of $target ($targetKarma) Δ=$diff"
-        tgOperations.sendMessage(currentUpdateProvider.update?.message?.chat?.id!!, text)
+        tgOperations.sendMessage(update.message?.chat?.id!!, text)
     }
 
     companion object {

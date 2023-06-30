@@ -1,9 +1,9 @@
 package com.nikichxp.tgbot.handlers.commands
 
-import com.nikichxp.tgbot.core.CurrentUpdateProvider
-import com.nikichxp.tgbot.service.tgapi.TgOperations
+import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.menu.CommandHandler
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.getContextChatId
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -14,15 +14,14 @@ import org.springframework.stereotype.Component
 @Component
 class TopKarmaHandler(
     private val tgOperations: TgOperations,
-    private val updateProvider: CurrentUpdateProvider,
     private val mongoTemplate: MongoTemplate
 ) : CommandHandler {
     override fun isCommandSupported(command: String): Boolean = command.lowercase() in listOf("/top", "/realtop")
 
-    override fun processCommand(args: List<String>): Boolean {
+    override fun processCommand(args: List<String>, update: Update): Boolean {
         if (args.isNotEmpty()) {
             tgOperations.sendMessage(
-                updateProvider.update?.getContextChatId()!!,
+                update.getContextChatId()!!,
                 "Additional args are not supported yet"
             )
             return true
@@ -32,10 +31,12 @@ class TopKarmaHandler(
         val ratingStr = users.sortedBy { -it.rating }.joinToString(separator = "\n") {
             "${it.username ?: ("id=" + it.id.toString())}: ${it.rating}"
         }
-        tgOperations.sendMessage(
-            updateProvider.update?.getContextChatId()!!,
-            "Top users are:\n$ratingStr"
-        )
+        update.run {
+            tgOperations.sendMessage(
+                update.getContextChatId()!!,
+                "Top users are:\n$ratingStr"
+            )
+        }
         return true
     }
 }

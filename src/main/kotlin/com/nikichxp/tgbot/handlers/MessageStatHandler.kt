@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.handlers
 
-import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateMarker
@@ -23,15 +22,14 @@ import javax.annotation.PostConstruct
 /*
 TODO
   данный замечательный восхитительный класс пока что работает держа все чаты в оперативке
-  пока чатов менее 100 это прокатит
-  когда чатов будет больше 100 нужно будет добавлять сюда redis
+  пока чатов мало это прокатит
+  когда чатов будет много нужно будет добавлять сюда LRU-кэш
   хранить данные там типа date.chatId.userId=0
   хранить информацию об имени в БД в течении пары дней и обновлять ее как-нибудь
  */
 @Component
 class MessageStatHandler(
     private val mongoTemplate: MongoTemplate,
-    private val currentUpdateProvider: CurrentUpdateProvider,
     private val tgOperations: TgOperations
 ) : UpdateHandler {
 
@@ -88,7 +86,7 @@ class MessageStatHandler(
 
     override fun handleUpdate(update: Update) {
         val (userId, userName) = getIdAndName(update)
-        val chatId = currentUpdateProvider.update?.message?.chat?.id ?: throw NotHandledSituationError()
+        val chatId = update.message?.chat?.id ?: throw NotHandledSituationError()
         userStat.processNewMessage(chatId, userId, userName)
     }
 

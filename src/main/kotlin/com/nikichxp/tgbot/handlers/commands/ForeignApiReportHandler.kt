@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.handlers.commands
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.ChatCommandParser
@@ -33,7 +34,7 @@ class ForeignApiReportHandler(
     override fun isCommandSupported(command: String): Boolean = command == "/status"
 
     @OptIn(DelicateCoroutinesApi::class)
-    override fun processCommand(args: List<String>): Boolean {
+    override fun processCommand(args: List<String>, update: Update): Boolean {
         return ChatCommandParser.analyze(args) {
             asArg("resource") {
                 when (vars["resource"]) {

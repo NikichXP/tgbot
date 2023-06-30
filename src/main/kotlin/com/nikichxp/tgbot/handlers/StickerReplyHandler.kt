@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.handlers
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateMarker
@@ -23,7 +24,8 @@ class StickerReplyHandler(
     private val tgOperations: TgOperations,
     private val mongoTemplate: MongoTemplate,
     private val emojiService: EmojiService,
-    private val likedMessageService: LikedMessageService
+    private val likedMessageService: LikedMessageService,
+    private val objectMapper: ObjectMapper
 ) : UpdateHandler {
 
     override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
@@ -48,7 +50,10 @@ class StickerReplyHandler(
                 // TODO make some fancy logger here
                 //  that sends all the errors to tg chat bot
                 //  and can be accessed with web interface
-                logger.error("Message cannot be converted to interaction result, whatever: ${update.toJson()}")
+                logger.error(
+                    "Message cannot be converted to interaction result, whatever: " +
+                            objectMapper.writeValueAsString(update)
+                )
                 null
             } ?: return
             likedMessageService.changeRating(interactionResult)

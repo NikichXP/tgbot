@@ -1,14 +1,13 @@
 package com.nikichxp.tgbot.handlers.commands
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.handlers.UpdateHandler
-import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.service.menu.CommandHandler
+import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.ChatCommandParser
 import com.nikichxp.tgbot.util.getContextChatId
 import org.slf4j.LoggerFactory
@@ -18,8 +17,7 @@ import org.springframework.stereotype.Component
 @Component
 class LogAllMessagesHandler(
     private val tgOperations: TgOperations,
-    private val objectMapper: ObjectMapper,
-    private val updateProvider: CurrentUpdateProvider
+    private val objectMapper: ObjectMapper
 ) : UpdateHandler, CommandHandler {
 
     @Value("\${ADMIN_USER:0}")
@@ -57,8 +55,8 @@ class LogAllMessagesHandler(
 
     override fun isCommandSupported(command: String): Boolean = command == "/logging"
 
-    override fun processCommand(args: List<String>): Boolean {
-        val chatId = updateProvider.update?.getContextChatId() ?: throw NotHandledSituationError()
+    override fun processCommand(args: List<String>, update: Update): Boolean {
+        val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
 
         fun notify(text: String) = tgOperations.sendMessage(chatId, prefix + text)
 

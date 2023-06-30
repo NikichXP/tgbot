@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.service
 
-import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
@@ -44,6 +43,7 @@ class MessageEntryPoint(
     fun proceedUpdate(update: Update, bot: TgBot) {
         currentUpdateProvider.update = update
         currentUpdateProvider.bot = bot
+        update.bot = bot
         updateRouter.proceedUpdate(update)
     }
 

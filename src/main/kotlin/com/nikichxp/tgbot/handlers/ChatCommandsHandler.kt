@@ -25,7 +25,7 @@ class ChatCommandsHandler(
         val query = update.message!!.text!!.split(" ")
         val result = commandHandlers
             .find { it.isCommandSupported(query.first()) }
-            ?.processCommand(query.drop(1))
+            ?.processCommand(query.drop(1), update)
             ?: false
         if (!result) {
 //            val chatId = update.getContextChatId()!!

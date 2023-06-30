@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.service.tgapi
 
 import com.nikichxp.tgbot.core.CurrentUpdateProvider
+import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.TgBotConfig
 import com.nikichxp.tgbot.util.getContextChatId
@@ -40,8 +41,13 @@ class TgOperations(
         }
     }
 
+    // TODO Delete this
     fun apiFor(): String {
         return apiFor(updateProvider.bot)
+    }
+
+    fun apiFor(update: Update): String {
+        return apiFor(update.bot)
     }
 
     fun apiFor(tgBot: TgBot): String {

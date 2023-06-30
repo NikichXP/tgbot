@@ -7,6 +7,8 @@ import com.nikichxp.tgbot.dto.payments.PreCheckoutQuery
 import com.nikichxp.tgbot.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.dto.polls.Poll
 import com.nikichxp.tgbot.dto.polls.PollAnswer
+import com.nikichxp.tgbot.entity.BotInfo
+import com.nikichxp.tgbot.entity.TgBot
 import org.springframework.data.annotation.Id
 
 data class Update(
@@ -25,7 +27,7 @@ data class Update(
     @JsonProperty("poll_answer") val pollAnswer: PollAnswer? = null
 ) {
 
-    fun toJson(): String {
-        return ObjectMapper().registerKotlinModule().writeValueAsString(this)
-    }
+    // TODO think about: maybe move this to updateContext, TBD
+    lateinit var bot: TgBot
+
 }

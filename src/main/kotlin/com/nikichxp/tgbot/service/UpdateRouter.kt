@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.error.ExpectedError
 import com.nikichxp.tgbot.handlers.UpdateHandler
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class UpdateRouter(
-    private val handlers: List<UpdateHandler>
+    private val handlers: List<UpdateHandler>,
+    private val objectMapper: ObjectMapper
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -17,14 +19,17 @@ class UpdateRouter(
     fun proceedUpdate(update: Update) {
         val handlerList = getSupportedMarkerHandlers(update)
         if (handlerList.isEmpty()) {
-            throw IllegalArgumentException("cant proceed message cause no handler for ${update.getMarkers()} found")
+            throw IllegalArgumentException("Can't proceed message cause no handler for ${update.getMarkers()} found")
         }
         handlerList.forEach {
             try {
                 it.handleUpdate(update)
             } catch (expected: ExpectedError) {
                 if (expected.printJson) {
-                    logger.warn("Handler ${it::class.java.simpleName} didn't handled json: ${update.toJson()}")
+                    logger.warn(
+                        "Handler ${it::class.java.simpleName} didn't handled json: " +
+                                objectMapper.writeValueAsString(update)
+                    )
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
