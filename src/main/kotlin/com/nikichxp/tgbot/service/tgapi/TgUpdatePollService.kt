@@ -25,20 +25,24 @@ class TgUpdatePollService(
 
     private val dispatcher = Dispatchers.IO
     private val scope = CoroutineScope(dispatcher)
-    private val activeBots = ConcurrentSet<BotInfo>()
+    private val activeBots = ConcurrentSet<PollingInfo>()
 
     fun startPollingFor(botInfo: BotInfo) {
-        activeBots.add(botInfo)
+        activeBots.add(PollingInfo(botInfo))
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.SECONDS)
     fun pollData() {
-        activeBots.map { bot ->
+        activeBots.map { info ->
             scope.launch {
-                val response = client.get("https://api.telegram.org/bot${bot.token}/getUpdates").body<TgResponse>()
-                for (update in response.result) {
-                    // TODO local thread is not an HTTP thread, that's sad
-                    messageEntryPoint.proceedUpdate(update, bot.bot)
+                val response =
+                    client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=${info.lastUpdate}")
+                        .body<TgResponse>()
+                for (update in response.result.filter { it.updateId > info.lastUpdate }) {
+                    messageEntryPoint.proceedUpdate(update, info.bot.bot)
+                }
+                if (response.result.isNotEmpty()) {
+                    info.lastUpdate = response.result.maxOf { it.updateId }
                 }
             }
         }.map { runBlocking { it.join() } }
@@ -49,4 +53,9 @@ class TgUpdatePollService(
 data class TgResponse(
     val ok: Boolean,
     val result: List<Update>
+)
+
+data class PollingInfo(
+    val bot: BotInfo,
+    var lastUpdate: Long = 0
 )
