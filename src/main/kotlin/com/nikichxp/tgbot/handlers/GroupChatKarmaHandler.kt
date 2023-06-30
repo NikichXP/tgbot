@@ -34,7 +34,7 @@ class GroupChatKarmaHandler(
         )
 
         if (interactionResult.isLikeInteraction()) {
-            likedMessageService.changeRating(interactionResult)
+            likedMessageService.changeRating(interactionResult, update)
         }
     }
 

@@ -55,7 +55,7 @@ class LikedMessageService(
         diff: Double
     ) {
         val text = "$actor ($actorKarma) changed karma of $target ($targetKarma) Δ=$diff"
-        tgOperations.sendMessage(update.message?.chat?.id!!, text)
+        tgOperations.sendMessage(update.message?.chat?.id!!, text, update)
     }
 
     companion object {

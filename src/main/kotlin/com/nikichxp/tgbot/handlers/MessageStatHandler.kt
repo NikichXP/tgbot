@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
+import com.nikichxp.tgbot.entity.TgBotConfig
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.service.tgapi.TgOperations
@@ -17,6 +18,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
 /*
@@ -26,10 +28,13 @@ TODO
   когда чатов будет много нужно будет добавлять сюда LRU-кэш
   хранить данные там типа date.chatId.userId=0
   хранить информацию об имени в БД в течении пары дней и обновлять ее как-нибудь
+  .
+  также у нас тут поддержка только 1 бота, надо несколько
  */
 @Component
 class MessageStatHandler(
     private val mongoTemplate: MongoTemplate,
+    private val tgBotConfig: TgBotConfig,
     private val tgOperations: TgOperations
 ) : UpdateHandler {
 
@@ -44,7 +49,7 @@ class MessageStatHandler(
             .forEach { reportInChat(it) }
     }
 
-    @Scheduled(fixedDelay = 1000 * 10)
+    @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.SECONDS)
     fun saveData() {
         mongoTemplate.save(userStat)
         if (getDateKey() != userStat.date) {
@@ -65,7 +70,7 @@ class MessageStatHandler(
             }
             if (report) {
                 try {
-                    tgOperations.sendMessage(chatId, message.toString())
+//                    tgOperations.sendMessage(chatId, message.toString())
                 } catch (e: Exception) {
                     logger.warn("Cannot send message report to chatId $chatId, reason: ${e.message}")
                 }

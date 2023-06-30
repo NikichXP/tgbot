@@ -56,7 +56,7 @@ class StickerReplyHandler(
                 )
                 null
             } ?: return
-            likedMessageService.changeRating(interactionResult)
+            likedMessageService.changeRating(interactionResult, update)
         }
     }
 
@@ -75,7 +75,7 @@ class StickerReplyHandler(
             }
         }
 
-        tgOperations.sendToCurrentChat("I CAN SEE THE STICKER REACTION! The reaction is: $emoji")
+        tgOperations.sendToCurrentChat("I CAN SEE THE STICKER REACTION! The reaction is: $emoji", update)
     }
 
     companion object {

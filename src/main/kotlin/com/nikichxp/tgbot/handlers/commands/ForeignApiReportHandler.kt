@@ -39,13 +39,13 @@ class ForeignApiReportHandler(
             asArg("resource") {
                 when (vars["resource"]) {
                     "route" -> {
-                        tgOperations.replyToCurrentMessage("Started operation")
+                        tgOperations.replyToCurrentMessage("Started operation", update)
                         GlobalScope.launch {
-                            tgOperations.replyToCurrentMessage(getStatusOfNode())
+                            tgOperations.replyToCurrentMessage(getStatusOfNode(), update)
                         }
                     }
                     else -> {
-                        tgOperations.replyToCurrentMessage("no such service")
+                        tgOperations.replyToCurrentMessage("no such service", update)
                     }
                 }
             }

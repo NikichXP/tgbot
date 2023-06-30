@@ -44,12 +44,12 @@ class LogAllMessagesHandler(
         if (chatId != null) {
             loggingToModeMap[chatId]?.let {
                 if (!it) {
-                    tgOperations.sendMessage(chatId, prefix + objectMapper.writeValueAsString(update))
+                    tgOperations.sendMessage(chatId, prefix + objectMapper.writeValueAsString(update), update)
                 }
             }
         }
         loggingToModeMap.entries.filter { it.value }.forEach {
-            tgOperations.sendMessage(it.key, prefix + objectMapper.writeValueAsString(update))
+            tgOperations.sendMessage(it.key, prefix + objectMapper.writeValueAsString(update), update)
         }
     }
 
@@ -58,7 +58,7 @@ class LogAllMessagesHandler(
     override fun processCommand(args: List<String>, update: Update): Boolean {
         val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
 
-        fun notify(text: String) = tgOperations.sendMessage(chatId, prefix + text)
+        fun notify(text: String) = tgOperations.sendMessage(chatId, prefix + text, update)
 
         return ChatCommandParser.analyze(args) {
             path("status") {

@@ -30,21 +30,21 @@ class RegisterEmojiHandler(
             }
             path("list") {
                 val emojis = emojiService.listEmojis().joinToString(separator = "\n") { "${it.first} -> ${it.second}" }
-                tgOperations.replyToCurrentMessage("Here are emoji list:\n$emojis")
+                tgOperations.replyToCurrentMessage("Here are emoji list:\n$emojis", update)
             }
         }
     }
 
     // TODO Refactor this
-    fun onEmojiSet(emoji: String?, powerInput: String?, update: Update) =
+    fun onEmojiSet(emoji: String?, powerInput: String?, update: Update) {
         when (val power = powerInput?.toDoubleOrNull()) {
-            null -> tgOperations.replyToCurrentMessage("Cannot find the power of the emoji")
-            !in -1.0..1.0 -> tgOperations.replyToCurrentMessage("Power can be in range from -1 to +1")
+            null -> tgOperations.replyToCurrentMessage("Cannot find the power of the emoji", update)
+            !in -1.0..1.0 -> tgOperations.replyToCurrentMessage("Power can be in range from -1 to +1", update)
             else -> {
                 val messageAuthorId = update.message?.from?.id
                 when {
-                    messageAuthorId != ownerId -> tgOperations.replyToCurrentMessage("You can't do that")
-                    emoji == null -> tgOperations.replyToCurrentMessage("Cannot find emoji info")
+                    messageAuthorId != ownerId -> tgOperations.replyToCurrentMessage("You can't do that", update)
+                    emoji == null -> tgOperations.replyToCurrentMessage("Cannot find emoji info", update)
                     else -> {
                         val str = emoji.split(",").map {
                             try {
@@ -54,9 +54,10 @@ class RegisterEmojiHandler(
                                 return@map "Add emoji $it status: fail; msg = ${e.message}"
                             }
                         }.joinToString(separator = "\n")
-                        tgOperations.replyToCurrentMessage(str)
+                        tgOperations.replyToCurrentMessage(str, update)
                     }
                 }
             }
         }
+    }
 }

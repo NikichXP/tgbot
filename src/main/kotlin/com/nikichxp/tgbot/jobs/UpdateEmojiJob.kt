@@ -9,6 +9,10 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.stereotype.Component
 
+/*
+ TODO Это надо перенести в исполняемый скрипт
+        технически это сопутствующий скрипт, надо держать его где-то в другом месте как часть supportive lib
+ */
 @Component
 class UpdateEmojiJob(
     private val mongoTemplate: MongoTemplate,
@@ -42,7 +46,8 @@ class UpdateEmojiJob(
             if (messages.isNotEmpty()) {
                 tgOperations.sendMessage(
                     -1001361600905L,
-                    "Emoji $emoji changed data:\n${messages.joinToString(separator = "\n")}"
+                    "Emoji $emoji changed data:\n${messages.joinToString(separator = "\n")}",
+                    TODO()
                 )
             }
         }

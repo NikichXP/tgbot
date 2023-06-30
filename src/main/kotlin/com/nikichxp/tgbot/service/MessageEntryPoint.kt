@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.wnameless.json.flattener.JsonFlattener
-import com.nikichxp.tgbot.core.CurrentUpdateProvider
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UnparsedMessage
@@ -18,7 +17,6 @@ class MessageEntryPoint(
     private val objectMapper: ObjectMapper,
     private val mongoTemplate: MongoTemplate,
     private val updateRouter: UpdateRouter,
-    private val currentUpdateProvider: CurrentUpdateProvider,
     private val rawJsonLogger: RawJsonLogger
 ) {
 
@@ -41,8 +39,6 @@ class MessageEntryPoint(
     }
 
     fun proceedUpdate(update: Update, bot: TgBot) {
-        currentUpdateProvider.update = update
-        currentUpdateProvider.bot = bot
         update.bot = bot
         updateRouter.proceedUpdate(update)
     }

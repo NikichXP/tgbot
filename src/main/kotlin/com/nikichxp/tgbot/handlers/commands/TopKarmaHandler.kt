@@ -22,7 +22,8 @@ class TopKarmaHandler(
         if (args.isNotEmpty()) {
             tgOperations.sendMessage(
                 update.getContextChatId()!!,
-                "Additional args are not supported yet"
+                "Additional args are not supported yet",
+                update
             )
             return true
         }
@@ -34,7 +35,8 @@ class TopKarmaHandler(
         update.run {
             tgOperations.sendMessage(
                 update.getContextChatId()!!,
-                "Top users are:\n$ratingStr"
+                "Top users are:\n$ratingStr",
+                update
             )
         }
         return true
