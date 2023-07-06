@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.context.annotation.Lazy
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.util.LinkedList
 import java.util.concurrent.TimeUnit
 
 @Service
@@ -36,13 +37,11 @@ class TgUpdatePollService(
         activeBots.map { info ->
             scope.launch {
                 val response =
-                    client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=${info.lastUpdate}")
+                    client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=-100")
                         .body<TgResponse>()
-                for (update in response.result.filter { it.updateId > info.lastUpdate }) {
+                for (update in response.result.filter { info.shouldBeProcessed(it.updateId) }) {
                     messageEntryPoint.proceedUpdate(update, info.bot.bot)
-                }
-                if (response.result.isNotEmpty()) {
-                    info.lastUpdate = response.result.maxOf { it.updateId }
+                    info.process(update.updateId)
                 }
             }
         }.map { runBlocking { it.join() } }
@@ -58,4 +57,18 @@ data class TgResponse(
 data class PollingInfo(
     val bot: BotInfo,
     var lastUpdate: Long = 0
-)
+) {
+    // todo maybe consider using 2 structures?
+    private val processedUpdates = LinkedList<Long>()
+
+    fun shouldBeProcessed(updateId: Long): Boolean {
+        return !processedUpdates.contains(updateId)
+    }
+
+    fun process(updateId: Long) {
+        processedUpdates.add(updateId)
+        while (processedUpdates.size > 1_000) {
+            processedUpdates.poll()
+        }
+    }
+}
