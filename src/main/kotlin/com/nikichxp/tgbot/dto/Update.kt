@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -28,6 +29,7 @@ data class Update(
 ) {
 
     // TODO think about: maybe move this to updateContext, TBD
+    @JsonIgnore
     lateinit var bot: TgBot
 
 }
