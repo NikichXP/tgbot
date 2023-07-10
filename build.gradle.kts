@@ -1,6 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val ktorVersion: String = "2.2.4"
+val ktorVersion: String = "2.3.2"
 val kotlinVersion: String = "1.8.10"
 val coroutinesVersion: String = "1.6.4"
 
@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     implementation("com.github.wnameless.json:json-flattener:0.12.0")
-    implementation("org.yaml:snakeyaml:1.29")
+    implementation("org.yaml:snakeyaml:2.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-web")
