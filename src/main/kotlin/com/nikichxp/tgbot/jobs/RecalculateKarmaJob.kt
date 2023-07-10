@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.jobs
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ArrayNode
-import com.nikichxp.tgbot.service.TextClassifier
+import com.nikichxp.tgbot.service.DynamicTextClassifier
 import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.actions.LikeReport
 import com.nikichxp.tgbot.service.actions.LikeReportId
@@ -26,7 +26,7 @@ import kotlin.concurrent.thread
 @Component
 class RecalculateKarmaJob(
     private val mongoTemplate: MongoTemplate,
-    private val textClassifier: TextClassifier,
+    private val textClassifier: DynamicTextClassifier,
     private val objectMapper: ObjectMapper,
     private val likedMessageService: LikedMessageService
 ) {
