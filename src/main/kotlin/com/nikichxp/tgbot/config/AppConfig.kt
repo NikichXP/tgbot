@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 class AppConfig(
     var adminId: Long,
     var webhook: String,
+    var localEnv: Boolean,
     var tokens: Tokens,
     var tracer: Tracer
 ) {

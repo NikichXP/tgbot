@@ -8,6 +8,7 @@ spring:
 app:
   admin-id: ${ADMIN_ID}
   webhook: ${WEBHOOK}
+  localEnv: ${LOCALENV:false}
   tokens:
     nikichbot: ${NIKICH_BOT_TOKEN}
     allmystuffbot: ${ALLMYSTUFF_BOT_TOKEN}

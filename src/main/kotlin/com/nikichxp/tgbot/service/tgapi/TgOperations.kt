@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.service.tgapi
 
+import com.nikichxp.tgbot.config.AppConfig
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.TgBotConfig
@@ -21,7 +22,8 @@ class TgOperations(
     private val restTemplate: RestTemplate,
     private val tgSetWebhookService: TgBotSetWebhookService,
     private val tgUpdatePollService: TgUpdatePollService,
-    private val tgBotConfig: TgBotConfig
+    private val tgBotConfig: TgBotConfig,
+    private val appConfig: AppConfig
 ) {
 
     private val bots = tgBotConfig.getInitializedBots()
@@ -30,6 +32,10 @@ class TgOperations(
 
     @PostConstruct
     fun registerWebhooks() {
+        if (appConfig.localEnv) {
+            logger.info("Local env: skip webhook setting")
+            return
+        }
         logger.info("Registering bots: ${bots.map { it.bot }}")
         bots.forEach {
             val webhookSet = runBlocking { tgSetWebhookService.register(it) }

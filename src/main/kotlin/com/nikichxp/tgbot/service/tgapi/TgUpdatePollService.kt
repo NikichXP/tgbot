@@ -11,11 +11,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.LinkedList
 import java.util.concurrent.TimeUnit
+import kotlin.math.log
 
 @Service
 class TgUpdatePollService(
@@ -24,12 +26,15 @@ class TgUpdatePollService(
     private val messageEntryPoint: MessageEntryPoint
 ) {
 
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     private val dispatcher = Dispatchers.IO
     private val scope = CoroutineScope(dispatcher)
     private val activeBots = ConcurrentSet<PollingInfo>()
 
     fun startPollingFor(botInfo: BotInfo) {
         activeBots.add(PollingInfo(botInfo))
+        logger.info("Start update polling for bot ${botInfo.name}")
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.SECONDS)
