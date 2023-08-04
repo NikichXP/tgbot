@@ -47,4 +47,3 @@ jobs:
         body: 'Updates'
         draft: false
         prerelease: false
-        distribution: origin
