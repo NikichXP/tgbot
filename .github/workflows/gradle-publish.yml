@@ -1,0 +1,48 @@
+name: Java CI with Gradle and Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+
+    - name: Build with Gradle
+      run: ./gradlew build --info
+
+    - name: Test with Gradle
+      run: ./gradlew test --info
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Get Version from build.gradle.kts
+      id: get_version
+      run: echo "VERSION=\$(grep version build.gradle.kts | awk '{print \$2}')" >> $GITHUB_ENV
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VERSION: ${{ env.VERSION }} # Используем полученную версию из переменной окружения
+
+      with:
+        tag_name: v${{ env.VERSION }}
+        release_name: Release v${{ env.VERSION }}
+        body: 'Updates'
+        draft: false
+        prerelease: false
