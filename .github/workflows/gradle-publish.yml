@@ -20,7 +20,7 @@ jobs:
         distribution: 'adopt'
 
     - name: Build with Gradle
-      run: ./gradlew build --info -Pversion=${{ GITHUB_RUN_NUMBER }}
+      run: ./gradlew build --info -Pversion=${{ github.run_number }}
 
   release:
     needs: build
@@ -32,11 +32,11 @@ jobs:
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: ${{ GITHUB_RUN_NUMBER }}
+        VERSION: ${{ github.run_number }}
 
       with:
         tag_name: v${{ GITHUB_RUN_NUMBER }}
-        release_name: Release v${{ GITHUB_RUN_NUMBER }}
+        release_name: Release v${{ github.run_number }}
         body: 'Updates'
         draft: false
         prerelease: false
