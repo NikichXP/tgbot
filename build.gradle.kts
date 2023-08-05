@@ -49,6 +49,15 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+abstract class PrintVersion : DefaultTask() {
+    @TaskAction
+    fun printVersion() {
+        println(project.version)
+    }
+}
+
+tasks.register<PrintVersion>("printVersion")
+
 tasks.bootJar {
     archiveFileName.set("app.jar")
 }
