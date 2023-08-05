@@ -30,16 +30,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Get Version from build.gradle.kts
-      id: get_version
-      run: echo "VERSION=\$(grep version build.gradle.kts | awk '{print \$2}')" >> $GITHUB_ENV
+#    - name: Get Version from build.gradle.kts
+#      id: get_version
+#      run: echo "VERSION=\$(grep version build.gradle.kts | awk '{print \$2}')" >> $GITHUB_ENV
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: ${{ env.VERSION }} # Используем полученную версию из переменной окружения
+        VERSION: '0.9.9'
 
       with:
         tag_name: v${{ env.VERSION }}
