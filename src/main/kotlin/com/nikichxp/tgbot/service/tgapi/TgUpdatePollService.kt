@@ -15,9 +15,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.util.LinkedList
+import java.util.*
 import java.util.concurrent.TimeUnit
-import kotlin.math.log
 
 @Service
 class TgUpdatePollService(

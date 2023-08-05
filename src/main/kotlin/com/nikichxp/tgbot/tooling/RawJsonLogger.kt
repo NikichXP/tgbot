@@ -1,6 +1,8 @@
 package com.nikichxp.tgbot.tooling
 
 import com.nikichxp.tgbot.config.AppConfig
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.bson.Document
@@ -13,9 +15,11 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
+// TODO refactor and rename this
 @Service
 class RawJsonLogger(
     private val mongoTemplate: MongoTemplate,
+    private val dispatcher: CoroutineScope,
     appConfig: AppConfig
 ) {
 
@@ -29,10 +33,11 @@ class RawJsonLogger(
             .ensureIndex(Index().on("time", Sort.Direction.ASC).expire(indexTTL, TimeUnit.HOURS))
     }
 
-    fun logEvent(data: Document) = runBlocking {
+    fun logEvent(data: Document) {
         if (storingEnabled) {
-            launch {
-                mongoTemplate.save(EventTrace(data))
+            val trace = EventTrace(data)
+            dispatcher.launch {
+                mongoTemplate.save(trace)
             }
         }
     }
