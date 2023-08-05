@@ -5,7 +5,7 @@ val kotlinVersion: String = "1.8.10"
 val coroutinesVersion: String = "1.6.4"
 
 group = "com.nikichxp"
-version = "1.0.0"
+version = project.property("version") ?: "1.0.0"
 description = "tgbot"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
