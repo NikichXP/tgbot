@@ -26,6 +26,8 @@ class LogAllMessagesHandler(
     private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
+    override fun supportedBots(tgBot: TgBot) = TgBot.values().asList().toSet()
+
     override fun botSupported(bot: TgBot) = true
 
     override fun getMarkers(): Set<UpdateMarker> {
@@ -55,7 +57,7 @@ class LogAllMessagesHandler(
 
     override fun isCommandSupported(command: String): Boolean = command == "/logging"
 
-    override fun processCommand(args: List<String>, update: Update): Boolean {
+    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
 
         fun notify(text: String) = tgOperations.sendMessage(chatId, prefix + text, update)

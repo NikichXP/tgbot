@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.handlers.commands
 
 import com.nikichxp.tgbot.config.AppConfig
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.service.EmojiService
 import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.service.tgapi.TgOperations
@@ -17,9 +18,11 @@ class RegisterEmojiHandler(
 
     private var ownerId = appConfig.adminId
 
+    override fun supportedBots(tgBot: TgBot) = setOf(TgBot.NIKICHBOT)
+
     override fun isCommandSupported(command: String): Boolean = command == "/emoji"
 
-    override fun processCommand(args: List<String>, update: Update): Boolean {
+    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         return ChatCommandParser.analyze(args) {
             path("set") {
                 asArg("emoji") {

@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.handlers.commands
 
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.service.UserInfo
 import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.service.tgapi.TgOperations
@@ -16,9 +17,12 @@ class TopKarmaHandler(
     private val tgOperations: TgOperations,
     private val mongoTemplate: MongoTemplate
 ) : CommandHandler {
+
+    override fun supportedBots(tgBot: TgBot) = setOf(TgBot.NIKICHBOT)
+
     override fun isCommandSupported(command: String): Boolean = command.lowercase() in listOf("/top", "/realtop")
 
-    override fun processCommand(args: List<String>, update: Update): Boolean {
+    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         if (args.isNotEmpty()) {
             tgOperations.sendMessage(
                 update.getContextChatId()!!,

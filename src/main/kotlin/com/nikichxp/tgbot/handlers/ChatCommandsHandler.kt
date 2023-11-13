@@ -22,10 +22,14 @@ class ChatCommandsHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
     override fun handleUpdate(update: Update) {
+        if (!botSupported(update.bot)) {
+            return
+        }
+
         val query = update.message!!.text!!.split(" ")
         val result = commandHandlers
             .find { it.isCommandSupported(query.first()) }
-            ?.processCommand(query.drop(1), update)
+            ?.processCommand(query.drop(1), query.first(), update)
             ?: false
         if (!result) {
 //            val chatId = update.getContextChatId()!!

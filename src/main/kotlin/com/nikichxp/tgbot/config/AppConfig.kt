@@ -15,7 +15,8 @@ class AppConfig(
     companion object {
         class Tokens(
             var nikichBot: String?,
-            var allMyStuffBot: String?
+            var allMyStuffBot: String?,
+            var santaBot: String?
         )
 
         class Tracer(

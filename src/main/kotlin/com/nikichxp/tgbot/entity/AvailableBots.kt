@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Component
 
 enum class TgBot(val botName: String) {
-    NIKICHBOT("nikichbot"), ALLMYSTUFFBOT("allmystuffbot")
+    NIKICHBOT("nikichbot"), ALLMYSTUFFBOT("allmystuffbot"), SANTABOT("santabot")
 }
 
 data class BotInfo(
@@ -24,6 +24,7 @@ class TgBotConfig(
         val token = when(bot) {
             TgBot.NIKICHBOT -> appConfig.tokens.nikichBot
             TgBot.ALLMYSTUFFBOT -> appConfig.tokens.allMyStuffBot
+            TgBot.SANTABOT -> appConfig.tokens.santaBot
         } ?: return null
         return BotInfo(
             bot = bot,
