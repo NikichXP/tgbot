@@ -78,7 +78,7 @@ class SantaBotCommandHandler(
 
         fun checkResult(): Boolean {
             return users.zip(targets).all { (user, target) ->
-                user.ignores.none { it == target } && user.username != target
+                user.ignores.none { it.lowercase().contains(target) } && user.username != target
             }
         }
 
