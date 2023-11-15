@@ -34,13 +34,14 @@ class TgOperations(
     fun registerWebhooks() {
         if (appConfig.localEnv) {
             logger.info("Local env: skip webhook setting")
-            return
-        }
-        logger.info("Registering bots: ${bots.map { it.bot }}")
-        bots.forEach {
-            val webhookSet = runBlocking { tgSetWebhookService.register(it) }
-            if (!webhookSet) {
-                tgUpdatePollService.startPollingFor(it)
+            bots.forEach { tgUpdatePollService.startPollingFor(it) }
+        } else {
+            logger.info("Registering bots: ${bots.map { it.bot }}")
+            bots.forEach {
+                val webhookSet = runBlocking { tgSetWebhookService.register(it) }
+                if (!webhookSet) {
+                    tgUpdatePollService.startPollingFor(it)
+                }
             }
         }
     }

@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
+import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.findById
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
@@ -22,7 +24,8 @@ import java.util.concurrent.TimeUnit
 class TgUpdatePollService(
     private val client: HttpClient,
     @Lazy
-    private val messageEntryPoint: MessageEntryPoint
+    private val messageEntryPoint: MessageEntryPoint,
+    private val mongoTemplate: MongoTemplate
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -32,7 +35,8 @@ class TgUpdatePollService(
     private val activeBots = ConcurrentSet<PollingInfo>()
 
     fun startPollingFor(botInfo: BotInfo) {
-        activeBots.add(PollingInfo(botInfo))
+        val lastKnownMessage = mongoTemplate.findById<BotLastKnownMessage>(botInfo.bot.name)
+        activeBots.add(PollingInfo(botInfo, lastKnownMessage?.updateId ?: 0))
         logger.info("Start update polling for bot ${botInfo.name}")
     }
 
@@ -40,18 +44,25 @@ class TgUpdatePollService(
     fun pollData() {
         activeBots.map { info ->
             scope.launch {
-                val response =
-                    client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=-100")
-                        .body<TgResponse>()
-                for (update in response.result.filter { info.shouldBeProcessed(it.updateId) }) {
-                    messageEntryPoint.proceedUpdate(update, info.bot.bot)
-                    info.process(update.updateId)
+                val response = client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=${info.lastUpdate}")
+                if (response.status.value in 200..299) {
+                    val responseBody = response.body<TgResponse>()
+                    for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
+                        messageEntryPoint.proceedUpdate(update, info.bot.bot)
+                        val hasUpdated = info.process(update.updateId)
+                        if (hasUpdated) {
+                            mongoTemplate.save(BotLastKnownMessage(info.bot.name, update.updateId))
+                        }
+                    }
+                } else {
+                    // todo add logs
                 }
             }
         }.map { runBlocking { it.join() } }
     }
-
 }
+
+data class BotLastKnownMessage(var id: String, var updateId: Long)
 
 data class TgResponse(
     val ok: Boolean,
@@ -69,10 +80,15 @@ data class PollingInfo(
         return !processedUpdates.contains(updateId)
     }
 
-    fun process(updateId: Long) {
+    fun process(updateId: Long): Boolean {
         processedUpdates.add(updateId)
         while (processedUpdates.size > 1_000) {
             processedUpdates.poll()
         }
+        if (updateId > lastUpdate) {
+            lastUpdate = updateId
+            return true
+        }
+        return false
     }
 }

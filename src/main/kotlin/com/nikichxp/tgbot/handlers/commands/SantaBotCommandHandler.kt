@@ -54,11 +54,12 @@ class SantaBotCommandHandler(
                 val playerId = getSantaUserPlayerFromUpdate(update).id
                 val player = game.players.find { it.id == playerId }
                         ?: throw IllegalArgumentException("register in game first")
-                player.ignores += ignored
+                player.ignores += ignored.replace("@", "").lowercase()
                 mongoTemplate.save(game)
+                tgOperations.replyToCurrentMessage("Вы добавили @${ignored} как свою вторую половинку", update)
             }
 
-            "/start" -> {
+            "/startgame" -> {
                 val gameId = args.first()
                 val game = getGame(gameId, update)
                 startGame(game, update)
@@ -76,16 +77,16 @@ class SantaBotCommandHandler(
         val users = game.players
         val targets = game.players.map { it.username }.toMutableList()
 
-        fun checkResult(): Boolean {
+        fun isConditionOk(): Boolean {
             return users.zip(targets).all { (user, target) ->
-                user.ignores.none { it.lowercase().contains(target) } && user.username != target
+                user.ignores.none { target.lowercase().contains(it.lowercase()) } && user.username.lowercase() != target.lowercase()
             }
         }
 
         val rand = java.util.Random()
         val size = users.size
 
-        while (!checkResult()) {
+        while (!isConditionOk()) {
             val a = rand.nextInt(size)
             val b = rand.nextInt(size)
             val tmp = targets[a]
@@ -94,6 +95,7 @@ class SantaBotCommandHandler(
         }
 
         users.zip(targets).forEach { (user, target) ->
+            println("${user.username} дарит $target")
             tgOperations.sendMessage(
                     user.id,
                     "Ваша цель: @$target",
