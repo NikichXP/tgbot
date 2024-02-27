@@ -3,7 +3,6 @@ package com.nikichxp.tgbot.handlers.commands
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.service.UserInfo
-import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.getContextChatId
 import org.springframework.data.mongodb.core.MongoTemplate

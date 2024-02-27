@@ -4,7 +4,6 @@ import com.nikichxp.tgbot.config.AppConfig
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.service.EmojiService
-import com.nikichxp.tgbot.service.menu.CommandHandler
 import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.ChatCommandParser
 import org.springframework.stereotype.Component

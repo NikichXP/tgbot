@@ -1,4 +1,4 @@
-package com.nikichxp.tgbot.service.menu
+package com.nikichxp.tgbot.handlers.commands
 
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
