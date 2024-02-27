@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException.TooManyRequests
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.getForEntity
 import org.springframework.web.client.postForEntity
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -52,6 +53,10 @@ class TgOperations(
 
     fun apiFor(tgBot: TgBot): String {
         return "https://api.telegram.org/bot${tgBotConfig.getBotInfo(tgBot)!!.token}"
+    }
+
+    fun deleteWebhook(tgBot: TgBot) {
+        restTemplate.getForEntity<String>(apiFor(tgBot) + "/deleteWebhook").body
     }
 
     fun sendMessage(chatId: Long, text: String, update: Update, replyToMessageId: Long? = null, retryNumber: Int = 0) {

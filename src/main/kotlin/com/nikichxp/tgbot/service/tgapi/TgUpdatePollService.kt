@@ -25,6 +25,8 @@ class TgUpdatePollService(
     private val client: HttpClient,
     @Lazy
     private val messageEntryPoint: MessageEntryPoint,
+    @Lazy
+    private val tgOperations: TgOperations,
     private val mongoTemplate: MongoTemplate
 ) {
 
@@ -32,30 +34,41 @@ class TgUpdatePollService(
 
     private val dispatcher = Dispatchers.IO
     private val scope = CoroutineScope(dispatcher)
-    private val activeBots = ConcurrentSet<PollingInfo>()
+    private val activePollingBots = ConcurrentSet<PollingInfo>()
 
     fun startPollingFor(botInfo: BotInfo) {
         val lastKnownMessage = mongoTemplate.findById<BotLastKnownMessage>(botInfo.bot.name)
-        activeBots.add(PollingInfo(botInfo, lastKnownMessage?.updateId ?: 0))
+        activePollingBots.add(PollingInfo(botInfo, lastKnownMessage?.updateId ?: 0))
         logger.info("Start update polling for bot ${botInfo.name}")
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.SECONDS)
     fun pollData() {
-        activeBots.map { info ->
+
+
+        activePollingBots.map { info ->
             scope.launch {
-                val response = client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=${info.lastUpdate}")
-                if (response.status.value in 200..299) {
-                    val responseBody = response.body<TgResponse>()
-                    for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
-                        messageEntryPoint.proceedUpdate(update, info.bot.bot)
-                        val hasUpdated = info.process(update.updateId)
-                        if (hasUpdated) {
-                            mongoTemplate.save(BotLastKnownMessage(info.bot.name, update.updateId))
+                val response =
+                    client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=${info.lastUpdate}")
+                when (response.status.value) {
+                    in 200..299 -> {
+                        val responseBody = response.body<TgResponse>()
+                        for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
+                            messageEntryPoint.proceedUpdate(update, info.bot.bot)
+                            val hasUpdated = info.process(update.updateId)
+                            if (hasUpdated) {
+                                mongoTemplate.save(BotLastKnownMessage(info.bot.name, update.updateId))
+                            }
                         }
                     }
-                } else {
-                    // todo add logs
+
+                    409 -> {
+//                        tgOperations.deleteWebhook(info.bot.bot)
+                    }
+
+                    else -> {
+                        // todo logger of errors with limited rate
+                    }
                 }
             }
         }.map { runBlocking { it.join() } }
