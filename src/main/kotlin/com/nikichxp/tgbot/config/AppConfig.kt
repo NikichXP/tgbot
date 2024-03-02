@@ -12,6 +12,9 @@ class AppConfig(
     var tokens: Tokens,
     var tracer: Tracer
 ) {
+
+    var suspendBotRegistering: Boolean = false
+
     companion object {
         class Tokens(
             var nikichBot: String?,

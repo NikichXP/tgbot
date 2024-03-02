@@ -17,7 +17,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.annotation.PostConstruct
 
-// TODO Use ktor's client instead of restTemplate
 @Service
 class TgOperations(
     private val restTemplate: RestTemplate,
@@ -33,7 +32,7 @@ class TgOperations(
 
     @PostConstruct
     fun registerWebhooks() {
-        if (appConfig.localEnv) {
+        if (appConfig.localEnv || appConfig.suspendBotRegistering) {
             logger.info("Local env: skip webhook setting")
             bots.forEach { tgUpdatePollService.startPollingFor(it) }
         } else {
@@ -41,6 +40,7 @@ class TgOperations(
             bots.forEach {
                 val webhookSet = runBlocking { tgSetWebhookService.register(it) }
                 if (!webhookSet) {
+                    logger.warn("Webhook setting failed for bot: ${it.bot}, doing polling instead")
                     tgUpdatePollService.startPollingFor(it)
                 }
             }
