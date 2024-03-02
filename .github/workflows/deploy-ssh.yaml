@@ -16,10 +16,4 @@ jobs:
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USERNAME }}
           pass: ${{ secrets.PASSWORD }}
-          command: |
-            cd /app/tg-bot
-            git pull
-            ./gradlew build
-            cd /app
-            docker-compose build --no-cache
-            docker-compose up -d
+          command: /app/update.sh
