@@ -17,11 +17,9 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           command: |
+            cd /app/tg-bot
+            git pull
+            ./gradlew build
             cd /app
-            touch demofile-1.txt
-            echo "Hello, World!" > demofile-1.txt
-#            git pull
-#            ./gradlew build
-#            cd /app
-#            docker-compose build
-#            docker-compose up -d
+            docker-compose build
+            docker-compose up -d
