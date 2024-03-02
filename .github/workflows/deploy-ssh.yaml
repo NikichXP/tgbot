@@ -19,7 +19,7 @@ jobs:
           command: |
             cd /app/tg-bot
             git pull
-            ./gradlew build
             cd /app
+            tg-bot/gradlew build
             docker-compose build
             docker-compose up -d
