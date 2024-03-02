@@ -11,11 +11,11 @@ jobs:
 
     steps:
       - name: Deployment
-        uses: garygrossgarten/github-action-ssh@release
+        uses: fifsky/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
+          user: ${{ secrets.USERNAME }}
+          pass: ${{ secrets.PASSWORD }}
           command: |
             cd /app/tg-bot
             git pull
