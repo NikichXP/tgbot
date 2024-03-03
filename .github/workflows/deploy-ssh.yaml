@@ -16,4 +16,4 @@ jobs:
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USERNAME }}
           pass: ${{ secrets.PASSWORD }}
-          command: /app/update.sh
+          command: /app/update-tgbot.sh
