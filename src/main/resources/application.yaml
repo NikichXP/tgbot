@@ -13,6 +13,7 @@ app:
     nikichbot: ${NIKICH_BOT_TOKEN}
     allmystuffbot: ${ALLMYSTUFF_BOT_TOKEN}
     santabot: ${SANTA_BOT_TOKEN}
+    storagebot: ${DEMO_BOT_TOKEN}
   tracer:
     store: true
     ttl: 24

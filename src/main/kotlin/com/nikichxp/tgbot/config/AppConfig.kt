@@ -19,7 +19,8 @@ class AppConfig(
         class Tokens(
             var nikichBot: String?,
             var allMyStuffBot: String?,
-            var santaBot: String?
+            var santaBot: String?,
+            var demoBot: String?
         )
 
         class Tracer(
