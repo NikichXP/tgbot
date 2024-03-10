@@ -1,4 +1,4 @@
-FROM gradle:jdk11 as builder
+FROM gradle:jdk17 as builder
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ COPY build.gradle.kts .
 COPY src ./src
 RUN gradle build --no-daemon
 
-FROM openjdk:11-jre-slim
+FROM openjdk:17-slim
 
 WORKDIR /app
 
