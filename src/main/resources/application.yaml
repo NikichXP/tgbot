@@ -1,19 +1,5 @@
 spring:
+  application:
+    name: tgbot
   config:
-    import: optional:file:.env[.properties]
-  data.mongodb:
-    uri: ${MONGODB_URI}
-    database: ${DB_NAME}
-
-app:
-  admin-id: ${ADMIN_ID}
-  webhook: ${WEBHOOK}
-  localEnv: ${LOCALENV:false}
-  tokens:
-    nikichbot: ${NIKICH_BOT_TOKEN}
-    allmystuffbot: ${ALLMYSTUFF_BOT_TOKEN}
-    santabot: ${SANTA_BOT_TOKEN}
-    storagebot: ${DEMO_BOT_TOKEN}
-  tracer:
-    store: true
-    ttl: 24
+    import: configserver:${CONFIG_SERVER}

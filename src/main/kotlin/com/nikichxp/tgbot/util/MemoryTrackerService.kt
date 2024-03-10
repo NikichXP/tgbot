@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 @Service
 class MemoryTrackerService {
 
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
+//    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
     fun printMemStats() {
         println(MemoryStatus().prettyPrint())
     }

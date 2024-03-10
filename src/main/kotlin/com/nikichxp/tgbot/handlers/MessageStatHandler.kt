@@ -7,6 +7,7 @@ import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.UserFormatter
+import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
-import javax.annotation.PostConstruct
 
 /*
 TODO

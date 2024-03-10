@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.service
 
 import com.nikichxp.tgbot.service.classifier.ClassifierInt
+import jakarta.annotation.PostConstruct
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.mapping.Field
@@ -10,7 +11,6 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.remove
 import org.springframework.data.mongodb.core.stream
 import org.springframework.stereotype.Service
-import javax.annotation.PostConstruct
 
 @Service
 class DynamicTextClassifier(
@@ -24,7 +24,7 @@ class DynamicTextClassifier(
     fun init() {
         mongoTemplate
             .stream<TextEntry>(Query())
-            .forEachRemaining(::loadEntry)
+            .forEach(::loadEntry)
     }
 
     override fun classify(input: String): Double {

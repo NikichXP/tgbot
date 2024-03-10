@@ -34,7 +34,7 @@ class RecalculateKarmaJob(
     fun recalculateNewKarma() {
         val karmaDb = mutableMapOf<Long, Double>()
         val reactedTo = mutableMapOf<Long, Int>()
-        mongoTemplate.stream<LikeReport>(Query().with(Sort.by("date").ascending())).forEachRemaining {
+        mongoTemplate.stream<LikeReport>(Query().with(Sort.by("date").ascending())).forEach {
             val actor = karmaDb[it.id.authorId] ?: 0.0
             val diff = LikedMessageService.calculateKarmaDiff(actor, it.power)
             val target = karmaDb[it.id.targetId] ?: 0.0

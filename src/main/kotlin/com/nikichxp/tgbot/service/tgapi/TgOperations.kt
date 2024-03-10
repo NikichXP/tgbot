@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.TgBotConfig
 import com.nikichxp.tgbot.util.getContextChatId
 import com.nikichxp.tgbot.util.getContextMessageId
+import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -15,7 +16,6 @@ import org.springframework.web.client.getForEntity
 import org.springframework.web.client.postForEntity
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import javax.annotation.PostConstruct
 
 @Service
 class TgOperations(

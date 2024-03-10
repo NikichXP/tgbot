@@ -1,19 +1,16 @@
 package com.nikichxp.tgbot.tooling
 
 import com.nikichxp.tgbot.config.AppConfig
-import kotlinx.coroutines.CoroutineDispatcher
+import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.bson.Document
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.concurrent.TimeUnit
-import javax.annotation.PostConstruct
 
 // TODO refactor and rename this
 @Service
