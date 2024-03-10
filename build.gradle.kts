@@ -45,6 +45,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.github.wnameless.json:json-flattener:0.16.6")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 //    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 }
 
