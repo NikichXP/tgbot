@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.warehousebot.WarehouseConnector
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,14 +15,6 @@ class WarehouseBotHandler(
     private val tgOperations: TgOperations
 ) : CommandHandler {
 
-    override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)
-
-    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
-        return true
-    }
-
-    override fun isCommandSupported(command: String): Boolean = commands.containsKey(command)
-
     private val commands = mapOf(
         "list" to ::list,
         "get" to { update, args -> },
@@ -29,12 +22,24 @@ class WarehouseBotHandler(
         "update" to { update, args -> }
     )
 
+    override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)
+
+    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+        runBlocking {
+            commands[command]?.invoke(update, args)
+        }
+        return true
+    }
+
+    override fun isCommandSupported(command: String): Boolean = commands.containsKey(command)
+
     private suspend fun list(update: Update, args: List<String>) {
         val userId = update.message?.from?.id?.toString() ?: return
         val list = warehouseConnector.listWarehouseEntities(userId)
         tgOperations.sendMessage(
             chatId = update.message.chat.id,
             update = update,
-            text = list.joinToString("\n"))
+            text = list.joinToString("\n")
+        )
     }
 }
