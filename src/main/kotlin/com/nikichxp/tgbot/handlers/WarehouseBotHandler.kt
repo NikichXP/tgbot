@@ -16,10 +16,10 @@ class WarehouseBotHandler(
 ) : CommandHandler {
 
     private val commands = mapOf(
-        "list" to ::list,
-        "get" to { update, args -> },
-        "create" to { update, args -> },
-        "update" to { update, args -> }
+        "/list" to ::list,
+        "/get" to { update, args -> },
+        "/create" to { update, args -> },
+        "/update" to { update, args -> }
     )
 
     override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)
