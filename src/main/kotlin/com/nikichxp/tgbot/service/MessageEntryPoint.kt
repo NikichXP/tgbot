@@ -25,11 +25,22 @@ class MessageEntryPoint(
     suspend fun proceedRawData(body: Document, bot: TgBot) {
         logger.info("Received message: $body")
         rawJsonLogger.logEvent(body)
+        val update = parseDocumentToUpdate(body)
+        proceedUpdate(update, bot)
+    }
+
+    fun proceedUpdate(update: Update, bot: TgBot) {
+        update.bot = bot
+        updateRouter.proceedUpdate(update)
+    }
+
+    // TODO can I use Spring-conversions for that?
+    private fun parseDocumentToUpdate(body: Document): Update {
         val source = body.toJson()
         try {
             val (update, diff) = parseUpdateAndGetDiff(source)
             if (diff.isEmpty()) {
-                proceedUpdate(update, bot)
+                return update
             } else {
                 mongoTemplate.save(UnparsedMessage(body, missedKeys = diff))
             }
@@ -37,11 +48,7 @@ class MessageEntryPoint(
             exception.printStackTrace()
             mongoTemplate.save(UnparsedMessage(body, message = exception.message))
         }
-    }
-
-    fun proceedUpdate(update: Update, bot: TgBot) {
-        update.bot = bot
-        updateRouter.proceedUpdate(update)
+        throw IllegalArgumentException("Cannot convert the incoming message")
     }
 
     private fun parseUpdateAndGetDiff(source: String): Pair<Update, Set<String>> {
