@@ -35,14 +35,14 @@ class RawJsonLogger(
     suspend fun logEvent(data: Document) = coroutineScope {
         if (storingEnabled) {
             val trace = EventTrace(data)
-            launch {
+//            launch {
                 try {
                     logger.info("start saving trace, id = ${trace.id}")
                     mongoTemplate.insert(trace)
                 } catch (e: Exception) {
                     logger.error("Failed to save trace", e)
                 }
-            }
+//            }
         }
     }
 }
