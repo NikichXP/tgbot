@@ -22,7 +22,7 @@ class MessageEntryPoint(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun proceedRawData(body: Document, bot: TgBot) {
+    suspend fun proceedRawData(body: Document, bot: TgBot) {
         rawJsonLogger.logEvent(body)
         val source = body.toJson()
         try {
