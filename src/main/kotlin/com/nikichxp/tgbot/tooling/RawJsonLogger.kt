@@ -36,7 +36,11 @@ class RawJsonLogger(
         if (storingEnabled) {
             val trace = EventTrace(data)
             dispatcher.launch {
-                mongoTemplate.save(trace)
+                try {
+                    mongoTemplate.save(trace)
+                } catch (e: Exception) {
+                    logger.error("Failed to save trace", e)
+                }
             }
         }
     }
