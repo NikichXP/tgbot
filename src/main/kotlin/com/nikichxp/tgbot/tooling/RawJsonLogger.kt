@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.bson.Document
 import org.slf4j.LoggerFactory
+import org.springframework.data.annotation.Id
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.index.Index
@@ -37,14 +38,17 @@ class RawJsonLogger(
             val trace = EventTrace(data)
             dispatcher.launch {
                 try {
-                    mongoTemplate.save(trace)
+                    logger.info("start saving trace, id = ${trace.id}")
+                    mongoTemplate.insert(trace)
                 } catch (e: Exception) {
                     logger.error("Failed to save trace", e)
                 }
             }
         }
     }
-
 }
 
-data class EventTrace(val data: Document, val time: Instant = Instant.now())
+data class EventTrace(val data: Document, val time: Instant = Instant.now()) {
+    @Id
+    var id: String = data["_id"] as String
+}
