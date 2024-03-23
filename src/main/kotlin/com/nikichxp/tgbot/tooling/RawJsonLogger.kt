@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.bson.Document
+import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.index.Index
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-// TODO refactor and rename this
 @Service
 class RawJsonLogger(
     private val mongoTemplate: MongoTemplate,
@@ -20,11 +20,13 @@ class RawJsonLogger(
     appConfig: AppConfig
 ) {
 
+    private val logger = LoggerFactory.getLogger(this.javaClass)
     private var storingEnabled = appConfig.tracer.store
     private var indexTTL = appConfig.tracer.ttl
 
     @PostConstruct
     fun createIndexes() {
+        logger.info("Logger status = $storingEnabled; TTL = $indexTTL")
         mongoTemplate
             .indexOps(EventTrace::class.java)
             .ensureIndex(Index().on("time", Sort.Direction.ASC).expire(indexTTL, TimeUnit.HOURS))
