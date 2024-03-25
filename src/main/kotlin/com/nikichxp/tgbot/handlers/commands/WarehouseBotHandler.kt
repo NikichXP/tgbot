@@ -15,9 +15,9 @@ class WarehouseBotHandler(
     private val tgOperations: TgOperations
 ) : CommandHandler {
 
-    private val commands = mapOf<String, suspend (Update, List<String>) -> Unit> (
-        "/list" to { update, args -> renderText(update) { warehouseService.list(update, args) } },
-        "/get" to { update, args -> },
+    private val commands = mapOf<String, suspend (Update, List<String>) -> Unit>(
+        "/list" to { update, _ -> renderText(update) { warehouseService.list(update) } },
+        "/get" to { update, args -> renderText(update) { warehouseService.get(update, args) } },
         "/create" to { update, args -> },
         "/update" to { update, args -> }
     )
