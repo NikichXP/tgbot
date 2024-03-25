@@ -22,21 +22,16 @@ class ChatCommandsHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
     override fun handleUpdate(update: Update) {
-        if (!botSupported(update.bot)) {
-            return
-        }
-
         val query = update.message!!.text!!.split(" ")
         val result = commandHandlers
-            .find { it.isCommandSupported(query.first()) }
+            .find { it.isCommandSupported(query.first()) && it.isCommandForBotSupported(update.bot) }
             ?.processCommand(query.drop(1), query.first(), update)
-            ?: false
-        if (!result) {
-//            val chatId = update.getContextChatId()!!
-//            tgOperations.sendMessage(chatId.toString(), "Unknown command")
-        } else {
-            logger.info("chadId = ${update.getContextChatId()} :: successfully handled command ${update.message.text}")
+        val log = when (result) {
+            true -> "successfully handled command"
+            false -> "failed executing command"
+            null -> "unknown command"
         }
+        logger.info("chadId = ${update.getContextChatId()} | ${update.message.text} | $log")
     }
 
 }
