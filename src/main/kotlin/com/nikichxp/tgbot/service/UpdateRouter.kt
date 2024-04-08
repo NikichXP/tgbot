@@ -5,6 +5,9 @@ import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.error.ExpectedError
 import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.util.getMarkers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -16,30 +19,50 @@ class UpdateRouter(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun proceedUpdate(update: Update) {
-        val handlerList = getSupportedMarkerHandlers(update)
-        if (handlerList.isEmpty()) {
-            throw IllegalArgumentException("Can't proceed message cause no handler for ${update.getMarkers()} found")
+    suspend fun proceedUpdate(update: Update) {
+        val supportedHandlers = handlers.filter { isHandlerSupportedFor(update, it) }
+        if (supportedHandlers.isEmpty()) {
+            throw IllegalArgumentException("No handler found for ${objectMapper.writeValueAsString(update)}")
         }
-        handlerList.forEach {
-            try {
-                it.handleUpdate(update)
-            } catch (expected: ExpectedError) {
-                if (expected.printJson) {
-                    logger.warn(
-                        "Handler ${it::class.java.simpleName} didn't handled json: " +
-                                objectMapper.writeValueAsString(update)
-                    )
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+        coroutineScope {
+            val updateJobs = supportedHandlers.map { handler ->
+                UpdateProcessContext(
+                    update,
+                    handler,
+                    launch {
+                        handler.handleUpdate(update)
+                    })
             }
+            updateJobs.forEach { waitForJob(it) }
         }
     }
 
-    fun getSupportedMarkerHandlers(update: Update): List<UpdateHandler> {
-        val required = update.getMarkers()
-        return handlers.filter { required.containsAll(it.getMarkers()) }
+    private suspend fun waitForJob(context: UpdateProcessContext) {
+        try {
+            context.job.join()
+        } catch (expected: ExpectedError) {
+            if (expected.printJson) {
+                logger.warn(
+                    "Handler ${context.handler::class.java.simpleName} didn't handled json: " +
+                            objectMapper.writeValueAsString(context.update)
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
+
+    private fun isHandlerSupportedFor(update: Update, handler: UpdateHandler): Boolean {
+        val markerSupported = handler.getMarkers().all { update.getMarkers().contains(it) }
+        val botSupported = handler.botSupported(update.bot)
+        val handlerAllows = handler.canHandle(update)
+        return markerSupported && botSupported && handlerAllows
+    }
+
+    data class UpdateProcessContext(
+        val update: Update,
+        val handler: UpdateHandler,
+        val job: Job
+    )
 
 }

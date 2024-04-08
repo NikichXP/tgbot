@@ -25,7 +25,7 @@ class MessageEntryPoint(
         proceedUpdate(update, bot)
     }
 
-    fun proceedUpdate(update: Update, bot: TgBot) {
+    suspend fun proceedUpdate(update: Update, bot: TgBot) {
         update.bot = bot
         updateRouter.proceedUpdate(update)
     }

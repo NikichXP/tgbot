@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.config.AppConfig
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.TgBotConfig
+import com.nikichxp.tgbot.entity.UpdateContext
 import com.nikichxp.tgbot.util.getContextChatId
 import com.nikichxp.tgbot.util.getContextMessageId
 import jakarta.annotation.PostConstruct
@@ -47,9 +48,9 @@ class TgOperations(
         }
     }
 
-    fun apiFor(update: Update): String {
-        return apiFor(update.bot)
-    }
+    fun apiFor(updateContext: UpdateContext) = apiFor(updateContext.tgBot)
+
+    fun apiFor(update: Update) = apiFor(update.bot)
 
     fun apiFor(tgBot: TgBot): String {
         return "https://api.telegram.org/bot${tgBotConfig.getBotInfo(tgBot)!!.token}"

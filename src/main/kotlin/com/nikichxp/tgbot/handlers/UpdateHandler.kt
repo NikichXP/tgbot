@@ -8,4 +8,5 @@ interface UpdateHandler {
     fun botSupported(bot: TgBot): Boolean
     fun getMarkers(): Set<UpdateMarker>
     fun handleUpdate(update: Update)
+    fun canHandle(update: Update): Boolean = true
 }
