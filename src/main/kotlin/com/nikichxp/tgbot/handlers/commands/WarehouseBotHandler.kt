@@ -6,20 +6,18 @@ import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.service.WarehouseService
 import com.nikichxp.tgbot.service.tgapi.TgOperations
-import com.nikichxp.tgbot.warehousebot.WarehouseConnector
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 
 @Service
 class WarehouseBotHandler(
     private val warehouseService: WarehouseService,
-    private val warehouseConnector: WarehouseConnector,
     private val tgOperations: TgOperations
 ) : CommandHandler, UpdateHandler {
 
     private val commands = mapOf<String, suspend (Update, List<String>) -> Unit>(
         "/list" to { update, _ -> renderText(update) { warehouseService.list(update) } },
-        "/get" to { update, args -> renderText(update) { warehouseService.get(update, args) } },
+        "/get" to { update, args -> renderText(update) { warehouseService.get(update, args.first()) } },
         "/create" to { update, args -> },
         "/update" to { update, args -> }
     )

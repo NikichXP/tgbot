@@ -15,9 +15,9 @@ class WarehouseService(
         return list.map { "${it.name} id=${it.id} [${it.quantity}]" }
     }
 
-    suspend fun get(update: Update, args: List<String>): List<String> {
+    suspend fun get(update: Update, skuId: String): List<String> {
         val userId = update.message?.from?.id?.toString() ?: throw IllegalArgumentException("No user id")
-        val entity = warehouseConnector.getWarehouseEntity(userId, args.first())
+        val entity = warehouseConnector.getWarehouseEntity(userId, skuId)
         return listOf("${entity.name} [${entity.quantity}]")
     }
 }

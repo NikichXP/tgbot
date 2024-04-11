@@ -28,7 +28,7 @@ class TgOperations(
 ) {
 
     private val bots = tgBotConfig.getInitializedBots()
-
+    private val logger = LoggerFactory.getLogger(this::class.java)
     private val scheduler = Executors.newScheduledThreadPool(1)
 
     @PostConstruct
@@ -75,8 +75,8 @@ class TgOperations(
                 logger.warn("429 error reached: try #$retryNumber, chatId = $chatId, text = $text")
                 scheduler.schedule(
                     { sendMessage(chatId, text, update, replyToMessageId, retryNumber + 1) },
-                    1,
-                    TimeUnit.MINUTES
+                    5,
+                    TimeUnit.SECONDS
                 )
             } else {
                 tooManyRequests.printStackTrace()
@@ -96,8 +96,6 @@ class TgOperations(
         } ?: logger.warn("Cannot send message reply in: $text")
     }
 
-
     companion object {
-        private val logger = LoggerFactory.getLogger(this::class.java)
     }
 }
