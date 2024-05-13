@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val ktorVersion: String = "2.3.9"
-val kotlinVersion: String = "1.9.22"
+val kotlinVersion: String = "2.0.0-RC3"
 val coroutinesVersion: String = "1.6.4"
 
 group = "com.nikichxp"
@@ -10,10 +10,10 @@ description = "tgbot"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 plugins {
-    id("org.springframework.boot") version "3.2.3"
-    id("io.spring.dependency-management") version "1.1.4"
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
+    id("org.springframework.boot") version "3.2.5"
+    id("io.spring.dependency-management") version "1.1.5"
+    kotlin("jvm") version "2.0.0-RC3"
+    kotlin("plugin.spring") version "2.0.0-RC3"
 }
 
 repositories {
