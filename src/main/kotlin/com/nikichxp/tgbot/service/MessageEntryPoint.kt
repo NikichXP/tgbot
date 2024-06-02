@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class MessageEntryPoint(
     private val conversionService: ConversionService,
-    private val updateRouter: UpdateRouter,
+    private val updateProcessor: UpdateProcessor,
     private val rawJsonLogger: RawJsonLogger
 ) {
 
@@ -27,7 +27,7 @@ class MessageEntryPoint(
 
     suspend fun proceedUpdate(update: Update, bot: TgBot) {
         update.bot = bot
-        updateRouter.proceedUpdate(update)
+        updateProcessor.proceedUpdate(update)
     }
 
 }

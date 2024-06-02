@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class UpdateRouter(
+class UpdateProcessor(
     private val handlers: List<UpdateHandler>,
     private val objectMapper: ObjectMapper
 ) {
@@ -26,18 +26,15 @@ class UpdateRouter(
         }
         coroutineScope {
             val updateJobs = supportedHandlers.map { handler ->
-                UpdateProcessContext(
-                    update,
-                    handler,
-                    launch {
-                        handler.handleUpdate(update)
-                    })
+                launch {
+                    handler.handleUpdate(update)
+                }.let { job -> UpdateProcessContext(update, handler, job) }
             }
-            updateJobs.forEach { waitForJob(it) }
+            updateJobs.forEach { waitForJobCompletion(it) }
         }
     }
 
-    private suspend fun waitForJob(context: UpdateProcessContext) {
+    private suspend fun waitForJobCompletion(context: UpdateProcessContext) {
         try {
             context.job.join()
         } catch (expected: ExpectedError) {

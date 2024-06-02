@@ -1,7 +1,8 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val ktorVersion: String = "2.3.9"
-val kotlinVersion: String = "2.0.0-RC3"
+val kotlinVersion: String = "2.0.0"
 val coroutinesVersion: String = "1.6.4"
 
 group = "com.nikichxp"
@@ -12,8 +13,8 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 plugins {
     id("org.springframework.boot") version "3.2.5"
     id("io.spring.dependency-management") version "1.1.5"
-    kotlin("jvm") version "2.0.0-RC3"
-    kotlin("plugin.spring") version "2.0.0-RC3"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.spring") version "2.0.0"
 }
 
 repositories {
@@ -45,7 +46,6 @@ dependencies {
     implementation("com.github.wnameless.json:json-flattener:0.16.6")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-//    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 }
 
 dependencyManagement {
@@ -55,9 +55,8 @@ dependencyManagement {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
+    compilerOptions {
+        this.jvmTarget.set(JvmTarget.JVM_17)
     }
 }
 
