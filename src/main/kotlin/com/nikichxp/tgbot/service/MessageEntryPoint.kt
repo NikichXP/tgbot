@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.service
 
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
+import com.nikichxp.tgbot.entity.UpdateContext
 import com.nikichxp.tgbot.tooling.RawJsonLogger
 import org.bson.Document
 import org.slf4j.LoggerFactory
@@ -27,7 +28,7 @@ class MessageEntryPoint(
 
     suspend fun proceedUpdate(update: Update, bot: TgBot) {
         update.bot = bot
-        updateProcessor.proceedUpdate(update)
+        updateProcessor.proceedUpdate(UpdateContext(update, bot))
     }
 
 }

@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.handlers.commands
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
+import com.nikichxp.tgbot.entity.UpdateContext
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.handlers.UpdateHandler
@@ -25,7 +26,7 @@ class LogAllMessagesHandler(
     private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    override fun supportedBots(tgBot: TgBot) = TgBot.values().asList().toSet()
+    override fun supportedBots(tgBot: TgBot) = TgBot.entries.toSet()
 
     override fun botSupported(bot: TgBot) = true
 
@@ -33,24 +34,24 @@ class LogAllMessagesHandler(
         return setOf(UpdateMarker.ALL)
     }
 
-    override fun handleUpdate(update: Update) {
-        val chatId = update.getContextChatId()
+    override fun handleUpdate(context: UpdateContext) {
+        val chatId = context.update.getContextChatId()
 
         if (loggingToModeMap.isNotEmpty()) {
-            logger.info(objectMapper.writeValueAsString(update))
+            logger.info(objectMapper.writeValueAsString(context.update))
         }
-        if (update.message?.text?.startsWith(prefix) == true) {
+        if (context.update.message?.text?.startsWith(LOG_PREFIX) == true) {
             return
         }
         if (chatId != null) {
             loggingToModeMap[chatId]?.let {
                 if (!it) {
-                    tgOperations.sendMessage(chatId, prefix + objectMapper.writeValueAsString(update), update)
+                    tgOperations.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(context.update), context)
                 }
             }
         }
         loggingToModeMap.entries.filter { it.value }.forEach {
-            tgOperations.sendMessage(it.key, prefix + objectMapper.writeValueAsString(update), update)
+            tgOperations.sendMessage(it.key, LOG_PREFIX + objectMapper.writeValueAsString(context.update), context)
         }
     }
 
@@ -59,7 +60,7 @@ class LogAllMessagesHandler(
     override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
 
-        fun notify(text: String) = tgOperations.sendMessage(chatId, prefix + text, update)
+        fun notify(text: String) = tgOperations.sendMessage(chatId, LOG_PREFIX + text, update)
 
         return ChatCommandParser.analyze(args) {
             path("status") {
@@ -95,6 +96,6 @@ class LogAllMessagesHandler(
     }
 
     companion object {
-        const val prefix = "[logger]: "
+        const val LOG_PREFIX = "[logger]: "
     }
 }

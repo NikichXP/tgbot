@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.dto.Update
+import com.nikichxp.tgbot.entity.UpdateContext
 import com.nikichxp.tgbot.error.ExpectedError
 import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.util.getMarkers
@@ -19,7 +20,7 @@ class UpdateProcessor(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    suspend fun proceedUpdate(update: Update) {
+    suspend fun proceedUpdate(update: UpdateContext) {
         val supportedHandlers = handlers.filter { isHandlerSupportedFor(update, it) }
         if (supportedHandlers.isEmpty()) {
             throw IllegalArgumentException("No handler found for ${objectMapper.writeValueAsString(update)}")
@@ -41,7 +42,7 @@ class UpdateProcessor(
             if (expected.printJson) {
                 logger.warn(
                     "Handler ${context.handler::class.java.simpleName} didn't handled json: " +
-                            objectMapper.writeValueAsString(context.update)
+                            objectMapper.writeValueAsString(context)
                 )
             }
         } catch (e: Exception) {
@@ -49,15 +50,15 @@ class UpdateProcessor(
         }
     }
 
-    private fun isHandlerSupportedFor(update: Update, handler: UpdateHandler): Boolean {
-        val markerSupported = handler.getMarkers().all { update.getMarkers().contains(it) }
-        val botSupported = handler.botSupported(update.bot)
-        val handlerAllows = handler.canHandle(update)
+    private fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
+        val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
+        val botSupported = handler.botSupported(context.tgBot)
+        val handlerAllows = handler.canHandle(context)
         return markerSupported && botSupported && handlerAllows
     }
 
     data class UpdateProcessContext(
-        val update: Update,
+        val context: UpdateContext,
         val handler: UpdateHandler,
         val job: Job
     )

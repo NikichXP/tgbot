@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.handlers.commands
 
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
+import com.nikichxp.tgbot.entity.UpdateContext
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.service.WarehouseService
@@ -28,8 +29,8 @@ class WarehouseBotHandler(
 
     override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)
 
-    override fun canHandle(update: Update): Boolean {
-        return update.message?.text?.startsWith("/") ?: false
+    override fun canHandle(context: UpdateContext): Boolean {
+        return context.update.message?.text?.startsWith("/") ?: false
     }
 
     override fun handleUpdate(update: Update) {

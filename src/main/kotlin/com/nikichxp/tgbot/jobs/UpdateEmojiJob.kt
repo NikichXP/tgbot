@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
  TODO Это надо перенести в исполняемый скрипт
         технически это сопутствующий скрипт, надо держать его где-то в другом месте как часть supportive lib
  */
-@Component
+//@Component
 class UpdateEmojiJob(
     private val mongoTemplate: MongoTemplate,
     private val emojiService: EmojiService,
@@ -44,11 +44,11 @@ class UpdateEmojiJob(
                     "From ${actor.username ?: actor.id.toString()} (${actor.rating}) to $toName ($resRating), diff = $diff"
                 }
             if (messages.isNotEmpty()) {
-                tgOperations.sendMessage(
-                    -1001361600905L,
-                    "Emoji $emoji changed data:\n${messages.joinToString(separator = "\n")}",
-                    TODO()
-                )
+//                tgOperations.sendMessage(
+//                    -1001361600905L,
+//                    "Emoji $emoji changed data:\n${messages.joinToString(separator = "\n")}",
+//                    TODO()
+//                )
             }
         }
 

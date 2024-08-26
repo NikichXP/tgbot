@@ -5,6 +5,7 @@ import com.nikichxp.tgbot.dto.User
 import com.nikichxp.tgbot.entity.InteractionRole
 import com.nikichxp.tgbot.entity.MessageInteractionResult
 import com.nikichxp.tgbot.entity.TgBot
+import com.nikichxp.tgbot.entity.UpdateContext
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.entity.UpdateMarker.MESSAGE_IN_GROUP
 import com.nikichxp.tgbot.entity.UpdateMarker.HAS_TEXT

@@ -60,6 +60,10 @@ class TgOperations(
         restTemplate.getForEntity<String>(apiFor(tgBot) + "/deleteWebhook").body
     }
 
+    fun sendMessage(chatId: Long, text: String, context: UpdateContext, replyToMessageId: Long? = null, retryNumber: Int = 0) {
+        return sendMessage(chatId, text, context.update, replyToMessageId, retryNumber)
+    }
+
     fun sendMessage(chatId: Long, text: String, update: Update, replyToMessageId: Long? = null, retryNumber: Int = 0) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,

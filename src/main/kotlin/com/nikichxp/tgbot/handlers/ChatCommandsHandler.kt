@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
+import com.nikichxp.tgbot.entity.UpdateContext
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.handlers.commands.CommandHandler
