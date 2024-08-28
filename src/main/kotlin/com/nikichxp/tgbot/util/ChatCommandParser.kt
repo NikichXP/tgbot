@@ -3,12 +3,12 @@ package com.nikichxp.tgbot.util
 class ChatCommandParser private constructor() {
 
     var vars = mutableMapOf<String, String>()
-    var argName: String? = null
-    var nextStage: (ChatCommandParser.() -> Unit)? = null
+    private var argName: String? = null
+    private var nextStage: (suspend ChatCommandParser.() -> Unit)? = null
     private var layerState = LayerState.END
-    private val paths = mutableMapOf<String, ChatCommandParser.() -> Unit>()
+    private val paths = mutableMapOf<String, suspend ChatCommandParser.() -> Unit>()
 
-    fun path(pathName: String, function: ChatCommandParser.() -> Unit) {
+    fun path(pathName: String, function: suspend ChatCommandParser.() -> Unit) {
         if (layerState == LayerState.PARAM) {
             throw IllegalStateException()
         }
@@ -22,7 +22,7 @@ class ChatCommandParser private constructor() {
         }
     }
 
-    fun asArg(argName: String, function: ChatCommandParser.() -> Unit) {
+    fun asArg(argName: String, function: suspend ChatCommandParser.() -> Unit) {
         if (layerState == LayerState.PATH) {
             throw IllegalStateException()
         }
@@ -31,8 +31,8 @@ class ChatCommandParser private constructor() {
         layerState = LayerState.PARAM
     }
 
-    private fun proceed(tokens: List<String>): Boolean {
-        val whatNext: ChatCommandParser.() -> Unit = when (layerState) {
+    private suspend fun proceed(tokens: List<String>): Boolean {
+        val whatNext: suspend ChatCommandParser.() -> Unit = when (layerState) {
             LayerState.END -> {
                 return true
             }
@@ -56,8 +56,8 @@ class ChatCommandParser private constructor() {
     }
 
     companion object {
-        fun analyze(command: String, function: ChatCommandParser.() -> Unit) = analyze(command.split(" "), function)
-        fun analyze(tokens: List<String>, function: ChatCommandParser.() -> Unit): Boolean {
+        suspend fun analyze(command: String, function: ChatCommandParser.() -> Unit) = analyze(command.split(" "), function)
+        suspend fun analyze(tokens: List<String>, function: suspend ChatCommandParser.() -> Unit): Boolean {
             val layer = ChatCommandParser()
             function(layer)
             return layer.proceed(tokens)

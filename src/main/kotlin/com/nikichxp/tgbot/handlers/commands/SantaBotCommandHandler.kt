@@ -20,7 +20,7 @@ class SantaBotCommandHandler(
 
     override fun isCommandSupported(command: String): Boolean = true
 
-    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         when (command) {
             "/create" -> {
                 val game = SecretSantaGame()
@@ -67,12 +67,12 @@ class SantaBotCommandHandler(
         return true
     }
 
-    private fun getGame(gameId: String, update: Update): SecretSantaGame {
+    private suspend fun getGame(gameId: String, update: Update): SecretSantaGame {
         return mongoTemplate.findById<SecretSantaGame>(gameId) ?: throw IllegalArgumentException("game not found")
                 .also { tgOperations.replyToCurrentMessage("Игра не найдена", update) }
     }
 
-    private fun startGame(game: SecretSantaGame, update: Update) {
+    private suspend fun startGame(game: SecretSantaGame, update: Update) {
         val users = game.players
         val targets = game.players.map { it.username }.toMutableList()
 
@@ -98,7 +98,7 @@ class SantaBotCommandHandler(
             tgOperations.sendMessage(
                     user.id,
                     "Ваша цель: @$target",
-                    update
+                    update.bot
             )
         }
 

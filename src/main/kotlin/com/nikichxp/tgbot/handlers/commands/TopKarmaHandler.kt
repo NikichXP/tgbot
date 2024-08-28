@@ -21,7 +21,7 @@ class TopKarmaHandler(
 
     override fun isCommandSupported(command: String): Boolean = command.lowercase() in listOf("/top", "/realtop")
 
-    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         if (args.isNotEmpty()) {
             tgOperations.sendMessage(
                 update.getContextChatId()!!,

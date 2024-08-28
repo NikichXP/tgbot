@@ -24,7 +24,7 @@ class GroupChatKarmaHandler(
 
     override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
 
-    override fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(update: Update) {
         val messageAuthor = getMessageAuthorId(update)
         val replyTarget = getMessageReplyTarget(update) ?: return
         val reaction = textClassifier.classify(update.message!!.text!!)

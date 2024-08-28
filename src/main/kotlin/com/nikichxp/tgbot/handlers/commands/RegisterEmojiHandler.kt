@@ -21,7 +21,7 @@ class RegisterEmojiHandler(
 
     override fun isCommandSupported(command: String): Boolean = command == "/emoji"
 
-    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         return ChatCommandParser.analyze(args) {
             path("set") {
                 asArg("emoji") {
@@ -38,7 +38,7 @@ class RegisterEmojiHandler(
     }
 
     // TODO Refactor this
-    fun onEmojiSet(emoji: String?, powerInput: String?, update: Update) {
+    suspend fun onEmojiSet(emoji: String?, powerInput: String?, update: Update) {
         when (val power = powerInput?.toDoubleOrNull()) {
             null -> tgOperations.replyToCurrentMessage("Cannot find the power of the emoji", update)
             !in -1.0..1.0 -> tgOperations.replyToCurrentMessage("Power can be in range from -1 to +1", update)

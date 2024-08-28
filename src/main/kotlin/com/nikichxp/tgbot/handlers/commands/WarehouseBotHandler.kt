@@ -33,11 +33,11 @@ class WarehouseBotHandler(
         return context.update.message?.text?.startsWith("/") ?: false
     }
 
-    override fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(update: Update) {
         // TODO implement this
     }
 
-    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         runBlocking {
             commands[command]?.invoke(update, args)
         }

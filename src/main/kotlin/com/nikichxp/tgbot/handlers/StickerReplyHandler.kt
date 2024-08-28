@@ -28,10 +28,12 @@ class StickerReplyHandler(
     private val objectMapper: ObjectMapper
 ) : UpdateHandler {
 
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY, UpdateMarker.HAS_STICKER)
 
-    override fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(update: Update) {
         val members = update.getMembers() ?: return
         val (fromId, toId) = members.let {
             it.author?.id to it.target?.id
@@ -44,7 +46,7 @@ class StickerReplyHandler(
 
         val power = emojiService.getEmojiPower(emoji)
         if (power == null) {
-            saveUnIndentifiedEmoji(fromId, toId, emoji, update)
+            saveUnIdentifiedEmoji(fromId, toId, emoji, update)
         } else {
             val interactionResult = update.convertToMessageIntResult(power) ?: let {
                 // TODO make some fancy logger here
@@ -60,7 +62,7 @@ class StickerReplyHandler(
         }
     }
 
-    fun saveUnIndentifiedEmoji(fromId: Long, toId: Long, emoji: String, update: Update) {
+    suspend fun saveUnIdentifiedEmoji(fromId: Long, toId: Long, emoji: String, update: Update) {
         runBlocking {
             launch {
                 mongoTemplate.save(
@@ -76,10 +78,6 @@ class StickerReplyHandler(
         }
 
         tgOperations.sendToCurrentChat("I CAN SEE THE STICKER REACTION! The reaction is: $emoji", update)
-    }
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(this::class.java)
     }
 }
 

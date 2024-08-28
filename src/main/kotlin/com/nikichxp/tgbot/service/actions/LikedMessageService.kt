@@ -20,7 +20,7 @@ class LikedMessageService(
     private val likedHistoryService: LikedHistoryService
 ) {
 
-    fun changeRating(interaction: MessageInteractionResult, update: Update) {
+    suspend fun changeRating(interaction: MessageInteractionResult, update: Update) {
         val messageId = update.message?.messageId ?: throw IllegalStateException()
         val actor = interaction.getActor()
         val actorInfo = userService.getUserInfo(actor)
@@ -46,7 +46,7 @@ class LikedMessageService(
         )
     }
 
-    private fun sendKarmaMsg(
+    private suspend fun sendKarmaMsg(
         update: Update,
         actor: String,
         target: String,

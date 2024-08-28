@@ -36,7 +36,7 @@ class ForeignApiReportHandler(
     override fun isCommandSupported(command: String): Boolean = command == "/status"
 
     @OptIn(DelicateCoroutinesApi::class)
-    override fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         return ChatCommandParser.analyze(args) {
             asArg("resource") {
                 when (vars["resource"]) {

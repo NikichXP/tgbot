@@ -60,11 +60,13 @@ class TgOperations(
         restTemplate.getForEntity<String>(apiFor(tgBot) + "/deleteWebhook").body
     }
 
-    fun sendMessage(chatId: Long, text: String, context: UpdateContext, replyToMessageId: Long? = null, retryNumber: Int = 0) {
-        return sendMessage(chatId, text, context.update, replyToMessageId, retryNumber)
-    }
-
-    fun sendMessage(chatId: Long, text: String, update: Update, replyToMessageId: Long? = null, retryNumber: Int = 0) {
+    suspend fun sendMessage(
+        chatId: Long,
+        text: String,
+        tgBot: TgBot,
+        replyToMessageId: Long? = null,
+        retryNumber: Int = 0
+    ) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
             "text" to text
@@ -73,12 +75,12 @@ class TgOperations(
         replyToMessageId?.apply { args += "reply_to_message_id" to replyToMessageId }
 
         try {
-            restTemplate.postForEntity<String>("${apiFor(update)}/sendMessage", args.toMap())
+            restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", args.toMap())
         } catch (tooManyRequests: TooManyRequests) {
             if (retryNumber <= 5) {
                 logger.warn("429 error reached: try #$retryNumber, chatId = $chatId, text = $text")
                 scheduler.schedule(
-                    { sendMessage(chatId, text, update, replyToMessageId, retryNumber + 1) },
+                    { runBlocking { sendMessage(chatId, text, tgBot, replyToMessageId, retryNumber + 1) } },
                     5,
                     TimeUnit.SECONDS
                 )
@@ -88,18 +90,27 @@ class TgOperations(
         }
     }
 
-    fun sendToCurrentChat(text: String, update: Update) {
+    @Deprecated("remove update", ReplaceWith("sendMessage(chatId, text, update.bot, replyToMessageId, retryNumber)"))
+    suspend fun sendMessage(
+        chatId: Long,
+        text: String,
+        update: Update,
+        replyToMessageId: Long? = null,
+        retryNumber: Int = 0
+    ) {
+        sendMessage(chatId, text, update.bot, replyToMessageId, retryNumber)
+    }
+
+    suspend fun sendToCurrentChat(text: String, update: Update) {
         update.getContextChatId()?.let {
-            sendMessage(it, text, update)
+            sendMessage(it, text, update.bot)
         } ?: logger.warn("Cannot send message reply in: $text")
     }
 
-    fun replyToCurrentMessage(text: String, update: Update) {
+    suspend fun replyToCurrentMessage(text: String, update: Update) {
         update.getContextChatId()?.let {
-            sendMessage(it, text, update, update.getContextMessageId())
+            sendMessage(it, text, update.bot, update.getContextMessageId())
         } ?: logger.warn("Cannot send message reply in: $text")
     }
 
-    companion object {
-    }
 }

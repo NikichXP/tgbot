@@ -3,7 +3,10 @@ package com.nikichxp.tgbot.service
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateContext
+import com.nikichxp.tgbot.entity.UpdateContextHandler
 import com.nikichxp.tgbot.tooling.RawJsonLogger
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import org.bson.Document
 import org.slf4j.LoggerFactory
 import org.springframework.core.convert.ConversionService
@@ -28,7 +31,12 @@ class MessageEntryPoint(
 
     suspend fun proceedUpdate(update: Update, bot: TgBot) {
         update.bot = bot
-        updateProcessor.proceedUpdate(UpdateContext(update, bot))
+        val context = UpdateContext(update, bot)
+        coroutineScope {
+            withContext(this.coroutineContext + UpdateContextHandler(context)) {
+                updateProcessor.proceedUpdate(context)
+            }
+        }
     }
 
 }

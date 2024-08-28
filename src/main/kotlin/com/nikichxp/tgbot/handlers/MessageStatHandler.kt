@@ -89,7 +89,7 @@ class MessageStatHandler(
         return setOf(UpdateMarker.MESSAGE_IN_GROUP)
     }
 
-    override fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(update: Update) {
         val (userId, userName) = getIdAndName(update)
         val chatId = update.message?.chat?.id ?: throw NotHandledSituationError()
         userStat.processNewMessage(chatId, userId, userName)
