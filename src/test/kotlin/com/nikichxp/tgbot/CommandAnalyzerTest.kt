@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot
 
 import com.nikichxp.tgbot.util.ChatCommandParser
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -10,7 +11,7 @@ import kotlin.test.assertTrue
 class CommandAnalyzerTest {
 
     @Test
-    fun `test parsing tool`() {
+    fun `test parsing tool`() = runBlocking {
         var test: String? = null
         val result = ChatCommandParser.analyze("test 123 demo") {
             path("test") {
@@ -26,7 +27,7 @@ class CommandAnalyzerTest {
     }
 
     @Test
-    fun `test parsing tool in wrong case`() {
+    fun `test parsing tool in wrong case`() = runBlocking {
         var test: String? = null
         val result = ChatCommandParser.analyze("test 123 demo") {
             path("test") {

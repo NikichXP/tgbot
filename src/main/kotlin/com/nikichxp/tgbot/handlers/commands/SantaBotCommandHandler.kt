@@ -27,7 +27,7 @@ class SantaBotCommandHandler(
                 val player = getSantaUserPlayerFromUpdate(update)
                 game.players += player
                 mongoTemplate.save(game)
-                tgOperations.replyToCurrentMessage("game created", update)
+                tgOperations.replyToCurrentMessage("game created")
             }
 
             "/register" -> {
@@ -41,8 +41,7 @@ class SantaBotCommandHandler(
                 }
                 mongoTemplate.save(game)
                 tgOperations.replyToCurrentMessage(
-                    if (status) "Вы зарегистрировались в игре" else "Вы уже зарегистрированы в игре",
-                    update
+                    if (status) "Вы зарегистрировались в игре" else "Вы уже зарегистрированы в игре"
                 )
             }
 
@@ -55,7 +54,7 @@ class SantaBotCommandHandler(
                     ?: throw IllegalArgumentException("register in game first")
                 player.ignores += ignored.replace("@", "").lowercase()
                 mongoTemplate.save(game)
-                tgOperations.replyToCurrentMessage("Вы добавили @${ignored} как свою вторую половинку", update)
+                tgOperations.replyToCurrentMessage("Вы добавили @${ignored} как свою вторую половинку")
             }
 
             "/startgame" -> {
@@ -69,7 +68,7 @@ class SantaBotCommandHandler(
 
     private suspend fun getGame(gameId: String, update: Update): SecretSantaGame {
         return mongoTemplate.findById<SecretSantaGame>(gameId) ?: throw IllegalArgumentException("game not found")
-            .also { tgOperations.replyToCurrentMessage("Игра не найдена", update) }
+            .also { tgOperations.replyToCurrentMessage("Игра не найдена") }
     }
 
     private suspend fun startGame(game: SecretSantaGame, update: Update) {

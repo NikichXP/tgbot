@@ -115,10 +115,6 @@ class TgOperations(
         } ?: errorStorageService.logAndReportError(logger, "Cannot send message reply to current chat: $text", update)
     }
 
-    suspend fun replyToCurrentMessage(text: String, update: Update) {
-        replyToCurrentMessage(text)
-    }
-
     suspend fun replyToCurrentMessage(text: String) {
 
         val update = getCurrentUpdate()

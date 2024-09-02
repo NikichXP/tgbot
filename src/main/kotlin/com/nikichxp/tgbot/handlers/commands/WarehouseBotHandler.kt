@@ -47,7 +47,7 @@ class WarehouseBotHandler(
     override fun isCommandSupported(command: String): Boolean = true
 
     private suspend fun renderText(update: Update, supplier: suspend () -> List<String>) {
-        tgOperations.replyToCurrentMessage(supplier().joinToString("\n"), update)
+        tgOperations.replyToCurrentMessage(supplier().joinToString("\n"))
     }
 
 }
