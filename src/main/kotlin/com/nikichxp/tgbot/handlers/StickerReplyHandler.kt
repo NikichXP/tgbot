@@ -77,7 +77,7 @@ class StickerReplyHandler(
             }
         }
 
-        tgOperations.sendToCurrentChat("I CAN SEE THE STICKER REACTION! The reaction is: $emoji", update)
+        tgOperations.sendToCurrentChat("I CAN SEE THE STICKER REACTION! The reaction is: $emoji")
     }
 }
 

@@ -12,8 +12,8 @@ import java.util.UUID
 // todo out of time - whoever see this: remind me to finally refactor this
 @Service
 class SantaBotCommandHandler(
-        private val mongoTemplate: MongoTemplate,
-        private val tgOperations: TgOperations
+    private val mongoTemplate: MongoTemplate,
+    private val tgOperations: TgOperations
 ) : CommandHandler {
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.SANTABOT)
@@ -41,8 +41,8 @@ class SantaBotCommandHandler(
                 }
                 mongoTemplate.save(game)
                 tgOperations.replyToCurrentMessage(
-                        if (status) "Вы зарегистрировались в игре" else "Вы уже зарегистрированы в игре",
-                        update
+                    if (status) "Вы зарегистрировались в игре" else "Вы уже зарегистрированы в игре",
+                    update
                 )
             }
 
@@ -52,7 +52,7 @@ class SantaBotCommandHandler(
                 val game = getGame(gameId, update)
                 val playerId = getSantaUserPlayerFromUpdate(update).id
                 val player = game.players.find { it.id == playerId }
-                        ?: throw IllegalArgumentException("register in game first")
+                    ?: throw IllegalArgumentException("register in game first")
                 player.ignores += ignored.replace("@", "").lowercase()
                 mongoTemplate.save(game)
                 tgOperations.replyToCurrentMessage("Вы добавили @${ignored} как свою вторую половинку", update)
@@ -69,7 +69,7 @@ class SantaBotCommandHandler(
 
     private suspend fun getGame(gameId: String, update: Update): SecretSantaGame {
         return mongoTemplate.findById<SecretSantaGame>(gameId) ?: throw IllegalArgumentException("game not found")
-                .also { tgOperations.replyToCurrentMessage("Игра не найдена", update) }
+            .also { tgOperations.replyToCurrentMessage("Игра не найдена", update) }
     }
 
     private suspend fun startGame(game: SecretSantaGame, update: Update) {
@@ -78,7 +78,9 @@ class SantaBotCommandHandler(
 
         fun isConditionOk(): Boolean {
             return users.zip(targets).all { (user, target) ->
-                user.ignores.none { target.lowercase().contains(it.lowercase()) } && user.username.lowercase() != target.lowercase()
+                user.ignores.none {
+                    target.lowercase().contains(it.lowercase())
+                } && user.username.lowercase() != target.lowercase()
             }
         }
 
@@ -96,9 +98,8 @@ class SantaBotCommandHandler(
         users.zip(targets).forEach { (user, target) ->
             println("${user.username} дарит $target")
             tgOperations.sendMessage(
-                    user.id,
-                    "Ваша цель: @$target",
-                    update.bot
+                user.id,
+                "Ваша цель: @$target"
             )
         }
 
@@ -106,8 +107,8 @@ class SantaBotCommandHandler(
 
     private fun getSantaUserPlayerFromUpdate(update: Update): SecretSantaPlayer {
         return SecretSantaPlayer(
-                id = update.message?.from?.id ?: throw IllegalArgumentException("not expected"),
-                username = update.message.from.username ?: throw IllegalArgumentException("you must have a username")
+            id = update.message?.from?.id ?: throw IllegalArgumentException("not expected"),
+            username = update.message.from.username ?: throw IllegalArgumentException("you must have a username")
         )
     }
 }
@@ -118,8 +119,8 @@ class SecretSantaGame {
 }
 
 data class SecretSantaPlayer(
-        var id: Long,
-        var username: String
+    var id: Long,
+    var username: String
 ) {
     var ignores = setOf<String>()
 }

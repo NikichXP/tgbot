@@ -11,6 +11,7 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.springframework.stereotype.Component
 
@@ -35,19 +36,20 @@ class ForeignApiReportHandler(
 
     override fun isCommandSupported(command: String): Boolean = command == "/status"
 
-    @OptIn(DelicateCoroutinesApi::class)
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         return ChatCommandParser.analyze(args) {
             asArg("resource") {
                 when (vars["resource"]) {
                     "route" -> {
-                        tgOperations.replyToCurrentMessage("Started operation", update)
-                        GlobalScope.launch {
-                            tgOperations.replyToCurrentMessage(getStatusOfNode(), update)
+                        coroutineScope {
+                            launch {
+                                tgOperations.replyToCurrentMessage("Started operation")
+                                tgOperations.replyToCurrentMessage(getStatusOfNode(), update)
+                            }
                         }
                     }
                     else -> {
-                        tgOperations.replyToCurrentMessage("no such service", update)
+                        tgOperations.replyToCurrentMessage("no such service")
                     }
                 }
             }

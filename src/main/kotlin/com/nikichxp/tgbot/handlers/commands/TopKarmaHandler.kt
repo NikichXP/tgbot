@@ -23,11 +23,7 @@ class TopKarmaHandler(
 
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         if (args.isNotEmpty()) {
-            tgOperations.sendMessage(
-                update.getContextChatId()!!,
-                "Additional args are not supported yet",
-                update
-            )
+            tgOperations.sendToCurrentChat("Additional args are not supported yet")
             return true
         }
         // TODO do create a DAO for userInfo and karma already!

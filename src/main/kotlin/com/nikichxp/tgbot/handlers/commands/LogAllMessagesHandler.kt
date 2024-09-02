@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.dto.Update
 import com.nikichxp.tgbot.entity.TgBot
 import com.nikichxp.tgbot.entity.UpdateContext
-import com.nikichxp.tgbot.entity.UpdateContextHandler
 import com.nikichxp.tgbot.entity.UpdateMarker
 import com.nikichxp.tgbot.error.NotHandledSituationError
 import com.nikichxp.tgbot.handlers.UpdateHandler
 import com.nikichxp.tgbot.service.tgapi.TgOperations
 import com.nikichxp.tgbot.util.ChatCommandParser
 import com.nikichxp.tgbot.util.getContextChatId
-import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
@@ -48,12 +46,12 @@ class LogAllMessagesHandler(
         if (chatId != null) {
             loggingToModeMap[chatId]?.let {
                 if (!it) {
-                    tgOperations.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(context.update), context.tgBot)
+                    tgOperations.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(context.update))
                 }
             }
         }
         loggingToModeMap.entries.filter { it.value }.forEach {
-            tgOperations.sendMessage(it.key, LOG_PREFIX + objectMapper.writeValueAsString(context.update), context.tgBot)
+            tgOperations.sendMessage(it.key, LOG_PREFIX + objectMapper.writeValueAsString(context.update))
         }
     }
 
@@ -62,7 +60,7 @@ class LogAllMessagesHandler(
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
 
-        suspend fun notify(text: String) = tgOperations.sendMessage(chatId, LOG_PREFIX + text, update.bot)
+        suspend fun notify(text: String) = tgOperations.sendMessage(chatId, LOG_PREFIX + text)
 
         return ChatCommandParser.analyze(args) {
             path("status") {
