@@ -44,7 +44,7 @@ class ForeignApiReportHandler(
                         coroutineScope {
                             launch {
                                 tgOperations.replyToCurrentMessage("Started operation")
-                                tgOperations.replyToCurrentMessage(getStatusOfNode(), update)
+                                tgOperations.replyToCurrentMessage(getStatusOfNode())
                             }
                         }
                     }

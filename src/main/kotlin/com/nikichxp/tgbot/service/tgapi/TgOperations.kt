@@ -116,8 +116,9 @@ class TgOperations(
     }
 
     suspend fun replyToCurrentMessage(text: String, update: Update) {
-
+        replyToCurrentMessage(text)
     }
+
     suspend fun replyToCurrentMessage(text: String) {
 
         val update = getCurrentUpdate()

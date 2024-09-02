@@ -32,11 +32,7 @@ class TopKarmaHandler(
             "${it.username ?: ("id=" + it.id.toString())}: ${it.rating}"
         }
         update.run {
-            tgOperations.sendMessage(
-                update.getContextChatId()!!,
-                "Top users are:\n$ratingStr",
-                update
-            )
+            tgOperations.sendToCurrentChat("Top users are:\n$ratingStr")
         }
         return true
     }

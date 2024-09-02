@@ -15,7 +15,7 @@ class PingPongHandler(
     override fun isCommandSupported(command: String): Boolean = command == "/ping"
 
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
-        tgOperations.replyToCurrentMessage("pong!", update)
+        tgOperations.replyToCurrentMessage("pong!")
         return true
     }
 }

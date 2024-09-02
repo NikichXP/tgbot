@@ -17,7 +17,7 @@ class MemStatusHandler(
     override fun isCommandSupported(command: String): Boolean = command.equals("/memstatus", true)
 
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
-        tgOperations.replyToCurrentMessage(memoryTrackerService.getMemoryStatus().prettyPrint(), update)
+        tgOperations.replyToCurrentMessage(memoryTrackerService.getMemoryStatus().prettyPrint())
         return true
     }
 
