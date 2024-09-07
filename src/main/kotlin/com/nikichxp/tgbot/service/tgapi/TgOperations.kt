@@ -97,17 +97,6 @@ class TgOperations(
         }
     }
 
-    @Deprecated("remove update", ReplaceWith("sendMessage(chatId, text, update.bot, replyToMessageId, retryNumber)"))
-    suspend fun sendMessage(
-        chatId: Long,
-        text: String,
-        update: Update,
-        replyToMessageId: Long? = null,
-        retryNumber: Int = 0
-    ) {
-        sendMessage(chatId, text, replyToMessageId, retryNumber)
-    }
-
     suspend fun sendToCurrentChat(text: String) {
         val update = getCurrentUpdate()
         update.getContextChatId()?.let {
