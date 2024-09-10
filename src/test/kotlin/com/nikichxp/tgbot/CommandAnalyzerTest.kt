@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot
 
-import com.nikichxp.tgbot.util.ChatCommandParser
+import com.nikichxp.tgbot.core.util.ChatCommandParser
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
