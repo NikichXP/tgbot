@@ -1,7 +1,6 @@
 package com.nikichxp.tgbot.core.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.error.ExpectedError
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -20,16 +19,16 @@ class UpdateProcessor(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    suspend fun proceedUpdate(update: UpdateContext) {
-        val supportedHandlers = handlers.filter { isHandlerSupportedFor(update, it) }
+    suspend fun proceedUpdate(updateContext: UpdateContext) {
+        val supportedHandlers = handlers.filter { isHandlerSupportedFor(updateContext, it) }
         if (supportedHandlers.isEmpty()) {
-            throw IllegalArgumentException("No handler found for ${objectMapper.writeValueAsString(update)}")
+            throw IllegalArgumentException("No handler found for ${objectMapper.writeValueAsString(updateContext)}")
         }
         coroutineScope {
             val updateJobs = supportedHandlers.map { handler ->
                 launch {
-                    handler.handleUpdate(update)
-                }.let { job -> UpdateProcessContext(update, handler, job) }
+                    handler.handleUpdate(updateContext)
+                }.let { job -> UpdateProcessContext(updateContext, handler, job) }
             }
             updateJobs.forEach { waitForJobCompletion(it) }
         }

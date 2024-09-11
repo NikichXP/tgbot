@@ -1,4 +1,4 @@
-package com.nikichxp.tgbot.core.handlers.commands
+package com.nikichxp.tgbot.debug
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
@@ -7,6 +7,7 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.core.util.getContextChatId
@@ -34,24 +35,24 @@ class LogAllMessagesHandler(
         return setOf(UpdateMarker.ALL)
     }
 
-    override suspend fun handleUpdate(context: UpdateContext) {
-        val chatId = context.update.getContextChatId()
+    override suspend fun handleUpdate(update: Update) {
+        val chatId = update.getContextChatId()
 
-        if (context.update.message?.text?.startsWith(LOG_PREFIX) == true) {
+        if (update.message?.text?.startsWith(LOG_PREFIX) == true) {
             return
         }
         if (loggingToModeMap.isNotEmpty()) {
-            logger.info(objectMapper.writeValueAsString(context.update))
+            logger.info(objectMapper.writeValueAsString(update))
         }
         if (chatId != null) {
             loggingToModeMap[chatId]?.let {
                 if (!it) {
-                    tgOperations.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(context.update))
+                    tgOperations.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(update))
                 }
             }
         }
         loggingToModeMap.entries.filter { it.value }.forEach {
-            tgOperations.sendMessage(it.key, LOG_PREFIX + objectMapper.writeValueAsString(context.update))
+            tgOperations.sendMessage(it.key, LOG_PREFIX + objectMapper.writeValueAsString(update))
         }
     }
 

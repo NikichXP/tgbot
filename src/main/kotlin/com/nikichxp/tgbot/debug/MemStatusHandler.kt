@@ -1,7 +1,8 @@
-package com.nikichxp.tgbot.core.handlers.commands
+package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.MemoryTrackerService
 import org.springframework.stereotype.Component
