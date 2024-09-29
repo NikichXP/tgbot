@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto.keyboard
 
-import com.nikichxp.tgbot.core.dto.CallbackGame
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nikichxp.tgbot.core.dto.CallbackGame
 
 /**
  * Represents one button of an inline keyboard ([loginUrl] not supported yet).

@@ -2,10 +2,9 @@ package com.nikichxp.tgbot.core.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
+import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

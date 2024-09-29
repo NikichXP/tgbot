@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto.inputmedia
 
-import com.nikichxp.tgbot.core.dto.TelegramFile
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nikichxp.tgbot.core.dto.TelegramFile
 
 /**
  * Represents the content of a media message to be sent.

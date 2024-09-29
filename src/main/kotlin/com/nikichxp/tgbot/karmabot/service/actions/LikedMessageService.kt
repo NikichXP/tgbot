@@ -2,9 +2,9 @@ package com.nikichxp.tgbot.karmabot.service.actions
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
-import com.nikichxp.tgbot.karmabot.service.UserService
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.UserFormatter.getUserPrintName
+import com.nikichxp.tgbot.karmabot.service.UserService
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service

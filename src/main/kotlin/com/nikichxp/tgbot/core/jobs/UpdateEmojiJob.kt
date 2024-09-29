@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.core.jobs
 
+import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.karmabot.handlers.StickerReaction
 import com.nikichxp.tgbot.karmabot.service.EmojiService
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.karmabot.service.UserService
 import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
 import org.springframework.data.mongodb.core.MongoTemplate

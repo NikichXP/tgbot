@@ -1,17 +1,17 @@
 package com.nikichxp.tgbot.karmabot.handlers
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.karmabot.service.EmojiService
+import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
-import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
 import com.nikichxp.tgbot.core.util.convertToMessageIntResult
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
 import com.nikichxp.tgbot.core.util.getMembers
+import com.nikichxp.tgbot.karmabot.service.EmojiService
+import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory

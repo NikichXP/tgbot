@@ -2,13 +2,10 @@ package com.nikichxp.tgbot.core.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.nikichxp.tgbot.core.dto.payments.PreCheckoutQuery
 import com.nikichxp.tgbot.core.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.core.dto.polls.Poll
 import com.nikichxp.tgbot.core.dto.polls.PollAnswer
-import com.nikichxp.tgbot.core.entity.BotInfo
 import com.nikichxp.tgbot.core.entity.TgBot
 import org.springframework.data.annotation.Id
 

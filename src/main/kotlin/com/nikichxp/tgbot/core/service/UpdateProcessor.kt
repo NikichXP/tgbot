@@ -27,7 +27,7 @@ class UpdateProcessor(
         coroutineScope {
             val updateJobs = supportedHandlers.map { handler ->
                 launch {
-                    handler.handleUpdate(updateContext)
+                    handler.handleUpdate(updateContext.update)
                 }.let { job -> UpdateProcessContext(updateContext, handler, job) }
             }
             updateJobs.forEach { waitForJobCompletion(it) }
@@ -52,7 +52,7 @@ class UpdateProcessor(
     private fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
         val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
         val botSupported = handler.botSupported(context.tgBot)
-        val handlerAllows = handler.canHandle(context)
+        val handlerAllows = handler.canHandle(context.update)
         return markerSupported && botSupported && handlerAllows
     }
 

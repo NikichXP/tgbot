@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.core.dto.inlinequeryresults
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.nikichxp.tgbot.core.dto.InlineKeyboardMarkup
 import com.nikichxp.tgbot.core.dto.ParseMode
-import com.fasterxml.jackson.annotation.JsonProperty
 
 enum class MimeType(val rawName: String) {
     @JsonProperty("text/html")

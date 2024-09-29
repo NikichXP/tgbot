@@ -3,7 +3,6 @@ package com.nikichxp.tgbot.debug
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.UpdateHandler

@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto
 
-import com.nikichxp.tgbot.core.dto.keyboard.InlineKeyboardButton
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nikichxp.tgbot.core.dto.keyboard.InlineKeyboardButton
 
 /**
  * This object represents an inline keyboard that appears right next to the message it belongs to.

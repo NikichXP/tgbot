@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto.payments
 
-import com.nikichxp.tgbot.core.dto.User
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nikichxp.tgbot.core.dto.User
 import java.math.BigInteger
 
 /**

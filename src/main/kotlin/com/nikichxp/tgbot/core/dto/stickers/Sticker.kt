@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.core.dto.stickers
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.nikichxp.tgbot.core.dto.files.FilesFields
 import com.nikichxp.tgbot.core.dto.files.PhotoSize
-import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * Represents a sticker.

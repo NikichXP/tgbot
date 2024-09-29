@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto.keyboard
 
-import com.nikichxp.tgbot.core.dto.polls.PollType
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nikichxp.tgbot.core.dto.polls.PollType
 
 /**
  * Represents one button of the reply keyboard.

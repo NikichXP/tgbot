@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto.polls
 
-import com.nikichxp.tgbot.core.dto.User
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nikichxp.tgbot.core.dto.User
 
 /**
  * Represents an answer of a user in a non-anonymous poll.

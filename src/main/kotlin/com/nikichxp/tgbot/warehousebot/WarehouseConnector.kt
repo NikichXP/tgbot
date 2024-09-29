@@ -3,8 +3,6 @@ package com.nikichxp.tgbot.warehousebot
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 

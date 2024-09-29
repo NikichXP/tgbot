@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto.polls
 
-import com.nikichxp.tgbot.core.dto.MessageEntity
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.nikichxp.tgbot.core.dto.MessageEntity
 
 /**
  * Contains information about a poll.

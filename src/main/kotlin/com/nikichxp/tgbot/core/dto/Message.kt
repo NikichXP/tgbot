@@ -1,17 +1,11 @@
 package com.nikichxp.tgbot.core.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.nikichxp.tgbot.core.dto.dice.Dice
-import com.nikichxp.tgbot.core.dto.files.Animation
-import com.nikichxp.tgbot.core.dto.files.Audio
-import com.nikichxp.tgbot.core.dto.files.Document
-import com.nikichxp.tgbot.core.dto.files.PhotoSize
-import com.nikichxp.tgbot.core.dto.files.Video
-import com.nikichxp.tgbot.core.dto.files.VideoNote
-import com.nikichxp.tgbot.core.dto.files.Voice
+import com.nikichxp.tgbot.core.dto.files.*
 import com.nikichxp.tgbot.core.dto.payments.SuccessfulPayment
 import com.nikichxp.tgbot.core.dto.polls.Poll
 import com.nikichxp.tgbot.core.dto.stickers.Sticker
-import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Message(
     @JsonProperty("message_id") val messageId: Long,
