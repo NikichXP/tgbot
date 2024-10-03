@@ -2,6 +2,7 @@ src/main/resources/application-prod.yaml
 .env
 
 .gradle/
+.kotlin/
 out/
 
 HELP.md
