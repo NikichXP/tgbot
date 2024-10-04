@@ -35,4 +35,4 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - run: scp build/libs/app.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/test/tgbot.jar
+      - run: scp build/libs/app.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/jars/tgbot.jar
