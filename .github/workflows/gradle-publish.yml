@@ -28,6 +28,8 @@ jobs:
           name: app.jar
           path: build/libs/app.jar
 
+      - run: cp build/libs/app.jar app-copy.jar
+
       - run: ls
 
-      - run: ls /
+      - run: sshpass -p ${{ secrets.PASSWORD }} scp app-copy.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/app-copy.jar
