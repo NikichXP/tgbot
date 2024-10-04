@@ -32,4 +32,4 @@ jobs:
 
       - run: ls
 
-      - run: sshpass -p ${{ secrets.PASSWORD }} scp app-copy.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/app-copy.jar
+      - run: sshpass -p ${{ secrets.PASSWORD }} scp app-copy.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/test
