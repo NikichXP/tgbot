@@ -27,3 +27,7 @@ jobs:
         with:
           name: app.jar
           path: build/libs/app.jar
+
+      - run: ls
+
+      - run: ls /
