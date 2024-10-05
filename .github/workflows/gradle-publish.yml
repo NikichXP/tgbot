@@ -1,4 +1,4 @@
-name: Java CI with Gradle and Release
+name: Build and deploy (release) app to server
 
 on:
   push:
