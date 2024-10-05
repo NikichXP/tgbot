@@ -1,9 +1,14 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.text.SimpleDateFormat
+import java.util.Date
 
 val ktorVersion: String = "2.3.9"
 val kotlinVersion: String = "2.0.0"
 val coroutinesVersion: String = "1.6.4"
+
+val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+val versionName: String = if (project.hasProperty("version")) project.version.toString() else "unknown"
 
 group = "com.nikichxp"
 version = project.property("version") ?: "1.0.0"
@@ -68,6 +73,21 @@ abstract class PrintVersion : DefaultTask() {
 }
 
 tasks.register<PrintVersion>("printVersion")
+
+tasks.register("createVersionFile") {
+    doLast {
+        val versionFile = file("$buildDir/resources/main/version.properties")
+        versionFile.parentFile.mkdirs()
+        versionFile.writeText("""
+            version=$versionName
+            buildDate=$buildTime
+        """.trimIndent())
+    }
+}
+
+tasks.named("processResources") {
+    dependsOn("createVersionFile")
+}
 
 tasks.bootJar {
     archiveFileName.set("app.jar")
