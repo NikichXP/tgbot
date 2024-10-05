@@ -37,8 +37,8 @@ jobs:
 
       - run: scp build/libs/app.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/jars/tgbot.jar
 
-      - run: |
-          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 
-          cd app/
-          docker-compose build tgbot
-          docker-compose up -d tgbot
+      - name: Build docker image
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker-compose -f ${{ secrets.DOCKERFILE }} build tgbot'
+
+      - name: Update docker container
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker-compose -f ${{ secrets.DOCKERFILE }} up -d tgbot'
