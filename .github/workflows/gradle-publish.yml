@@ -29,13 +29,15 @@ jobs:
           name: app.jar
           path: build/libs/app.jar
 
-      - run: |
+      - name: Setup SSH keys
+        run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - run: scp build/libs/app.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/jars/tgbot.jar
+      - name: Upload artifact
+        run: scp build/libs/app.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/jars/tgbot.jar
 
       - name: Build docker image
         run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'docker-compose -f ${{ secrets.DOCKERFILE }} build tgbot'
