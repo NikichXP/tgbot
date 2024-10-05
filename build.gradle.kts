@@ -79,8 +79,8 @@ tasks.register("createVersionFile") {
         val versionFile = file("$buildDir/resources/main/version.properties")
         versionFile.parentFile.mkdirs()
         versionFile.writeText("""
-            version=$versionName
-            buildDate=$buildTime
+            buildInfo.version=$versionName
+            buildInfo.date=$buildTime
         """.trimIndent())
     }
 }
