@@ -36,3 +36,9 @@ jobs:
           ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
       - run: scp build/libs/app.jar ${{ secrets.USERNAME }}@${{ secrets.HOST }}:/app/jars/tgbot.jar
+
+      - run: |
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 
+          cd app/
+          docker-compose build tgbot
+          docker-compose up -d tgbot
