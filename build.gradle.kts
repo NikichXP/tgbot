@@ -74,22 +74,13 @@ abstract class PrintVersion : DefaultTask() {
 
 tasks.register<PrintVersion>("printVersion")
 
-tasks.register("createVersionFile") {
-    doLast {
-        val versionFile = file("$buildDir/resources/main/version.properties")
-        if (versionFile.exists()) {
-            versionFile.delete()
-        }
-        versionFile.parentFile.mkdirs()
-        versionFile.writeText("""
-            buildInfo.version=$versionName
-            buildInfo.date=$buildTime
-        """.trimIndent())
+tasks.named<Jar>("jar") {
+    manifest {
+        attributes(
+            "Implementation-Version" to versionName,
+            "Build-Time" to buildTime
+        )
     }
-}
-
-tasks.named("processResources") {
-    dependsOn("createVersionFile")
 }
 
 tasks.bootJar {
