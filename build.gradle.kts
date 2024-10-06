@@ -74,15 +74,6 @@ abstract class PrintVersion : DefaultTask() {
 
 tasks.register<PrintVersion>("printVersion")
 
-tasks.named<Jar>("jar") {
-    manifest {
-        attributes(
-            "Implementation-Version" to versionName,
-            "Build-Time" to buildTime
-        )
-    }
-}
-
 tasks.bootJar {
     archiveFileName.set("app.jar")
 }

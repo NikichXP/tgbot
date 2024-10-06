@@ -20,8 +20,12 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
+      - name: Get current date
+        id: build_date
+        run: echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon --info -Pversion=${{ github.run_number }}
+        run: ./gradlew build --no-daemon --info -Pversion="${{ github.run_number }}/${{ env.BUILD_DATE }}"
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4

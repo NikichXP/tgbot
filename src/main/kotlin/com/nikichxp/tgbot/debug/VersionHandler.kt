@@ -14,7 +14,6 @@ class VersionHandler(
 ) : CommandHandler {
 
     lateinit var version: String
-    lateinit var date: String
 
     @PostConstruct
     fun loadManifestData() {
@@ -24,11 +23,9 @@ class VersionHandler(
             )
             val attributes = manifest.mainAttributes
             this.version = attributes.getValue("Implementation-Version") ?: "unknown"
-            this.date = attributes.getValue("Build-Time") ?: "unknown"
         } catch (e: Exception) {
             e.printStackTrace()
             this.version = "unknown"
-            this.date = "unknown"
         }
     }
 
@@ -38,7 +35,7 @@ class VersionHandler(
 
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         tgOperations.replyToCurrentMessage("in development")
-        tgOperations.replyToCurrentMessage("version: $version; build date: [$date]")
+        tgOperations.replyToCurrentMessage("version: $version")
         return true
     }
 }
