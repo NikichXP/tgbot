@@ -22,7 +22,8 @@ jobs:
 
       - name: Get current date in Warsaw timezone
         id: build_date
-        run: TZ="Europe/Warsaw" date '+%Y-%m-%d %H:%M:%S' | tee -a $GITHUB_ENV
+        run:
+          echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M:%S' --date="$(TZ="Europe/Warsaw" date)")" >> $GITHUB_ENV
 
       - name: Build with Gradle
         run: ./gradlew build --no-daemon --info -Pversion="${{ github.run_number }}/${{ env.BUILD_DATE }}"
