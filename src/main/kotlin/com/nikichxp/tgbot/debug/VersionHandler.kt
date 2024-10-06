@@ -5,12 +5,10 @@ import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import jakarta.annotation.PostConstruct
-import org.springframework.context.annotation.PropertySource
 import org.springframework.stereotype.Component
 import java.util.jar.Manifest
 
 @Component
-@PropertySource("classpath:version.properties")
 class VersionHandler(
     private val tgOperations: TgOperations,
 ) : CommandHandler {
@@ -25,8 +23,8 @@ class VersionHandler(
                 javaClass.classLoader.getResourceAsStream("META-INF/MANIFEST.MF")
             )
             val attributes = manifest.mainAttributes
-            this.version = attributes.getValue("Implementation-Version")
-            this.date = attributes.getValue("Build-Time")
+            this.version = attributes.getValue("Implementation-Version") ?: "unknown"
+            this.date = attributes.getValue("Build-Time") ?: "unknown"
         } catch (e: Exception) {
             e.printStackTrace()
             this.version = "unknown"
