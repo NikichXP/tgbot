@@ -20,18 +20,12 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
 
-      - name: Get current date
+      - name: Get current date in Warsaw timezone
         id: build_date
-        run: echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+        run: TZ="Europe/Warsaw" date '+%Y-%m-%d %H:%M:%S' | tee -a $GITHUB_ENV
 
       - name: Build with Gradle
         run: ./gradlew build --no-daemon --info -Pversion="${{ github.run_number }}/${{ env.BUILD_DATE }}"
-
-      - name: Archive build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app.jar
-          path: build/libs/app.jar
 
       - name: Setup SSH keys
         run: |
