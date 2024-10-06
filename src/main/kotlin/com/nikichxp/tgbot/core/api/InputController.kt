@@ -17,7 +17,7 @@ class InputController(
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
-    private val botMap = TgBot.values().associateBy { it.botName }
+    private val botMap = TgBot.entries.associateBy { it.botName }
 
     @Bean
     fun router() = coRouter {
