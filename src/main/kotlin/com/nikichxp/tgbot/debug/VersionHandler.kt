@@ -34,7 +34,6 @@ class VersionHandler(
     override fun isCommandSupported(command: String) = command in listOf("/version", "/v", "/buildinfo")
 
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
-        tgOperations.replyToCurrentMessage("in development")
         tgOperations.replyToCurrentMessage("version: $version")
         return true
     }

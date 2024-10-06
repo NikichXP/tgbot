@@ -23,10 +23,10 @@ jobs:
       - name: Get current date in Warsaw timezone
         id: build_date
         run:
-          echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M:%S' --date="$(TZ="Europe/Warsaw" date)")" >> $GITHUB_ENV
+          echo "BUILD_DATE=$(date '+%Y-%m-%d %H:%M' --date="$(TZ="Europe/Warsaw" date)")" >> $GITHUB_ENV
 
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon --info -Pversion="${{ github.run_number }}/${{ env.BUILD_DATE }}"
+        run: ./gradlew build --no-daemon --info -Pversion="v${{ github.run_number }}/${{ env.BUILD_DATE }}"
 
       - name: Setup SSH keys
         run: |
