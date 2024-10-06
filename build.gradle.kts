@@ -77,6 +77,9 @@ tasks.register<PrintVersion>("printVersion")
 tasks.register("createVersionFile") {
     doLast {
         val versionFile = file("$buildDir/resources/main/version.properties")
+        if (versionFile.exists()) {
+            versionFile.delete()
+        }
         versionFile.parentFile.mkdirs()
         versionFile.writeText("""
             buildInfo.version=$versionName
