@@ -5,11 +5,8 @@ import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import jakarta.annotation.PostConstruct
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
 import org.springframework.stereotype.Component
-import java.io.IOException
-import java.util.jar.Attributes
 import java.util.jar.Manifest
 
 @Component
@@ -18,9 +15,7 @@ class VersionHandler(
     private val tgOperations: TgOperations,
 ) : CommandHandler {
 
-    @Value("\${buildInfo.version}")
     lateinit var version: String
-    @Value("\${buildInfo.date}")
     lateinit var date: String
 
     @PostConstruct
@@ -32,7 +27,7 @@ class VersionHandler(
             val attributes = manifest.mainAttributes
             this.version = attributes.getValue("Implementation-Version")
             this.date = attributes.getValue("Build-Time")
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             this.version = "unknown"
             this.date = "unknown"
