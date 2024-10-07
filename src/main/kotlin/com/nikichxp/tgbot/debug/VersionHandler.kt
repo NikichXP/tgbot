@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.AppStorage
 import jakarta.annotation.PostConstruct
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.jar.Manifest
@@ -22,7 +23,7 @@ class VersionHandler(
     var adminId: Long = 0
 
     @PostConstruct
-    suspend fun loadManifestData() {
+    fun loadManifestData() {
         try {
             val manifest = Manifest(
                 javaClass.classLoader.getResourceAsStream("META-INF/MANIFEST.MF")
@@ -35,11 +36,13 @@ class VersionHandler(
                 if (it != previousVersion?.value && adminId != 0L) {
                     appStorage.saveData(VERSION_KEY, it)
                     TgBot.entries.forEach { bot ->
-                        tgOperations.sendMessage(
-                            chatId = adminId,
-                            text = "New version deployed: $it",
-                            tgBot = bot
-                        )
+                        runBlocking {
+                            tgOperations.sendMessage(
+                                chatId = adminId,
+                                text = "New version deployed: $it",
+                                tgBot = bot
+                            )
+                        }
                     }
                 }
             }
