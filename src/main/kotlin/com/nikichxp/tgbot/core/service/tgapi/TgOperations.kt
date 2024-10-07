@@ -73,6 +73,16 @@ class TgOperations(
         replyToMessageId: Long? = null,
         retryNumber: Int = 0
     ) {
+        sendMessage(chatId, text, replyToMessageId, retryNumber, getCurrentUpdateContext().tgBot)
+    }
+
+    suspend fun sendMessage(
+        chatId: Long,
+        text: String,
+        replyToMessageId: Long? = null,
+        retryNumber: Int = 0,
+        tgBot: TgBot
+    ) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
             "text" to text
@@ -81,7 +91,7 @@ class TgOperations(
         replyToMessageId?.apply { args += "reply_to_message_id" to replyToMessageId }
 
         try {
-            restTemplate.postForEntity<String>("${apiForCurrentBot()}/sendMessage", args.toMap())
+            restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", args.toMap())
         } catch (tooManyRequests: TooManyRequests) {
             if (retryNumber <= 5) {
                 logger.warn("429 error reached: try #$retryNumber, chatId = $chatId, text = $text")
