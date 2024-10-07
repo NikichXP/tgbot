@@ -7,6 +7,7 @@ import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.AppStorage
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.jar.Manifest
@@ -17,11 +18,14 @@ class VersionHandler(
     private val appStorage: AppStorage
 ) : CommandHandler {
 
+    private val log = LoggerFactory.getLogger(this::class.java)
+
     lateinit var version: String
 
     @Value("\${app.admin-id}")
     var adminId: Long = 0
 
+    // TODO split into 2 methods
     @PostConstruct
     fun loadManifestData() {
         try {
@@ -37,11 +41,15 @@ class VersionHandler(
                     appStorage.saveData(VERSION_KEY, it)
                     TgBot.entries.forEach { bot ->
                         runBlocking {
-                            tgOperations.sendMessage(
-                                chatId = adminId,
-                                text = "New version deployed: $it",
-                                tgBot = bot
-                            )
+                            try {
+                                tgOperations.sendMessage(
+                                    chatId = adminId,
+                                    text = "New version deployed: $it",
+                                    tgBot = bot
+                                )
+                            } catch (e: Exception) {
+                                log.warn("Failed to send version update message to bot ${bot.botName}", e)
+                            }
                         }
                     }
                 }

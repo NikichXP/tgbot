@@ -13,6 +13,7 @@ class AppConfig(
 
     var suspendBotRegistering: Boolean = false
 
+    // TODO change registration of the bots to be dynamic | store in DB?
     companion object {
         class Tokens(
             var nikichBot: String?,
