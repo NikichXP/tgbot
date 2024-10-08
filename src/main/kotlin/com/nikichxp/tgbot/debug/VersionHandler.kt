@@ -8,6 +8,7 @@ import com.nikichxp.tgbot.core.util.AppStorage
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.jar.Manifest
 
@@ -19,32 +20,25 @@ class VersionHandler(
     private val coroutineScope: CoroutineScope
 ) : CommandHandler {
 
+    private val log = LoggerFactory.getLogger(this::class.java)
 
-    lateinit var version: String
+    private val appVersion: String by lazy { getManifestVersion() ?: NULL_VERSION }
 
-
-    // TODO split into 2 methods
     @PostConstruct
     fun loadManifestData() {
-        try {
-            val manifest = Manifest(
-                javaClass.classLoader.getResourceAsStream("META-INF/MANIFEST.MF")
-            )
-            val attributes = manifest.mainAttributes
-            val appVersion: String? = attributes.getValue("Implementation-Version")
-            this.version = appVersion ?: NULL_VERSION
-            appVersion?.let {
-                val previousVersion = appStorage.getData(VERSION_KEY)
-                if (it != previousVersion?.value) {
-                    appStorage.saveData(VERSION_KEY, it)
-                    coroutineScope.launch {
-                        sendMessageToAdminService.sendMessage("New version deployed: $it")
-                    }
+        if (appVersion == NULL_VERSION) {
+            log.warn("Failed to load version from manifest")
+            coroutineScope.launch {
+                sendMessageToAdminService.sendMessage("Failed to load version from manifest")
+            }
+        } else {
+            val previousVersion = appStorage.getData(VERSION_KEY)
+            if (appVersion != previousVersion?.value) {
+                appStorage.saveData(VERSION_KEY, appVersion)
+                coroutineScope.launch {
+                    sendMessageToAdminService.sendMessage("New version deployed: $appVersion")
                 }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            this.version = NULL_VERSION
         }
     }
 
@@ -53,8 +47,21 @@ class VersionHandler(
     override fun isCommandSupported(command: String) = command in listOf("/version", "/v", "/buildinfo")
 
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
-        tgOperations.replyToCurrentMessage("version: $version")
+        tgOperations.replyToCurrentMessage("version: $appVersion")
         return true
+    }
+
+    private fun getManifestVersion(): String? {
+        try {
+            val manifest = Manifest(
+                javaClass.classLoader.getResourceAsStream("META-INF/MANIFEST.MF")
+            )
+            val attributes = manifest.mainAttributes
+            return attributes.getValue("Implementation-Version")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 
     companion object {
