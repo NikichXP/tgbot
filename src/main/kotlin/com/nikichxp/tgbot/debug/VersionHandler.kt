@@ -6,24 +6,22 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.AppStorage
 import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.runBlocking
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.springframework.stereotype.Component
 import java.util.jar.Manifest
 
 @Component
 class VersionHandler(
     private val tgOperations: TgOperations,
-    private val appStorage: AppStorage
+    private val appStorage: AppStorage,
+    private val sendMessageToAdminService: SendMessageToAdminService,
+    private val coroutineScope: CoroutineScope
 ) : CommandHandler {
 
-    private val log = LoggerFactory.getLogger(this::class.java)
 
     lateinit var version: String
 
-    @Value("\${app.admin-id}")
-    var adminId: Long = 0
 
     // TODO split into 2 methods
     @PostConstruct
@@ -37,20 +35,10 @@ class VersionHandler(
             this.version = appVersion ?: NULL_VERSION
             appVersion?.let {
                 val previousVersion = appStorage.getData(VERSION_KEY)
-                if (it != previousVersion?.value && adminId != 0L) {
+                if (it != previousVersion?.value) {
                     appStorage.saveData(VERSION_KEY, it)
-                    TgBot.entries.forEach { bot ->
-                        runBlocking {
-                            try {
-                                tgOperations.sendMessage(
-                                    chatId = adminId,
-                                    text = "New version deployed: $it",
-                                    tgBot = bot
-                                )
-                            } catch (e: Exception) {
-                                log.warn("Failed to send version update message to bot ${bot.botName}", e)
-                            }
-                        }
+                    coroutineScope.launch {
+                        sendMessageToAdminService.sendMessage("New version deployed: $it")
                     }
                 }
             }
