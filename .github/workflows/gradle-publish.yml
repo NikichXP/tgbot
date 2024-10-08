@@ -12,6 +12,8 @@ jobs:
     concurrency:
       group: build-${{ github.ref }} # wait for previous build to finish
 
+    timeout-minutes: 15
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
