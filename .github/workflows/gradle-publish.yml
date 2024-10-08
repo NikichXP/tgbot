@@ -9,6 +9,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    concurrency:
+      group: build-${{ github.ref }} # wait for previous build to finish
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
