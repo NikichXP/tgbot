@@ -7,7 +7,7 @@ COPY build.gradle.kts .
 COPY src ./src
 RUN gradle build --no-daemon
 
-FROM openjdk:17.0.2-slim
+FROM openjdk:21-slim
 
 WORKDIR /app
 
