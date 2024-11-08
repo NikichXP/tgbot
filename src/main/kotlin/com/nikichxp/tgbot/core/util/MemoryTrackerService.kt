@@ -33,7 +33,7 @@ class MemoryTrackerService {
             val unit = 1024
             if (size < unit) return "$size B"
             val exp = (Math.log(size.toDouble()) / Math.log(unit.toDouble())).toInt()
-            val pre = "KMGTPE"[exp - 1] + "i"
+            val pre = "KMGTPE"[exp - 1]
             return String.format("%.1f %sB", size / Math.pow(unit.toDouble(), exp.toDouble()), pre)
         }
     }
