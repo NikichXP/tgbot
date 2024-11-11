@@ -4,6 +4,8 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.sun.org.slf4j.internal.LoggerFactory.getLogger
+import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service
@@ -15,6 +17,10 @@ class SantaBotCommandHandler(
     private val mongoTemplate: MongoTemplate,
     private val tgOperations: TgOperations
 ) : CommandHandler {
+
+    private val rand = Random()
+    private val log = LoggerFactory.getLogger(this::class.java)
+
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.SANTABOT)
 
@@ -68,8 +74,10 @@ class SantaBotCommandHandler(
                     ?: throw IllegalArgumentException("register in game first")
                 player.ignores += ignored.replace("@", "").lowercase()
                 mongoTemplate.save(game)
-                tgOperations.replyToCurrentMessage("Вы добавили @${ignored} как свою вторую половинку! " +
-                        "Теперь вы не будете дарить ему подарок, а он не будет дарить подарок вам.")
+                tgOperations.replyToCurrentMessage(
+                    "Вы добавили @${ignored} как свою вторую половинку! " +
+                            "Теперь вы не будете дарить ему подарок, а он не будет дарить подарок вам."
+                )
             }
 
             "/startgame" -> {
@@ -90,42 +98,48 @@ class SantaBotCommandHandler(
         val users = game.players
         val targets = game.players.map { it.username }.toMutableList()
 
-        fun isConditionOk(): Boolean {
-            return users.zip(targets).all { (user, target) ->
+        val playerCount = users.size
+        var iteration = 0
+        val iterationLimit = playerCount * playerCount * 2
 
-                val iDontIgnoreTarget = user.ignores.none {
-                    target.lowercase().contains(it.lowercase())
-                }
-
-                val targetDoesntIgnoreMe = users.find { it.username == target }?.ignores?.none {
-                    user.username.lowercase().contains(it.lowercase())
-                } ?: true
-
-                val itsNotMe = user.username.lowercase() != target.lowercase()
-
-                return@all iDontIgnoreTarget && targetDoesntIgnoreMe && itsNotMe
-            }
-        }
-
-        val rand = Random()
-        val size = users.size
-
-        while (!isConditionOk()) {
-            val a = rand.nextInt(size)
-            val b = rand.nextInt(size)
+        while (!isConditionOk(users, targets) && iteration < iterationLimit) {
+            val a = rand.nextInt(playerCount)
+            val b = rand.nextInt(playerCount)
             val tmp = targets[a]
             targets[a] = targets[b]
             targets[b] = tmp
+            iteration++
         }
 
-        users.zip(targets).forEach { (user, target) ->
-            println("${user.username} дарит $target")
-            tgOperations.sendMessage(
-                user.id,
-                "Ваша цель: @$target"
-            )
+        if (iteration >= iterationLimit) {
+            tgOperations.replyToCurrentMessage("Не удалось найти подходящие пары. Попробуйте еще раз")
+            return
+        } else {
+            users.zip(targets).forEach { (user, target) ->
+                log.info("${user.username} дарит $target")
+                tgOperations.sendMessage(
+                    user.id,
+                    "Ваша цель: @$target"
+                )
+            }
         }
+    }
 
+    fun isConditionOk(users: List<SecretSantaPlayer>, targets: List<String>): Boolean {
+        return users.zip(targets).all { (user, target) ->
+
+            val iDontIgnoreTarget = user.ignores.none {
+                target.lowercase().contains(it.lowercase())
+            }
+
+            val targetDoesntIgnoreMe = users.find { it.username == target }?.ignores?.none {
+                user.username.lowercase().contains(it.lowercase())
+            } ?: true
+
+            val itsNotMe = user.username.lowercase() != target.lowercase()
+
+            return@all iDontIgnoreTarget && targetDoesntIgnoreMe && itsNotMe
+        }
     }
 
     private fun getSantaUserPlayerFromUpdate(update: Update): SecretSantaPlayer {
