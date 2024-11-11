@@ -55,7 +55,7 @@ class SantaBotCommandHandler(
                 }
                 mongoTemplate.save(game)
                 tgOperations.replyToCurrentMessage(
-                    if (status) "Вы зарегистрировались в игре" else "Вы уже зарегистрированы в игре"
+                    if (status) "Вы зарегистрировались в игре \"$gameId\"" else "Вы уже зарегистрированы в игре"
                 )
             }
 
@@ -68,7 +68,8 @@ class SantaBotCommandHandler(
                     ?: throw IllegalArgumentException("register in game first")
                 player.ignores += ignored.replace("@", "").lowercase()
                 mongoTemplate.save(game)
-                tgOperations.replyToCurrentMessage("Вы добавили @${ignored} как свою вторую половинку")
+                tgOperations.replyToCurrentMessage("Вы добавили @${ignored} как свою вторую половинку! " +
+                        "Теперь вы не будете дарить ему подарок, а он не будет дарить подарок вам.")
             }
 
             "/startgame" -> {
@@ -91,9 +92,18 @@ class SantaBotCommandHandler(
 
         fun isConditionOk(): Boolean {
             return users.zip(targets).all { (user, target) ->
-                user.ignores.none {
+
+                val iDontIgnoreTarget = user.ignores.none {
                     target.lowercase().contains(it.lowercase())
-                } && user.username.lowercase() != target.lowercase()
+                }
+
+                val targetDoesntIgnoreMe = users.find { it.username == target }?.ignores?.none {
+                    user.username.lowercase().contains(it.lowercase())
+                } ?: true
+
+                val itsNotMe = user.username.lowercase() != target.lowercase()
+
+                return@all iDontIgnoreTarget && targetDoesntIgnoreMe && itsNotMe
             }
         }
 
