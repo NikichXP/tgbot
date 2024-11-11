@@ -4,14 +4,12 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
-import com.sun.org.slf4j.internal.LoggerFactory.getLogger
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service
 import java.util.*
 
-// todo out of time - whoever see this: remind me to finally refactor this
 @Service
 class SantaBotCommandHandler(
     private val mongoTemplate: MongoTemplate,
@@ -20,7 +18,6 @@ class SantaBotCommandHandler(
 
     private val rand = Random()
     private val log = LoggerFactory.getLogger(this::class.java)
-
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.SANTABOT)
 
