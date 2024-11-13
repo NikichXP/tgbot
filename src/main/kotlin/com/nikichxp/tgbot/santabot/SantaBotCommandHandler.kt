@@ -122,8 +122,9 @@ class SantaBotCommandHandler(
         }
     }
 
-    fun isConditionOk(users: List<SecretSantaPlayer>, targets: List<String>): Boolean {
-        return users.zip(targets).all { (user, target) ->
+    fun isConditionOk(users: List<SecretSantaPlayer>, targets: List<String>, nonPairGifting: Boolean = true): Boolean {
+        val userPairs = users.zip(targets)
+        val individualUserConditionsMet = userPairs.all { (user, target) ->
 
             val iDontIgnoreTarget = user.ignores.none {
                 target.lowercase().contains(it.lowercase())
@@ -131,12 +132,19 @@ class SantaBotCommandHandler(
 
             val targetDoesntIgnoreMe = users.find { it.username == target }?.ignores?.none {
                 user.username.lowercase().contains(it.lowercase())
-            } ?: true
+            } != false
 
             val itsNotMe = user.username.lowercase() != target.lowercase()
 
             return@all iDontIgnoreTarget && targetDoesntIgnoreMe && itsNotMe
         }
+
+        val hasCircles = userPairs.any { (user, target) ->
+            userPairs.find { (isTarget, _) -> isTarget.username == target }?.second == user.username
+        }
+        val circularConditionMet = !nonPairGifting || !hasCircles
+
+        return individualUserConditionsMet && circularConditionMet
     }
 
     private fun getSantaUserPlayerFromUpdate(update: Update): SecretSantaPlayer {
