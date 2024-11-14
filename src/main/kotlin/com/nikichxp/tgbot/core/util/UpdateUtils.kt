@@ -14,6 +14,12 @@ fun Update.getContextChatId(): Long? = this.getMentionedMessage()?.chat?.id
 fun Update.getContextMessageId(): Long? = this.getMentionedMessage()?.messageId
 
 @JsonIgnore
+fun Update.getContextUserId(): Long? = this.getMentionedMessage()?.from?.id
+
+@JsonIgnore
+fun Update.getContextUserName(): String? = this.getMentionedMessage()?.from?.username
+
+@JsonIgnore
 fun Update.getMentionedMessage(): Message? {
     return this.message
         ?: this.editedMessage

@@ -4,6 +4,8 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.util.getContextUserId
+import com.nikichxp.tgbot.core.util.getContextUserName
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
@@ -13,7 +15,7 @@ import java.util.*
 @Service
 class SantaBotCommandHandler(
     private val mongoTemplate: MongoTemplate,
-    private val tgOperations: TgOperations
+    private val tgOperations: TgOperations,
 ) : CommandHandler {
 
     private val rand = Random()
@@ -27,7 +29,7 @@ class SantaBotCommandHandler(
         when (command) {
             "/create" -> {
                 val game = SecretSantaGame()
-                game.createdBy = update.message?.from?.id ?: throw IllegalArgumentException("Can't get user id")
+                game.createdBy = update.getContextUserId() ?: throw IllegalArgumentException("Can't get user id")
 
                 // TODO argsparser
                 var i = 0
@@ -56,7 +58,7 @@ class SantaBotCommandHandler(
                     tgOperations.replyToCurrentMessage("Игра уже начата")
                     return true
                 }
-                
+
                 val player = getSantaUserPlayerFromUpdate(update)
                 var status = false
                 if (game.players.none { it.id == player.id }) {
@@ -77,6 +79,12 @@ class SantaBotCommandHandler(
 
                 val gameId = args.first()
                 val game = getGame(gameId) ?: return noGameFound()
+
+                if (game.players.none { it.id == update.getContextUserId() }) {
+                    tgOperations.replyToCurrentMessage("Вы не зарегистрированы в этой игре")
+                    return true
+                }
+
                 val players = game.players.joinToString("\n") { '@' + it.username }
                 tgOperations.replyToCurrentMessage("Игроки в игре \"$gameId\":\n$players")
             }
@@ -105,7 +113,7 @@ class SantaBotCommandHandler(
                 val gameId = args.first()
                 val game = getGame(gameId) ?: return noGameFound()
 
-                if (game.createdBy != update.message?.from?.id) {
+                if (game.createdBy != update.getContextUserId()) {
                     tgOperations.replyToCurrentMessage("Вы не создатель игры")
                     return true
                 }
@@ -123,7 +131,7 @@ class SantaBotCommandHandler(
                 when {
                     game.isStarted -> tgOperations.replyToCurrentMessage("Игра уже начата")
                     game.players.size < 3 -> tgOperations.replyToCurrentMessage("Недостаточно игроков")
-                    game.createdBy != update.message?.from?.id -> tgOperations.replyToCurrentMessage("Вы не создатель игры")
+                    game.createdBy != update.getContextUserId() -> tgOperations.replyToCurrentMessage("Вы не создатель игры")
                     else -> {
                         val playerPairs = calculatePlayers(game)
                         startGame(playerPairs)
@@ -207,8 +215,8 @@ class SantaBotCommandHandler(
 
     private fun getSantaUserPlayerFromUpdate(update: Update): SecretSantaPlayer {
         return SecretSantaPlayer(
-            id = update.message?.from?.id ?: throw IllegalArgumentException("not expected"),
-            username = update.message.from.username ?: throw IllegalArgumentException("you must have a username")
+            id = update.getContextUserId() ?: throw IllegalArgumentException("not expected"),
+            username = update.getContextUserName() ?: throw IllegalArgumentException("you must have a username")
         )
     }
 }
