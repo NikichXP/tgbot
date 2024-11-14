@@ -63,6 +63,11 @@ class SantaBotCommandHandler(
             }
 
             "/players" -> {
+                if (args.size != 1) {
+                    tgOperations.replyToCurrentMessage("Используйте /players gameId")
+                    return true
+                }
+
                 val gameId = args.first()
                 val game = getGame(gameId) ?: return noGameFound()
                 val players = game.players.joinToString("\n") { '@' + it.username }
@@ -74,6 +79,7 @@ class SantaBotCommandHandler(
                     tgOperations.replyToCurrentMessage("Используйте /ignore gameId @username")
                     return true
                 }
+
                 val gameId = args[0]
                 val ignored = args[1]
                 val game = getGame(gameId) ?: return noGameFound()
@@ -88,10 +94,20 @@ class SantaBotCommandHandler(
                 )
             }
 
+            "/testgame" -> {
+                val gameId = args.first()
+                val game = getGame(gameId) ?: return noGameFound()
+                val playerPairs = calculatePlayers(game)
+                tgOperations.replyToCurrentMessage(
+                    playerPairs.joinToString("\n") { (user, target) -> "@${user.username} -> @$target" }
+                )
+            }
+
             "/startgame" -> {
                 val gameId = args.first()
                 val game = getGame(gameId) ?: return noGameFound()
-                startGame(game)
+                val playerPairs = calculatePlayers(game)
+                startGame(playerPairs)
             }
         }
         return true
@@ -106,7 +122,7 @@ class SantaBotCommandHandler(
         return true
     }
 
-    private suspend fun startGame(game: SecretSantaGame) {
+    private suspend fun calculatePlayers(game: SecretSantaGame): List<Pair<SecretSantaPlayer, String>> {
         val users = game.players
         val targets = game.players.map { it.username }.toMutableList()
 
@@ -125,15 +141,19 @@ class SantaBotCommandHandler(
 
         if (iteration >= iterationLimit) {
             tgOperations.replyToCurrentMessage("Не удалось найти подходящие пары. Попробуйте еще раз")
-            return
+            return emptyList()
         } else {
-            users.zip(targets).forEach { (user, target) ->
-                log.info("${user.username} дарит $target")
-                tgOperations.sendMessage(
-                    user.id,
-                    "Ваша цель: @$target"
-                )
-            }
+            return users.zip(targets)
+        }
+    }
+
+    private suspend fun startGame(playerPairs: List<Pair<SecretSantaPlayer, String>>) {
+        playerPairs.forEach { (user, target) ->
+            log.info("${user.username} дарит $target")
+            tgOperations.sendMessage(
+                user.id,
+                "Ваша цель: @$target"
+            )
         }
     }
 
