@@ -28,6 +28,7 @@ class MessageEntryPoint(
                 ?: throw IllegalArgumentException("Cannot convert the message")
             proceedUpdate(update, bot)
         } catch (e: Exception) {
+            // TODO think about error handling
             logger.error("Failed to process the message", e)
         }
     }

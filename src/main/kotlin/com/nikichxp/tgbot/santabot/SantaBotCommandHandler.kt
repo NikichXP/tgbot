@@ -70,6 +70,10 @@ class SantaBotCommandHandler(
             }
 
             "/ignore" -> {
+                if (args.size != 2) {
+                    tgOperations.replyToCurrentMessage("Используйте /ignore gameId @username")
+                    return true
+                }
                 val gameId = args[0]
                 val ignored = args[1]
                 val game = getGame(gameId) ?: return noGameFound()
