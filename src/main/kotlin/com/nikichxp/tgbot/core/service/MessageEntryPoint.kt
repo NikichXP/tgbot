@@ -23,9 +23,13 @@ class MessageEntryPoint(
     suspend fun proceedRawData(body: Document, bot: TgBot) {
         logger.info("Received message: $body")
         rawJsonLogger.logEvent(body)
-        val update = conversionService.convert(body, Update::class.java)
-            ?: throw IllegalArgumentException("Cannot convert the message")
-        proceedUpdate(update, bot)
+        try {
+            val update = conversionService.convert(body, Update::class.java)
+                ?: throw IllegalArgumentException("Cannot convert the message")
+            proceedUpdate(update, bot)
+        } catch (e: Exception) {
+            logger.error("Failed to process the message", e)
+        }
     }
 
     suspend fun proceedUpdate(update: Update, bot: TgBot) {
