@@ -51,6 +51,12 @@ class SantaBotCommandHandler(
             "/register" -> {
                 val gameId = args.first()
                 val game = getGame(gameId) ?: return noGameFound()
+
+                if (game.isStarted) {
+                    tgOperations.replyToCurrentMessage("Игра уже начата")
+                    return true
+                }
+                
                 val player = getSantaUserPlayerFromUpdate(update)
                 var status = false
                 if (game.players.none { it.id == player.id }) {
@@ -103,7 +109,7 @@ class SantaBotCommandHandler(
                     tgOperations.replyToCurrentMessage("Вы не создатель игры")
                     return true
                 }
-                
+
                 val playerPairs = calculatePlayers(game)
                 tgOperations.replyToCurrentMessage(
                     playerPairs.joinToString("\n") { (user, target) -> "@${user.username} -> @$target" }
