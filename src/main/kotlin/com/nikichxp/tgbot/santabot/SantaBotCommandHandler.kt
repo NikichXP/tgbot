@@ -23,7 +23,14 @@ class SantaBotCommandHandler(
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.SANTABOT)
 
-    override fun isCommandSupported(command: String): Boolean = true
+    override fun isCommandSupported(command: String): Boolean = setOf(
+        "/create",
+        "/register",
+        "/players",
+        "/ignore",
+        "/testgame",
+        "/startgame"
+    ).contains(command)
 
     override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         when (command) {

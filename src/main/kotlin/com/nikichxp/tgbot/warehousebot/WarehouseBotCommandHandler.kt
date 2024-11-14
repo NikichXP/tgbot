@@ -43,7 +43,12 @@ class WarehouseBotCommandHandler(
         return true
     }
 
-    override fun isCommandSupported(command: String): Boolean = true
+    override fun isCommandSupported(command: String): Boolean = setOf(
+        "/list",
+        "/get",
+        "/create",
+        "/update"
+    ).contains(command)
 
     private suspend fun renderText(update: Update, supplier: suspend () -> List<String>) {
         tgOperations.replyToCurrentMessage(supplier().joinToString("\n"))
