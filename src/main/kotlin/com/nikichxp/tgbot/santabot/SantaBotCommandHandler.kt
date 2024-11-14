@@ -62,6 +62,13 @@ class SantaBotCommandHandler(
                 )
             }
 
+            "/players" -> {
+                val gameId = args.first()
+                val game = getGame(gameId) ?: return noGameFound()
+                val players = game.players.joinToString("\n") { '@' + it.username }
+                tgOperations.replyToCurrentMessage("Игроки в игре \"$gameId\":\n$players")
+            }
+
             "/ignore" -> {
                 val gameId = args[0]
                 val ignored = args[1]
