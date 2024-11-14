@@ -27,6 +27,7 @@ class SantaBotCommandHandler(
         when (command) {
             "/create" -> {
                 val game = SecretSantaGame()
+                game.createdBy = update.message?.from?.id ?: throw IllegalArgumentException("Can't get user id")
 
                 // TODO argsparser
                 var i = 0
@@ -106,13 +107,17 @@ class SantaBotCommandHandler(
             "/startgame" -> {
                 val gameId = args.first()
                 val game = getGame(gameId) ?: return noGameFound()
-                if (game.isStarted) {
-                    tgOperations.replyToCurrentMessage("Игра уже начата")
-                } else {
-                    val playerPairs = calculatePlayers(game)
-                    startGame(playerPairs)
-                    game.isStarted = true
-                    mongoTemplate.save(game)
+
+                when {
+                    game.isStarted -> tgOperations.replyToCurrentMessage("Игра уже начата")
+                    game.players.size < 3 -> tgOperations.replyToCurrentMessage("Недостаточно игроков")
+                    game.createdBy != update.message?.from?.id -> tgOperations.replyToCurrentMessage("Вы не создатель игры")
+                    else -> {
+                        val playerPairs = calculatePlayers(game)
+                        startGame(playerPairs)
+                        game.isStarted = true
+                        mongoTemplate.save(game)
+                    }
                 }
             }
         }
@@ -200,6 +205,7 @@ class SecretSantaGame {
     var id: String = UUID.randomUUID().toString().substring(0 until 8)
     var players: List<SecretSantaPlayer> = listOf()
     var isStarted = false
+    var createdBy: Long = 0
 }
 
 data class SecretSantaPlayer(
