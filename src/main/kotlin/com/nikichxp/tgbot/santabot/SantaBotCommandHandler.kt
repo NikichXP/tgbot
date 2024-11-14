@@ -49,7 +49,7 @@ class SantaBotCommandHandler(
 
             "/register" -> {
                 val gameId = args.first()
-                val game = getGame(gameId)
+                val game = getGame(gameId) ?: return noGameFound()
                 val player = getSantaUserPlayerFromUpdate(update)
                 var status = false
                 if (game.players.none { it.id == player.id }) {
@@ -65,7 +65,7 @@ class SantaBotCommandHandler(
             "/ignore" -> {
                 val gameId = args[0]
                 val ignored = args[1]
-                val game = getGame(gameId)
+                val game = getGame(gameId) ?: return noGameFound()
                 val playerId = getSantaUserPlayerFromUpdate(update).id
                 val player = game.players.find { it.id == playerId }
                     ?: throw IllegalArgumentException("register in game first")
@@ -79,16 +79,24 @@ class SantaBotCommandHandler(
 
             "/startgame" -> {
                 val gameId = args.first()
-                val game = getGame(gameId)
+                val game = getGame(gameId) ?: return noGameFound()
                 startGame(game)
             }
         }
         return true
     }
 
-    private suspend fun getGame(gameId: String): SecretSantaGame {
-        return mongoTemplate.findById<SecretSantaGame>(gameId) ?: throw IllegalArgumentException("game not found")
-            .also { tgOperations.replyToCurrentMessage("Игра не найдена") }
+    private suspend fun getGame(gameId: String): SecretSantaGame? {
+        val game = mongoTemplate.findById<SecretSantaGame>(gameId)
+        if (game == null) {
+            tgOperations.replyToCurrentMessage("Игра не найдена")
+        }
+        return game
+    }
+
+    private suspend fun noGameFound(): Boolean {
+        tgOperations.replyToCurrentMessage("Игра не найдена")
+        return true
     }
 
     private suspend fun startGame(game: SecretSantaGame) {
