@@ -87,11 +87,7 @@ class SantaBotCommandHandler(
     }
 
     private suspend fun getGame(gameId: String): SecretSantaGame? {
-        val game = mongoTemplate.findById<SecretSantaGame>(gameId)
-        if (game == null) {
-            tgOperations.replyToCurrentMessage("Игра не найдена")
-        }
-        return game
+        return mongoTemplate.findById<SecretSantaGame>(gameId)
     }
 
     private suspend fun noGameFound(): Boolean {
