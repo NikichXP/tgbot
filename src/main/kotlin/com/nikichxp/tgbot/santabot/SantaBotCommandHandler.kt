@@ -106,8 +106,14 @@ class SantaBotCommandHandler(
             "/startgame" -> {
                 val gameId = args.first()
                 val game = getGame(gameId) ?: return noGameFound()
-                val playerPairs = calculatePlayers(game)
-                startGame(playerPairs)
+                if (game.isStarted) {
+                    tgOperations.replyToCurrentMessage("Игра уже начата")
+                } else {
+                    val playerPairs = calculatePlayers(game)
+                    startGame(playerPairs)
+                    game.isStarted = true
+                    mongoTemplate.save(game)
+                }
             }
         }
         return true
@@ -193,6 +199,7 @@ class SantaBotCommandHandler(
 class SecretSantaGame {
     var id: String = UUID.randomUUID().toString().substring(0 until 8)
     var players: List<SecretSantaPlayer> = listOf()
+    var isStarted = false
 }
 
 data class SecretSantaPlayer(
