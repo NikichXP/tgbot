@@ -24,7 +24,4 @@ abstract class CommandHandlerV2 : AbstractCommandHandler {
         registeredCommands[command] = handler
     }
 
-    companion object {
-        private val registeredHandlers: MutableSet<CommandHandlerV2> = mutableSetOf()
-    }
 }

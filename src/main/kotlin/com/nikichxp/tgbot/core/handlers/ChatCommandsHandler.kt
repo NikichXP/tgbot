@@ -31,7 +31,7 @@ class ChatCommandsHandler(
             .filter { it.isCommandSupported(query.first()) && it.isCommandForBotSupported(update.bot) }
             .map { it.processCommand(query.drop(1), query.first(), update) }
 
-        val successfullyHandled = resultV2.filter { it }.count()
+        val successfullyHandled = resultV2.count { it }
 
         val log = when {
             resultV2.isEmpty() -> when (result) {
