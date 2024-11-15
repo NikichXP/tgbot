@@ -3,9 +3,11 @@ package com.nikichxp.tgbot.santabot
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerV2
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getContextUserName
+import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
@@ -16,136 +18,138 @@ import java.util.*
 class SantaBotCommandHandler(
     private val mongoTemplate: MongoTemplate,
     private val tgOperations: TgOperations,
-) : CommandHandler {
+) : CommandHandlerV2() {
 
     private val rand = Random()
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.SANTABOT)
 
-    override fun isCommandSupported(command: String): Boolean = setOf(
-        "/create",
-        "/register",
-        "/players",
-        "/ignore",
-        "/testgame",
-        "/startgame"
-    ).contains(command)
+    @PostConstruct
+    fun setupHandlers() {
+        registerCommand("/create") { args, update -> commandCreate(args, update) }
+        registerCommand("/register") { args, update -> commandRegister(args, update) }
+        registerCommand("/players") { args, update -> commandPlayers(args, update) }
+        registerCommand("/ignore") { args, update -> commandIgnore(args, update) }
+        registerCommand("/testgame") { args, update -> commandTestGame(args, update) }
+        registerCommand("/startgame") { args, update -> commandStartGame(args, update) }
+    }
 
-    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
-        when (command) {
-            "/create" -> {
-                val game = SecretSantaGame()
-                game.createdBy = update.getContextUserId() ?: throw IllegalArgumentException("Can't get user id")
+    private suspend fun commandCreate(args: List<String>, update: Update): Boolean {
+        val game = SecretSantaGame()
+        game.createdBy = update.getContextUserId() ?: throw IllegalArgumentException("Can't get user id")
 
-                // TODO argsparser
-                var i = 0
-                while (i < args.size) {
-                    val arg = args[i]
-                    when (arg) {
-                        "id", "-id" -> {
-                            game.id = args[i + 1]
-                            i++
-                        }
-                    }
+        // TODO argsparser
+        var i = 0
+        while (i < args.size) {
+            val arg = args[i]
+            when (arg) {
+                "id", "-id" -> {
+                    game.id = args[i + 1]
                     i++
                 }
-
-                val player = getSantaUserPlayerFromUpdate(update)
-                game.players += player
-                mongoTemplate.save(game)
-                tgOperations.replyToCurrentMessage("game created")
             }
+            i++
+        }
 
-            "/register" -> {
-                val gameId = args.first()
-                val game = getGame(gameId) ?: return noGameFound()
+        val player = getSantaUserPlayerFromUpdate(update)
+        game.players += player
+        mongoTemplate.save(game)
+        tgOperations.replyToCurrentMessage("game created")
+        return true
+    }
 
-                if (game.isStarted) {
-                    tgOperations.replyToCurrentMessage("Игра уже начата")
-                    return true
-                }
+    private suspend fun commandRegister(args: List<String>, update: Update): Boolean {
+        val gameId = args.first()
+        val game = getGame(gameId) ?: return noGameFound()
 
-                val player = getSantaUserPlayerFromUpdate(update)
-                var status = false
-                if (game.players.none { it.id == player.id }) {
-                    game.players += player
-                    status = true
-                }
-                mongoTemplate.save(game)
-                tgOperations.replyToCurrentMessage(
-                    if (status) "Вы зарегистрировались в игре \"$gameId\"" else "Вы уже зарегистрированы в игре"
-                )
-            }
+        if (game.isStarted) {
+            tgOperations.replyToCurrentMessage("Игра уже начата")
+            return true
+        }
 
-            "/players" -> {
-                if (args.size != 1) {
-                    tgOperations.replyToCurrentMessage("Используйте /players gameId")
-                    return true
-                }
+        val player = getSantaUserPlayerFromUpdate(update)
+        var status = false
+        if (game.players.none { it.id == player.id }) {
+            game.players += player
+            status = true
+        }
+        mongoTemplate.save(game)
+        tgOperations.replyToCurrentMessage(
+            if (status) "Вы зарегистрировались в игре \"$gameId\"" else "Вы уже зарегистрированы в игре"
+        )
+        return true
+    }
 
-                val gameId = args.first()
-                val game = getGame(gameId) ?: return noGameFound()
+    private suspend fun commandPlayers(args: List<String>, update: Update): Boolean {
+        if (args.size != 1) {
+            tgOperations.replyToCurrentMessage("Используйте /players gameId")
+            return true
+        }
 
-                if (game.players.none { it.id == update.getContextUserId() }) {
-                    tgOperations.replyToCurrentMessage("Вы не зарегистрированы в этой игре")
-                    return true
-                }
+        val gameId = args.first()
+        val game = getGame(gameId) ?: return noGameFound()
 
-                val players = game.players.joinToString("\n") { '@' + it.username }
-                tgOperations.replyToCurrentMessage("Игроки в игре \"$gameId\":\n$players")
-            }
+        if (game.players.none { it.id == update.getContextUserId() }) {
+            tgOperations.replyToCurrentMessage("Вы не зарегистрированы в этой игре")
+            return true
+        }
 
-            "/ignore" -> {
-                if (args.size != 2) {
-                    tgOperations.replyToCurrentMessage("Используйте /ignore gameId @username")
-                    return true
-                }
+        val players = game.players.joinToString("\n") { '@' + it.username }
+        tgOperations.replyToCurrentMessage("Игроки в игре \"$gameId\":\n$players")
+        return true
+    }
 
-                val gameId = args[0]
-                val ignored = args[1]
-                val game = getGame(gameId) ?: return noGameFound()
-                val playerId = getSantaUserPlayerFromUpdate(update).id
-                val player = game.players.find { it.id == playerId }
-                    ?: throw IllegalArgumentException("register in game first")
-                player.ignores += ignored.replace("@", "").lowercase()
-                mongoTemplate.save(game)
-                tgOperations.replyToCurrentMessage(
-                    "Вы добавили @${ignored} как свою вторую половинку! " +
-                            "Теперь вы не будете дарить ему подарок, а он не будет дарить подарок вам."
-                )
-            }
+    private suspend fun commandIgnore(args: List<String>, update: Update): Boolean {
+        if (args.size != 2) {
+            tgOperations.replyToCurrentMessage("Используйте /ignore gameId @username")
+            return true
+        }
 
-            "/testgame" -> {
-                val gameId = args.first()
-                val game = getGame(gameId) ?: return noGameFound()
+        val gameId = args[0]
+        val ignored = args[1]
+        val game = getGame(gameId) ?: return noGameFound()
+        val playerId = getSantaUserPlayerFromUpdate(update).id
+        val player = game.players.find { it.id == playerId }
+            ?: throw IllegalArgumentException("register in game first")
+        player.ignores += ignored.replace("@", "").lowercase()
+        mongoTemplate.save(game)
+        tgOperations.replyToCurrentMessage(
+            "Вы добавили @${ignored} как свою вторую половинку! " +
+                    "Теперь вы не будете дарить ему подарок, а он не будет дарить подарок вам."
+        )
+        return true
+    }
 
-                if (game.createdBy != update.getContextUserId()) {
-                    tgOperations.replyToCurrentMessage("Вы не создатель игры")
-                    return true
-                }
+    private suspend fun commandTestGame(args: List<String>, update: Update): Boolean {
+        val gameId = args.first()
+        val game = getGame(gameId) ?: return noGameFound()
 
+        if (game.createdBy != update.getContextUserId()) {
+            tgOperations.replyToCurrentMessage("Вы не создатель игры")
+            return true
+        }
+
+        val playerPairs = calculatePlayers(game)
+        tgOperations.replyToCurrentMessage(
+            playerPairs.joinToString("\n") { (user, target) -> "@${user.username} -> @$target" }
+        )
+        return true
+    }
+
+    private suspend fun commandStartGame(args: List<String>, update: Update): Boolean {
+        val gameId = args.first()
+        val game = getGame(gameId) ?: return noGameFound()
+
+        when {
+            game.isStarted -> tgOperations.replyToCurrentMessage("Игра уже начата")
+            game.players.size < 3 -> tgOperations.replyToCurrentMessage("Недостаточно игроков")
+            game.createdBy != update.getContextUserId() -> tgOperations.replyToCurrentMessage("Вы не создатель игры")
+            else -> {
                 val playerPairs = calculatePlayers(game)
-                tgOperations.replyToCurrentMessage(
-                    playerPairs.joinToString("\n") { (user, target) -> "@${user.username} -> @$target" }
-                )
-            }
-
-            "/startgame" -> {
-                val gameId = args.first()
-                val game = getGame(gameId) ?: return noGameFound()
-
-                when {
-                    game.isStarted -> tgOperations.replyToCurrentMessage("Игра уже начата")
-                    game.players.size < 3 -> tgOperations.replyToCurrentMessage("Недостаточно игроков")
-                    game.createdBy != update.getContextUserId() -> tgOperations.replyToCurrentMessage("Вы не создатель игры")
-                    else -> {
-                        val playerPairs = calculatePlayers(game)
-                        startGame(playerPairs)
-                        game.isStarted = true
-                        mongoTemplate.save(game)
-                    }
-                }
+                startGame(playerPairs)
+                game.isStarted = true
+                mongoTemplate.save(game)
             }
         }
         return true
