@@ -33,6 +33,8 @@ class ChatCommandsHandler(
 
         val successfullyHandled = resultV2.count { it }
 
+
+
         val log = when {
             resultV2.isEmpty() -> when (result) {
                 true -> "successfully handled command"
