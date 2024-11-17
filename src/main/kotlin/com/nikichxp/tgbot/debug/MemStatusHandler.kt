@@ -8,9 +8,7 @@ import com.nikichxp.tgbot.core.util.MemoryTrackerService
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Component
 import kotlin.reflect.KFunction
-import kotlin.reflect.full.declaredFunctions
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
+import kotlin.reflect.full.*
 
 @Component
 class MemStatusHandler(
@@ -19,14 +17,6 @@ class MemStatusHandler(
 ) : CommandHandlerV2() {
 
     override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.NIKICHBOT)
-
-    @PostConstruct
-    fun setupHandlers() {
-        registerCommand("/memstatus") { _, _ ->
-            tgOperations.replyToCurrentMessage(memoryTrackerService.getMemoryStatus().prettyPrint())
-            true
-        }
-    }
 
     @CommandHandlerA("/memstatus")
     suspend fun printMemoryStatus(): Boolean {
@@ -42,12 +32,6 @@ annotation class CommandHandlerA(val value: String)
 class CommandHandlerScanner(
     private val commandHandlersV2: List<CommandHandlerV2>,
 ) {
-
-    @PostConstruct
-    fun test() {
-        val handlers = getHandlers()
-        println()
-    }
 
     fun getHandlers(): Set<SingleCommandHandler> {
         val result = mutableSetOf<SingleCommandHandler>()
@@ -79,14 +63,20 @@ class CommandHandlerExecutor {
 
     suspend fun execute(handler: SingleCommandHandler, args: List<String>, update: Update): Boolean {
         val executionArgs = mutableListOf<Any>()
-        for (parameter in handler.function.parameters) {
-            when (parameter.type) {
 
-                List::class -> executionArgs.add(args)
-                Update::class -> executionArgs.add(update)
+        for (parameter in handler.function.parameters) {
+            if (parameter.type.isSubtypeOf(CommandHandlerV2::class.createType())) {
+                executionArgs.add(handler.handler)
+            } else {
+                when (parameter.type) {
+                    List::class.createType() -> executionArgs.add(args)
+                    Update::class.createType() -> executionArgs.add(update)
+                    else -> throw IllegalStateException("Unknown parameter type: ${parameter.type}")
+                }
             }
         }
-        return handler.function.call(handler.handler, executionArgs, update) as Boolean
+
+        return handler.function.callSuspend(*executionArgs.toTypedArray()) as Boolean
     }
 
 }
