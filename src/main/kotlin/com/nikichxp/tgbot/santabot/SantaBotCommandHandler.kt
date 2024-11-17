@@ -3,12 +3,10 @@ package com.nikichxp.tgbot.santabot
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
-import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerV2
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getContextUserName
-import com.nikichxp.tgbot.debug.CommandHandlerA
-import jakarta.annotation.PostConstruct
+import com.nikichxp.tgbot.debug.HandleCommand
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
@@ -19,14 +17,14 @@ import java.util.*
 class SantaBotCommandHandler(
     private val mongoTemplate: MongoTemplate,
     private val tgOperations: TgOperations,
-) : CommandHandlerV2() {
+) : CommandHandler {
 
     private val rand = Random()
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.SANTABOT)
 
-    @CommandHandlerA("/create")
+    @HandleCommand("/create")
     private suspend fun commandCreate(args: List<String>, update: Update): Boolean {
         val game = SecretSantaGame()
         game.createdBy = update.getContextUserId() ?: throw IllegalArgumentException("Can't get user id")
@@ -51,7 +49,7 @@ class SantaBotCommandHandler(
         return true
     }
 
-    @CommandHandlerA("/register")
+    @HandleCommand("/register")
     private suspend fun commandRegister(args: List<String>, update: Update): Boolean {
         val gameId = args.first()
         val game = getGame(gameId) ?: return noGameFound()
@@ -74,7 +72,7 @@ class SantaBotCommandHandler(
         return true
     }
 
-    @CommandHandlerA("/players")
+    @HandleCommand("/players")
     private suspend fun commandPlayers(args: List<String>, update: Update): Boolean {
         if (args.size != 1) {
             tgOperations.replyToCurrentMessage("Используйте /players gameId")
@@ -94,7 +92,7 @@ class SantaBotCommandHandler(
         return true
     }
 
-    @CommandHandlerA("/ignore")
+    @HandleCommand("/ignore")
     private suspend fun commandIgnore(args: List<String>, update: Update): Boolean {
         if (args.size != 2) {
             tgOperations.replyToCurrentMessage("Используйте /ignore gameId @username")
@@ -116,7 +114,7 @@ class SantaBotCommandHandler(
         return true
     }
 
-    @CommandHandlerA("/testgame")
+    @HandleCommand("/testgame")
     private suspend fun commandTestGame(args: List<String>, update: Update): Boolean {
         val gameId = args.first()
         val game = getGame(gameId) ?: return noGameFound()
@@ -133,7 +131,7 @@ class SantaBotCommandHandler(
         return true
     }
 
-    @CommandHandlerA("/startgame")
+    @HandleCommand("/startgame")
     private suspend fun commandStartGame(args: List<String>, update: Update): Boolean {
         val gameId = args.first()
         val game = getGame(gameId) ?: return noGameFound()

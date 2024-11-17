@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.debug.HandleCommand
 import com.nikichxp.tgbot.karmabot.service.UserInfo
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -19,9 +20,9 @@ class TopKarmaHandler(
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.NIKICHBOT)
 
-    override fun isCommandSupported(command: String): Boolean = command.lowercase() in listOf("/top", "/realtop")
-
-    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    // TODO add realtop
+    @HandleCommand("/top")
+    suspend fun processCommand(args: List<String>, update: Update): Boolean {
         if (args.isNotEmpty()) {
             tgOperations.sendToCurrentChat("Additional args are not supported yet")
             return true

@@ -14,12 +14,16 @@ class VersionHandler(
 
     override fun supportedBots(tgBot: TgBot) = TgBot.entries.toSet()
 
-    override fun isCommandSupported(command: String) = command in listOf("/version", "/v", "/buildinfo")
+//    override fun isCommandSupported(command: String) = command in listOf("/version", "/v", "/buildinfo")
 
-    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    // TODO add other commands, make it array
+    @HandleCommand("/version")
+    suspend fun processCommand(args: List<String>, update: Update): Boolean {
         tgOperations.replyToCurrentMessage("version: ${versionProvider.appVersion}")
         return true
     }
+
+
 
 }
 

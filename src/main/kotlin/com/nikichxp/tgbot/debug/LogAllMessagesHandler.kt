@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 @Component
 class LogAllMessagesHandler(
     private val tgOperations: TgOperations,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) : UpdateHandler, CommandHandler {
 
     @Value("\${ADMIN_USER:0}")
@@ -55,9 +55,8 @@ class LogAllMessagesHandler(
         }
     }
 
-    override fun isCommandSupported(command: String): Boolean = command == "/logging"
-
-    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    @HandleCommand("/logging")
+    suspend fun configureLogging(args: List<String>, update: Update): Boolean {
         val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
 
         suspend fun notify(text: String) = tgOperations.sendMessage(chatId, LOG_PREFIX + text)

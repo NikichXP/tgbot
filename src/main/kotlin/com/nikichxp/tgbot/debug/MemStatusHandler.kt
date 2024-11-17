@@ -2,10 +2,9 @@ package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerV2
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.MemoryTrackerService
-import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Component
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.*
@@ -14,11 +13,11 @@ import kotlin.reflect.full.*
 class MemStatusHandler(
     private val memoryTrackerService: MemoryTrackerService,
     private val tgOperations: TgOperations,
-) : CommandHandlerV2() {
+) : CommandHandler {
 
     override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.NIKICHBOT)
 
-    @CommandHandlerA("/memstatus")
+    @HandleCommand("/memstatus")
     suspend fun printMemoryStatus(): Boolean {
         tgOperations.replyToCurrentMessage(memoryTrackerService.getMemoryStatus().prettyPrint())
         return true
@@ -26,11 +25,11 @@ class MemStatusHandler(
 }
 
 @Retention(AnnotationRetention.RUNTIME)
-annotation class CommandHandlerA(val value: String)
+annotation class HandleCommand(val value: String)
 
 @Component
 class CommandHandlerScanner(
-    private val commandHandlersV2: List<CommandHandlerV2>,
+    private val commandHandlersV2: List<CommandHandler>,
 ) {
 
     fun getHandlers(): Set<SingleCommandHandler> {
@@ -38,10 +37,10 @@ class CommandHandlerScanner(
 
         for (handler in commandHandlersV2) {
             handler::class.declaredFunctions
-                .filter { it.hasAnnotation<CommandHandlerA>() }
+                .filter { it.hasAnnotation<HandleCommand>() }
                 .map {
                     SingleCommandHandler(
-                        command = it.findAnnotation<CommandHandlerA>()!!.value,
+                        command = it.findAnnotation<HandleCommand>()!!.value,
                         function = it,
                         handler = handler
                     )
@@ -55,7 +54,7 @@ class CommandHandlerScanner(
 class SingleCommandHandler(
     val command: String,
     val function: KFunction<*>,
-    val handler: CommandHandlerV2,
+    val handler: CommandHandler,
 )
 
 @Component
@@ -65,7 +64,7 @@ class CommandHandlerExecutor {
         val executionArgs = mutableListOf<Any>()
 
         for (parameter in handler.function.parameters) {
-            if (parameter.type.isSubtypeOf(CommandHandlerV2::class.createType())) {
+            if (parameter.type.isSubtypeOf(CommandHandler::class.createType())) {
                 executionArgs.add(handler.handler)
             } else {
                 when (parameter.type) {

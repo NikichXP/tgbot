@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.ChatCommandParser
+import com.nikichxp.tgbot.debug.HandleCommand
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import org.springframework.stereotype.Component
 
@@ -13,16 +14,15 @@ import org.springframework.stereotype.Component
 class RegisterEmojiHandler(
     private val tgOperations: TgOperations,
     private val emojiService: EmojiService,
-    appConfig: AppConfig
+    appConfig: AppConfig,
 ) : CommandHandler {
 
     private var ownerId = appConfig.adminId
 
     override fun supportedBots(tgBot: TgBot) = setOf(TgBot.NIKICHBOT)
 
-    override fun isCommandSupported(command: String): Boolean = command == "/emoji"
-
-    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    @HandleCommand("/emoji")
+    suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
         return ChatCommandParser.analyze(args) {
             path("set") {
                 asArg("emoji") {
