@@ -7,6 +7,7 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
+import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.core.util.getContextChatId

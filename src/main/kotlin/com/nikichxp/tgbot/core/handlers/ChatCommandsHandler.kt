@@ -3,10 +3,9 @@ package com.nikichxp.tgbot.core.handlers
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.util.getContextChatId
-import com.nikichxp.tgbot.debug.CommandHandlerExecutor
-import com.nikichxp.tgbot.debug.CommandHandlerScanner
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerScanner
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -19,7 +18,7 @@ class ChatCommandsHandler(
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     private val commandHandlerExecutorMap by lazy {
-        commandHandlerScanner.getHandlers().associateBy { it.command }
+        commandHandlerScanner.getHandlers().groupBy { it.command }
     }
 
     override fun botSupported(bot: TgBot) = true
@@ -30,13 +29,16 @@ class ChatCommandsHandler(
         val query = update.message!!.text!!.split(" ")
 
         val result = commandHandlerExecutorMap[query.first()]?.let {
-            commandHandlerExecutor.execute(it, query, update)
+            it.filter { handler -> handler.handler.supportedBots(update.bot).contains(update.bot) }
+                .map { handler -> commandHandlerExecutor.execute(handler, query, update) }
         }
 
-        val log = when (result) {
-            true -> "successfully handled command"
-            false -> "failed executing command"
-            null -> "unknown command"
+        val log = when {
+            result == null -> "unknown command"
+            result.isEmpty() -> "no handlers for command ${query.first()} suitable for bot ${update.bot}"
+            result.all { it } -> "successfully handled command"
+            result.any { it } -> "partially handled command (${result.count { it }}/${result.size})"
+            else -> "failed executing command"
         }
 
         logger.info("chadId = ${update.getContextChatId()} | ${update.message.text} | $log")

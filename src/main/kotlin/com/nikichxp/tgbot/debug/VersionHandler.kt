@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.debug
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
+import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.springframework.stereotype.Component
 

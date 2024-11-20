@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getContextUserName
-import com.nikichxp.tgbot.debug.HandleCommand
+import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById

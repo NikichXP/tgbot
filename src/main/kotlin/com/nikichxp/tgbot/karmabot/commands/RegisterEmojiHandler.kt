@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.ChatCommandParser
-import com.nikichxp.tgbot.debug.HandleCommand
+import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import org.springframework.stereotype.Component
 
