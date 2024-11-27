@@ -19,13 +19,13 @@ class PingPongHandler(
     override fun supportedBots(tgBot: TgBot) = TgBot.entries.toSet()
 
     @HandleCommand("/ping")
-    suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
+    suspend fun processCommand(args: List<String>, update: Update): Boolean {
         tgOperations.replyToCurrentMessage("pong!")
         return true
     }
 
     @HandleCommand("/testkey")
-    suspend fun testKeyboard(args: List<String>, command: String, update: Update): Boolean {
+    suspend fun testKeyboard(args: List<String>, update: Update): Boolean {
         val keyboard = TgKeyboard(
             listOf(
                 listOf(
