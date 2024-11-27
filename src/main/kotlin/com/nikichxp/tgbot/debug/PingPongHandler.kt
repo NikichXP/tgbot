@@ -8,6 +8,7 @@ import com.nikichxp.tgbot.core.service.tgapi.TgButton
 import com.nikichxp.tgbot.core.service.tgapi.TgKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
+import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
 @Component
@@ -39,7 +40,7 @@ class PingPongHandler(
         )
 
         val message = TgSendMessage(
-            chatId = update.message.chat.id,
+            chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id"),
             text = "Here is your keyboard",
             replyMarkup = keyboard
         )
