@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
@@ -27,7 +28,8 @@ class TgOperations(
     private val tgUpdatePollService: TgUpdatePollService,
     private val tgBotConfig: TgBotConfig,
     private val appConfig: AppConfig,
-    private val errorStorageService: ErrorStorageService
+    private val errorStorageService: ErrorStorageService,
+    private val objectMapper: ObjectMapper
 ) {
 
     private val bots = tgBotConfig.getInitializedBots()
@@ -99,6 +101,29 @@ class TgOperations(
                     launch {
                         delay(5_000)
                         sendMessage(chatId, text, replyToMessageId, retryNumber + 1)
+                    }
+                }
+            } else {
+                tooManyRequests.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun sendMessage(
+        message: TgSendMessage,
+        tgBot: TgBot,
+        retryNumber: Int = 0
+    ) {
+        try {
+            val content = objectMapper.writeValueAsString(message)
+            restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", content)
+        } catch (tooManyRequests: TooManyRequests) {
+            if (retryNumber <= 5) {
+                logger.warn("429 error reached: try #$retryNumber, message = $message")
+                coroutineScope {
+                    launch {
+                        delay(5_000)
+                        sendMessage(message = message, tgBot = tgBot, retryNumber = retryNumber + 1)
                     }
                 }
             } else {
