@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
@@ -115,8 +116,8 @@ class TgOperations(
         retryNumber: Int = 0
     ) {
         try {
-            val content = objectMapper.writeValueAsString(message)
-            restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", content)
+            val body = objectMapper.valueToTree<JsonNode>(message)
+            restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", request = body)
         } catch (tooManyRequests: TooManyRequests) {
             if (retryNumber <= 5) {
                 logger.warn("429 error reached: try #$retryNumber, message = $message")
