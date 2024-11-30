@@ -7,6 +7,6 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 interface UpdateHandler {
     fun botSupported(bot: TgBot): Boolean
     fun getMarkers(): Set<UpdateMarker>
-    suspend fun handleUpdate(update: Update) = Unit
+    suspend fun handleUpdate(update: Update)
     fun canHandle(update: Update): Boolean = true
 }

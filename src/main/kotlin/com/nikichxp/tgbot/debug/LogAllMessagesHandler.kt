@@ -27,7 +27,7 @@ class LogAllMessagesHandler(
     private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    override fun supportedBots(tgBot: TgBot) = TgBot.entries.toSet()
+    override fun supportedBots() = TgBot.entries.toSet()
 
     override fun botSupported(bot: TgBot) = true
 

@@ -4,22 +4,22 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 val ktorVersion: String = "2.3.9"
-val kotlinVersion: String = "2.0.0"
+val kotlinVersion: String = "2.1.0"
 val coroutinesVersion: String = "1.6.4"
 
 val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
 val versionName: String = if (project.hasProperty("version")) project.version.toString() else "unknown"
 
 group = "com.nikichxp"
-version = project.property("version") ?: "1.0.0"
+version = project.property("version") ?: "1.1.0"
 description = "tgbot"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 plugins {
     id("org.springframework.boot") version "3.3.5"
     id("io.spring.dependency-management") version "1.1.6"
-    kotlin("jvm") version "2.0.21"
-    kotlin("plugin.spring") version "2.0.21"
+    kotlin("jvm") version "2.1.0"
+    kotlin("plugin.spring") version "2.1.0"
 }
 
 repositories {
@@ -34,6 +34,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")

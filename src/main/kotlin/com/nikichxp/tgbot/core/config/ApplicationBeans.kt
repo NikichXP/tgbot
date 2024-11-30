@@ -13,6 +13,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.cache.CacheManager
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -38,6 +40,9 @@ class ApplicationBeans {
     @Bean
     @Primary
     fun coroutineScope(coroutineDispatcher: CoroutineDispatcher) = CoroutineScope(coroutineDispatcher)
+
+    @Bean
+    fun cacheManager(): CacheManager = ConcurrentMapCacheManager()
 
     @Bean
     fun ktorHttpClient(): HttpClient = HttpClient(CIO) {

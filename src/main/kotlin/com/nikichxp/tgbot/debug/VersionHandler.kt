@@ -13,7 +13,7 @@ class VersionHandler(
     private val versionProvider: VersionProvider
 ) : CommandHandler {
 
-    override fun supportedBots(tgBot: TgBot) = TgBot.entries.toSet()
+    override fun supportedBots() = TgBot.entries.toSet()
 
 //    override fun isCommandSupported(command: String) = command in listOf("/version", "/v", "/buildinfo")
 

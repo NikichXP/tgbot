@@ -16,7 +16,7 @@ class PingPongHandler(
     private val tgOperations: TgOperations
 ) : CommandHandler {
 
-    override fun supportedBots(tgBot: TgBot) = TgBot.entries.toSet()
+    override fun supportedBots() = TgBot.entries.toSet()
 
     @HandleCommand("/ping")
     suspend fun processCommand(args: List<String>, update: Update): Boolean {

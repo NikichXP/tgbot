@@ -22,7 +22,7 @@ class SantaBotCommandHandler(
     private val rand = Random()
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun supportedBots(tgBot: TgBot) = setOf(TgBot.SANTABOT)
+    override fun supportedBots() = setOf(TgBot.SANTABOT)
 
     @HandleCommand("/create")
     private suspend fun commandCreate(args: List<String>, update: Update): Boolean {

@@ -5,5 +5,5 @@ import org.springframework.stereotype.Indexed
 
 @Indexed
 interface CommandHandler {
-    fun supportedBots(tgBot: TgBot): Set<TgBot>
+    fun supportedBots(): Set<TgBot>
 }

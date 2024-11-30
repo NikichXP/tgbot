@@ -6,7 +6,6 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
-import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 
 @Service
@@ -26,7 +25,7 @@ class WarehouseBotCommandHandler(
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.MESSAGE)
 
-    override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)
+    override fun supportedBots(): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)
 
     override fun canHandle(update: Update): Boolean {
         return update.message?.text?.startsWith("/") ?: false

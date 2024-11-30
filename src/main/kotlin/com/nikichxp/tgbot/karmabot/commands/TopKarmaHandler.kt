@@ -18,7 +18,7 @@ class TopKarmaHandler(
     private val mongoTemplate: MongoTemplate
 ) : CommandHandler {
 
-    override fun supportedBots(tgBot: TgBot) = setOf(TgBot.NIKICHBOT)
+    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
     // TODO add realtop
     @HandleCommand("/top")

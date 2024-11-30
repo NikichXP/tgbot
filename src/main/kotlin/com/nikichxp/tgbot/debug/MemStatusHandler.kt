@@ -13,7 +13,7 @@ class MemStatusHandler(
     private val tgOperations: TgOperations,
 ) : CommandHandler {
 
-    override fun supportedBots(tgBot: TgBot): Set<TgBot> = setOf(TgBot.NIKICHBOT)
+    override fun supportedBots(): Set<TgBot> = setOf(TgBot.NIKICHBOT)
 
     @HandleCommand("/memstatus")
     suspend fun printMemoryStatus(): Boolean {

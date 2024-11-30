@@ -19,7 +19,7 @@ class RegisterEmojiHandler(
 
     private var ownerId = appConfig.adminId
 
-    override fun supportedBots(tgBot: TgBot) = setOf(TgBot.NIKICHBOT)
+    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
     @HandleCommand("/emoji")
     suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {

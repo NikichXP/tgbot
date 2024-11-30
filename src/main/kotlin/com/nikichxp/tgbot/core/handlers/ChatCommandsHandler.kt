@@ -29,7 +29,7 @@ class ChatCommandsHandler(
         val query = update.message!!.text!!.split(" ")
 
         val result = commandHandlerExecutorMap[query.first()]?.let {
-            it.filter { handler -> handler.handler.supportedBots(update.bot).contains(update.bot) }
+            it.filter { handler -> handler.handler.supportedBots().contains(update.bot) }
                 .map { handler -> commandHandlerExecutor.execute(handler, query, update) }
         }
 
