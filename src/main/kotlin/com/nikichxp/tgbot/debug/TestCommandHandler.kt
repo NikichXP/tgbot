@@ -9,7 +9,7 @@ import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
 @Component
-class PingPongHandler(
+class TestCommandHandler(
     private val tgOperations: TgOperations
 ) : CommandHandler {
 
@@ -19,6 +19,11 @@ class PingPongHandler(
     suspend fun processCommand(args: List<String>, update: Update): Boolean {
         tgOperations.replyToCurrentMessage("pong!")
         return true
+    }
+
+    @HandleCommand("/myid")
+    suspend fun myId(update: Update) {
+        tgOperations.replyToCurrentMessage("Your id is ${update.getContextChatId()}")
     }
 
     @HandleCommand("/removekeys")
