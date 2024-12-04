@@ -4,10 +4,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgButton
-import com.nikichxp.tgbot.core.service.tgapi.TgKeyboard
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
-import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
+import com.nikichxp.tgbot.core.service.tgapi.*
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
@@ -21,6 +18,18 @@ class PingPongHandler(
     @HandleCommand("/ping")
     suspend fun processCommand(args: List<String>, update: Update): Boolean {
         tgOperations.replyToCurrentMessage("pong!")
+        return true
+    }
+
+    @HandleCommand("/removekeys")
+    suspend fun removeKeyboard(args: List<String>, update: Update): Boolean {
+        val message = TgSendMessage(
+            chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id"),
+            text = "Keyboard removed",
+            replyMarkup = TgRemoveKeyboard()
+        )
+
+        tgOperations.sendMessage(message, update.bot)
         return true
     }
 
