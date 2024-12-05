@@ -6,6 +6,12 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.dto.User
 import com.nikichxp.tgbot.core.entity.InteractionRole
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
+import com.nikichxp.tgbot.core.entity.UpdateContext
+import kotlinx.coroutines.coroutineScope
+
+suspend fun getCurrentUpdateContext(): UpdateContext = coroutineScope {
+    this.coroutineContext[UpdateContext] ?: throw IllegalStateException("No update context found")
+}
 
 @JsonIgnore
 fun Update.getContextChatId(): Long? = this.getMentionedMessage()?.chat?.id

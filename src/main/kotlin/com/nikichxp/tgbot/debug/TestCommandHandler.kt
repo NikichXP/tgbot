@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class TestCommandHandler(
-    private val tgOperations: TgOperations
+    private val tgOperations: TgOperations,
 ) : CommandHandler {
 
     override fun supportedBots() = TgBot.entries.toSet()
@@ -28,11 +28,11 @@ class TestCommandHandler(
 
     @HandleCommand("/removekeys")
     suspend fun removeKeyboard(args: List<String>, update: Update): Boolean {
-        val message = TgSendMessage(
-            chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id"),
-            text = "Keyboard removed",
-            replyMarkup = TgRemoveKeyboard()
-        )
+        val message = TgSendMessage.create {
+            replyToCurrentMessage()
+            text = "Keyboard removed"
+            removeKeyboard()
+        }
 
         tgOperations.sendMessage(message, update.bot)
         return true
@@ -53,11 +53,22 @@ class TestCommandHandler(
             )
         )
 
-        val message = TgSendMessage(
-            chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id"),
-            text = "Here is your keyboard",
-            replyMarkup = keyboard
-        )
+        val message = TgSendMessage.create {
+            replyToCurrentMessage()
+            text = "Here is your keyboard"
+            withKeyboard(
+                listOf(
+                    listOf(
+                        "Button 1",
+                        "Button 2"
+                    ),
+                    listOf(
+                        "Button 3",
+                        "Button 4"
+                    )
+                )
+            )
+        }
 
         tgOperations.sendMessage(message, update.bot)
         return true

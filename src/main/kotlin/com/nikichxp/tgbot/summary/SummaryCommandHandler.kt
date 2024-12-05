@@ -45,10 +45,10 @@ class SummaryCommandHandler(
             // ignore, don't let people know this feature exists so far
             return true
         }
-        val message = TgSendMessage(
-            chatId = chatId,
+        val message = TgSendMessage.create {
+            replyToCurrentMessage()
             text = "Summary command is not implemented yet"
-        )
+        }
         tgOperations.sendMessage(message, update.bot)
         return true
     }

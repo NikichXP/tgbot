@@ -108,7 +108,19 @@ class TgOperations(
         }
     }
 
+    suspend fun sendMessage(tgBot: TgBot, messageDSL: TgSendMessage.() -> Unit) {
+        val message = TgSendMessage.create(messageDSL)
+        sendMessageInternal(message, tgBot)
+    }
+
     suspend fun sendMessage(
+        message: TgSendMessage,
+        tgBot: TgBot
+    ) {
+        sendMessageInternal(message, tgBot)
+    }
+
+    private suspend fun sendMessageInternal(
         message: TgSendMessage,
         tgBot: TgBot,
         retryNumber: Int = 0
@@ -122,7 +134,7 @@ class TgOperations(
                 coroutineScope {
                     launch {
                         delay(5_000)
-                        sendMessage(message = message, tgBot = tgBot, retryNumber = retryNumber + 1)
+                        sendMessageInternal(message = message, tgBot = tgBot, retryNumber = retryNumber + 1)
                     }
                 }
             } else {
