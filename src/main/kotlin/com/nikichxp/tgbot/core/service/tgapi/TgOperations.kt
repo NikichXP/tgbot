@@ -53,8 +53,6 @@ class TgOperations(
         }
     }
 
-    suspend fun apiForCurrentBot() = apiFor(getCurrentUpdateContext().tgBot)
-
     private suspend fun getCurrentUpdateContext(): UpdateContext = coroutineScope {
         this.coroutineContext[UpdateContext] ?: try {
             throw IllegalStateException("No update context found")
@@ -133,14 +131,14 @@ class TgOperations(
         }
     }
 
-    suspend fun sendToCurrentChat(text: String) {
+    suspend fun sendToCurrentChat(text: String, replyMarkup: TgReplyMarkup? = null) {
         val update = getCurrentUpdate()
         update.getContextChatId()?.let {
             sendMessage(it, text)
         } ?: errorStorageService.logAndReportError(logger, "Cannot send message reply to current chat: $text", update)
     }
 
-    suspend fun replyToCurrentMessage(text: String) {
+    suspend fun replyToCurrentMessage(text: String, replyMarkup: TgReplyMarkup? = null) {
 
         val update = getCurrentUpdate()
         update.getContextChatId()?.let {
