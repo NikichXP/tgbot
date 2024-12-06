@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration
 
 enum class TgBot(val botName: String) {
     NIKICHBOT("nikichbot"), ALLMYSTUFFBOT("allmystuffbot"), SANTABOT("santabot"),
-    DEMOBOT("demobot")
+    DEMOBOT("demobot"), CHILDTRACKERBOT("childtrackerbot")
 }
 
 data class BotInfo(
@@ -25,6 +25,7 @@ class TgBotConfig(
             TgBot.ALLMYSTUFFBOT -> appConfig.tokens.allMyStuffBot
             TgBot.SANTABOT -> appConfig.tokens.santaBot
             TgBot.DEMOBOT -> appConfig.tokens.demoBot
+            TgBot.CHILDTRACKERBOT -> appConfig.tokens.childTrackerBot
         } ?: return null
         return BotInfo(
             bot = bot,
@@ -34,7 +35,7 @@ class TgBotConfig(
     }
 
     fun getInitializedBots(): List<BotInfo> {
-        return TgBot.values().mapNotNull { getBotInfo(it) }
+        return TgBot.entries.mapNotNull { getBotInfo(it) }
     }
 
 }

@@ -19,7 +19,8 @@ class AppConfig(
             var nikichBot: String?,
             var allMyStuffBot: String?,
             var santaBot: String?,
-            var demoBot: String?
+            var demoBot: String?,
+            var childTrackerBot: String?
         )
 
         class Tracer(
