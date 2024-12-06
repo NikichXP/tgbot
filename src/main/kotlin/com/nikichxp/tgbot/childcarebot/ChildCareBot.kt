@@ -1,6 +1,9 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.UpdateMarker
+import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
@@ -14,7 +17,7 @@ import org.springframework.data.mongodb.core.findAll
 @Service
 class ChildCareCommandHandler(
     private val tgOperations: TgOperations
-) : CommandHandler {
+) : CommandHandler, UpdateHandler {
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.NIKICHBOT)
 
     @HandleCommand("/status")
@@ -23,6 +26,17 @@ class ChildCareCommandHandler(
             replyToCurrentMessage()
             text = "I'm alive!"
             withKeyboard(listOf(listOf("Уснула", "Ест")))
+        }
+    }
+
+    override fun botSupported(bot: TgBot): Boolean = bot == TgBot.NIKICHBOT
+
+    override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT)
+
+    override suspend fun handleUpdate(update: Update) {
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = "handling update!"
         }
     }
 }
