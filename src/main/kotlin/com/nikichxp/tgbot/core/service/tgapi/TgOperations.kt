@@ -108,6 +108,11 @@ class TgOperations(
         }
     }
 
+    suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
+        val message = TgSendMessage.create(messageDSL)
+        sendMessageInternal(message, getCurrentUpdateContext().tgBot)
+    }
+
     suspend fun sendMessage(tgBot: TgBot, messageDSL: TgSendMessage.() -> Unit) {
         val message = TgSendMessage.create(messageDSL)
         sendMessageInternal(message, tgBot)
