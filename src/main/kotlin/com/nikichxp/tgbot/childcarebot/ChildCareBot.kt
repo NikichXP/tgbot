@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.childcarebot
 import com.nikichxp.tgbot.childcarebot.ChildActivity.EATING
 import com.nikichxp.tgbot.childcarebot.ChildActivity.SLEEP
 import com.nikichxp.tgbot.childcarebot.ChildActivity.WAKE_UP
+import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -12,6 +13,7 @@ import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.bson.types.ObjectId
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
@@ -24,7 +26,8 @@ import org.springframework.data.mongodb.core.query.Query
 @Service
 class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
-    private val childActivityService: ChildActivityService
+    private val childActivityService: ChildActivityService,
+    @Lazy private val appConfig: AppConfig
 ) : CommandHandler, UpdateHandler {
 
     private val buttonToActivityMap = mapOf(
@@ -39,7 +42,7 @@ class ChildCareCommandHandler(
         EATING to setOf(SLEEP)
     )
 
-    override fun supportedBots(): Set<TgBot> = setOf(TgBot.NIKICHBOT)
+    override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     @HandleCommand("/status")
     suspend fun status() {
@@ -50,11 +53,16 @@ class ChildCareCommandHandler(
         }
     }
 
-    override fun botSupported(bot: TgBot): Boolean = bot == TgBot.NIKICHBOT
+    override fun botSupported(bot: TgBot): Boolean = bot == TgBot.CHILDTRACKERBOT
 
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT)
 
     override suspend fun handleUpdate(update: Update) {
+
+        if (update.getContextChatId() != appConfig.adminId) {
+            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
+        }
+
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = "handling update!" + update.getContextChatId()
