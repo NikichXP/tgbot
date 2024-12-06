@@ -31,9 +31,9 @@ class ChildCareCommandHandler(
 ) : CommandHandler, UpdateHandler {
 
     private val buttonToActivityMap = mapOf(
-        "Уснула" to SLEEP,
-        "Проснулась" to WAKE_UP,
-        "Кушает" to EATING
+        SLEEP to "Уснула",
+        WAKE_UP to "Проснулась",
+        EATING to "Кушает"
     )
 
     private val possibleTransitions = mapOf(
@@ -46,10 +46,13 @@ class ChildCareCommandHandler(
 
     @HandleCommand("/status")
     suspend fun status() {
+        val lastState = childActivityService.getLatestState()
+        val buttons = possibleTransitions[lastState]?.map { buttonToActivityMap[it] ?: "SNF: ${it}" } ?: listOf("ERROR")
+
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "I'm alive!"
-            withKeyboard(listOf(listOf("Уснула", "Ест")))
+            text = "Active state: ${buttonToActivityMap[lastState]}"
+            withKeyboard(listOf(buttons))
         }
     }
 
