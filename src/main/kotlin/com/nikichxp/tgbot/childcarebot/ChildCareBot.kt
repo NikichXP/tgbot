@@ -63,7 +63,9 @@ class ChildCareCommandHandler(
     override suspend fun handleUpdate(update: Update) {
 
         if (update.getContextChatId() != appConfig.adminId) {
+            tgOperations.replyToCurrentMessage("${update.getContextChatId()} != ${appConfig.adminId}")
             tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
+            return
         }
 
         tgOperations.sendMessage {
