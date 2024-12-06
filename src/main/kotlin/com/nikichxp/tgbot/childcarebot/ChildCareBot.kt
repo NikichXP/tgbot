@@ -1,5 +1,8 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.tgbot.childcarebot.ChildActivity.EATING
+import com.nikichxp.tgbot.childcarebot.ChildActivity.SLEEP
+import com.nikichxp.tgbot.childcarebot.ChildActivity.WAKE_UP
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -7,17 +10,35 @@ import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.util.getContextChatId
 import org.bson.types.ObjectId
+import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import org.springframework.data.mongodb.core.findAll
+import org.springframework.data.mongodb.core.*
+import org.springframework.data.mongodb.core.query.Criteria
+import org.springframework.data.mongodb.core.query.Query
 
 
 @Service
 class ChildCareCommandHandler(
-    private val tgOperations: TgOperations
+    private val tgOperations: TgOperations,
+    private val childActivityService: ChildActivityService
 ) : CommandHandler, UpdateHandler {
+
+    private val buttonToActivityMap = mapOf(
+        "Уснула" to SLEEP,
+        "Проснулась" to WAKE_UP,
+        "Кушает" to EATING
+    )
+
+    private val possibleTransitions = mapOf(
+        SLEEP to setOf(WAKE_UP),
+        WAKE_UP to setOf(EATING, SLEEP),
+        EATING to setOf(SLEEP)
+    )
+
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.NIKICHBOT)
 
     @HandleCommand("/status")
@@ -36,7 +57,7 @@ class ChildCareCommandHandler(
     override suspend fun handleUpdate(update: Update) {
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "handling update!"
+            text = "handling update!" + update.getContextChatId()
         }
     }
 }
@@ -65,6 +86,13 @@ class ChildActivityService(
 
     fun getActivities(): List<ChildActivityEvent> {
         return mongoTemplate.findAll()
+    }
+
+    fun getLatestState(): ChildActivity {
+        val lastActivity = mongoTemplate.findOne<ChildActivityEvent>(
+            Query().with(Sort.by(Sort.Order.desc(ChildActivityEvent::date.name))).limit(1)
+        )
+        return lastActivity?.activity ?: WAKE_UP
     }
 
 }
