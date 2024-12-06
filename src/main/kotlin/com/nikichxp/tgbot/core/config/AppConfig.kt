@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.core.config
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "app")
-class AppConfig(
+open class AppConfig(
     var adminId: Long,
     var webhook: String,
     var localEnv: Boolean,

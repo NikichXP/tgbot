@@ -47,7 +47,7 @@ class ChildCareCommandHandler(
     @HandleCommand("/status")
     suspend fun status() {
         val lastState = childActivityService.getLatestState()
-        val buttons = possibleTransitions[lastState]?.map { buttonToActivityMap[it] ?: "SNF: ${it}" } ?: listOf("ERROR")
+        val buttons = possibleTransitions[lastState]?.map { buttonToActivityMap[it] ?: "SNF: $it" } ?: listOf("ERROR")
 
         tgOperations.sendMessage {
             replyToCurrentMessage()
