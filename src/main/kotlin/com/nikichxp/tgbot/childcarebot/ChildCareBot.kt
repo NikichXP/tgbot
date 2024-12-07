@@ -26,7 +26,7 @@ import org.springframework.data.mongodb.core.query.Query
 class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
-    @Lazy private val appConfig: AppConfig
+    private val appConfig: AppConfig
 ) : CommandHandler, UpdateHandler {
 
     private val buttonStateMap = mapOf(
