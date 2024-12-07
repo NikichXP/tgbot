@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.core.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.error.ExpectedError
+import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.util.getMarkers
 import kotlinx.coroutines.Job
@@ -49,11 +50,16 @@ class UpdateProcessor(
         }
     }
 
-    private fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
+    private suspend fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
         val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
         val botSupported = handler.botSupported(context.tgBot)
         val handlerAllows = handler.canHandle(context.update)
-        return markerSupported && botSupported && handlerAllows
+        val isAuthenticated = if (handler is Authenticable) {
+            handler.authenticate(context.update)
+        } else {
+            true
+        }
+        return markerSupported && botSupported && handlerAllows && isAuthenticated
     }
 
     data class UpdateProcessContext(

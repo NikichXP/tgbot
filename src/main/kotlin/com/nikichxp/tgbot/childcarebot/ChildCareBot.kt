@@ -7,6 +7,7 @@ import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
+import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -26,7 +27,7 @@ class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
     private val appConfig: AppConfig
-) : CommandHandler, UpdateHandler {
+) : CommandHandler, UpdateHandler, Authenticable {
 
     private val buttonStateMap = mapOf(
         SLEEP to "Уснула",
@@ -43,6 +44,14 @@ class ChildCareCommandHandler(
     )
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
+
+    override suspend fun authenticate(update: Update): Boolean {
+        if (update.getContextChatId() != appConfig.adminId + 1) {
+            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
+            return false
+        }
+        return true
+    }
 
     @HandleCommand("/status")
     suspend fun status(update: Update) {
@@ -68,7 +77,7 @@ class ChildCareCommandHandler(
             tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
             return
         }
-        
+
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = childActivityService.getActivities().joinToString("\n") { "${it.activity} at ${it.date}" }
@@ -84,12 +93,6 @@ class ChildCareCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
 
     override suspend fun handleUpdate(update: Update) {
-
-        if (update.getContextChatId() != appConfig.adminId) {
-            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
-            return
-        }
-
         val command = update.message?.text
 
         if (command == null) {

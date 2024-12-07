@@ -30,6 +30,7 @@ class ChatCommandsHandler(
 
         val result = commandHandlerExecutorMap[query.first()]?.let {
             it.filter { handler -> handler.handler.supportedBots().contains(update.bot) }
+                .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(update) else true }
                 .map { handler -> commandHandlerExecutor.execute(handler, query, update) }
         }
 
