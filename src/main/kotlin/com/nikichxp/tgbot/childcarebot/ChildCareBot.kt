@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import org.springframework.data.mongodb.core.*
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 
 
@@ -30,11 +29,13 @@ class ChildCareCommandHandler(
     @Lazy private val appConfig: AppConfig
 ) : CommandHandler, UpdateHandler {
 
-    private val buttonToActivityMap = mapOf(
+    private val buttonStateMap = mapOf(
         SLEEP to "Уснула",
         WAKE_UP to "Проснулась",
         EATING to "Кушает"
     )
+
+    private val stateButtonMap = buttonStateMap.map { it.value to it.key }.toMap()
 
     private val possibleTransitions = mapOf(
         SLEEP to setOf(WAKE_UP),
@@ -47,13 +48,17 @@ class ChildCareCommandHandler(
     @HandleCommand("/status")
     suspend fun status() {
         val lastState = childActivityService.getLatestState()
-        val buttons = possibleTransitions[lastState]?.map { buttonToActivityMap[it] ?: "SNF: $it" } ?: listOf("ERROR")
+        val buttons = getButtonsForState(lastState)
 
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "Active state: ${buttonToActivityMap[lastState]}"
+            text = "Active state: ${buttonStateMap[lastState]}"
             withKeyboard(listOf(buttons))
         }
+    }
+
+    private fun getButtonsForState(state: ChildActivity): List<String> {
+        return possibleTransitions[state]?.map { buttonStateMap[it] ?: "SNF: $it" } ?: listOf("ERROR")
     }
 
     override fun botSupported(bot: TgBot): Boolean = bot == TgBot.CHILDTRACKERBOT
@@ -68,9 +73,32 @@ class ChildCareCommandHandler(
             return
         }
 
-        tgOperations.sendMessage {
-            replyToCurrentMessage()
-            text = "handling update!" + update.getContextChatId()
+        val command = update.message?.text
+
+        if (command == null) {
+            tgOperations.sendMessage {
+                replyToCurrentMessage()
+                text = "No command found"
+            }
+            return
+        }
+
+        val currentState = childActivityService.getLatestState()
+        val possibleCommandStates = possibleTransitions[currentState]?.map(buttonStateMap::get) ?: emptyList()
+
+        if (command in possibleCommandStates) {
+            val newState = stateButtonMap[command] ?: return
+            childActivityService.addActivity(newState)
+            tgOperations.sendMessage {
+                text = "State changed to $command"
+                replyToCurrentMessage()
+                withKeyboard(listOf(getButtonsForState(newState)))
+            }
+        } else {
+            tgOperations.sendMessage {
+                replyToCurrentMessage()
+                text = "not yet implemented"
+            }
         }
     }
 }
