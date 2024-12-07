@@ -54,13 +54,7 @@ class ChildCareCommandHandler(
     }
 
     @HandleCommand("/status")
-    suspend fun status(update: Update) {
-
-        if (update.getContextChatId() != appConfig.adminId) {
-            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
-            return
-        }
-
+    suspend fun status() {
         val lastState = childActivityService.getLatestState()
         val buttons = getButtonsForState(lastState)
 
@@ -72,12 +66,7 @@ class ChildCareCommandHandler(
     }
 
     @HandleCommand("/report")
-    suspend fun report(update: Update) {
-        if (update.getContextChatId() != appConfig.adminId) {
-            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
-            return
-        }
-
+    suspend fun report() {
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = childActivityService.getActivities().joinToString("\n") { "${it.activity} at ${it.date}" }
