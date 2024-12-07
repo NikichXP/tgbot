@@ -45,7 +45,13 @@ class ChildCareCommandHandler(
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     @HandleCommand("/status")
-    suspend fun status() {
+    suspend fun status(update: Update) {
+
+        if (update.getContextChatId() != appConfig.adminId) {
+            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
+            return
+        }
+
         val lastState = childActivityService.getLatestState()
         val buttons = getButtonsForState(lastState)
 
