@@ -62,6 +62,19 @@ class ChildCareCommandHandler(
         }
     }
 
+    @HandleCommand("/report")
+    suspend fun report(update: Update) {
+        if (update.getContextChatId() != appConfig.adminId) {
+            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
+            return
+        }
+        
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = childActivityService.getActivities().joinToString("\n") { "${it.activity} at ${it.date}" }
+        }
+    }
+
     private fun getButtonsForState(state: ChildActivity): List<String> {
         return possibleTransitions[state]?.map { buttonStateMap[it] ?: "SNF: $it" } ?: listOf("ERROR")
     }
