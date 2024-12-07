@@ -46,7 +46,7 @@ class ChildCareCommandHandler(
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     override suspend fun authenticate(update: Update): Boolean {
-        if (update.getContextChatId() != appConfig.adminId + 1) {
+        if (update.getContextChatId() != appConfig.adminId) {
             tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
             return false
         }
