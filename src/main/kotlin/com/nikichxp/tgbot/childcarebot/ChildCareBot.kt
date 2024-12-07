@@ -1,18 +1,7 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.nikichxp.tgbot.childcarebot.ChildActivity.EATING
-import com.nikichxp.tgbot.childcarebot.ChildActivity.SLEEP
-import com.nikichxp.tgbot.childcarebot.ChildActivity.WAKE_UP
-import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.handlers.Authenticable
-import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
-import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
-import com.nikichxp.tgbot.core.util.getContextChatId
+import com.nikichxp.tgbot.childcarebot.ChildActivity.*
+import jakarta.annotation.PostConstruct
 import org.bson.types.ObjectId
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -22,96 +11,40 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
+data class ChildStateTransition(
+    val from: ChildActivity,
+    val to: ChildActivity,
+    val name: String
+)
+
 @Service
-class ChildCareCommandHandler(
-    private val tgOperations: TgOperations,
-    private val childActivityService: ChildActivityService,
-    private val appConfig: AppConfig
-) : CommandHandler, UpdateHandler, Authenticable {
+class ChildStateTransitionFactory {
 
-    private val buttonStateMap = mapOf(
-        SLEEP to "Уснула",
-        WAKE_UP to "Проснулась",
-        EATING to "Кушает"
-    )
+    private val transitions = mutableSetOf<ChildStateTransition>()
 
-    private val stateButtonMap = buttonStateMap.map { it.value to it.key }.toMap()
-
-    private val possibleTransitions = mapOf(
-        SLEEP to setOf(WAKE_UP),
-        WAKE_UP to setOf(EATING, SLEEP),
-        EATING to setOf(SLEEP)
-    )
-
-    override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
-
-    override suspend fun authenticate(update: Update): Boolean {
-        if (update.getContextChatId() != appConfig.adminId) {
-            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
-            return false
-        }
-        return true
+    @PostConstruct
+    fun init() {
+        transition(SLEEP, WAKE_UP, "Проснулась")
+        transition(WAKE_UP, SLEEP, "Уснула")
+        transition(WAKE_UP, EATING, "Кушает")
+        transition(EATING, WAKE_UP, "Доела")
     }
 
-    @HandleCommand("/status")
-    suspend fun status() {
-        val lastState = childActivityService.getLatestState()
-        val buttons = getButtonsForState(lastState)
-
-        tgOperations.sendMessage {
-            replyToCurrentMessage()
-            text = "Active state: ${buttonStateMap[lastState]}"
-            withKeyboard(listOf(buttons))
-        }
+    private fun transition(from: ChildActivity, to: ChildActivity, name: String) {
+        transitions.add(ChildStateTransition(from, to, name))
     }
 
-    @HandleCommand("/report")
-    suspend fun report() {
-        tgOperations.sendMessage {
-            replyToCurrentMessage()
-            text = childActivityService.getActivities().joinToString("\n") { "${it.activity} at ${it.date}" }
-        }
+    fun getPossibleTransitions(from: ChildActivity): Map<ChildActivity, String> {
+        return transitions
+            .filter { it.from == from }
+            .associate { it.to to it.name }
     }
 
-    private fun getButtonsForState(state: ChildActivity): List<String> {
-        return possibleTransitions[state]?.map { buttonStateMap[it] ?: "SNF: $it" } ?: listOf("ERROR")
+    fun getResultState(from: ChildActivity, action: String): ChildActivity? {
+        return transitions.find { it.from == from && it.name == action }?.to
     }
 
-    override fun botSupported(bot: TgBot): Boolean = bot == TgBot.CHILDTRACKERBOT
-
-    override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
-
-    override suspend fun handleUpdate(update: Update) {
-        val command = update.message?.text
-
-        if (command == null) {
-            tgOperations.sendMessage {
-                replyToCurrentMessage()
-                text = "No command found"
-            }
-            return
-        }
-
-        val currentState = childActivityService.getLatestState()
-        val possibleCommandStates = possibleTransitions[currentState]?.map(buttonStateMap::get) ?: emptyList()
-
-        if (command in possibleCommandStates) {
-            val newState = stateButtonMap[command] ?: return
-            childActivityService.addActivity(newState)
-            tgOperations.sendMessage {
-                text = "State changed to $command"
-                replyToCurrentMessage()
-                withKeyboard(listOf(getButtonsForState(newState)))
-            }
-        } else {
-            tgOperations.sendMessage {
-                replyToCurrentMessage()
-                text = "not yet implemented"
-            }
-        }
-    }
 }
-
 
 enum class ChildActivity {
     SLEEP, WAKE_UP, EATING
