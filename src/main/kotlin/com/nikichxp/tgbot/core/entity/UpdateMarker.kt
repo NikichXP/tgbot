@@ -11,6 +11,9 @@ enum class UpdateMarker(val predicate: Function<Update, Any?>) {
     MESSAGE({ it.message }),
     EDIT_MESSAGE({ it.editedMessage }),
 
+    IS_COMMAND({ it.message?.text?.startsWith("/") }),
+    IS_NOT_COMMAND({ it.message?.text?.startsWith("/")?.not() }),
+
     REPLY({ it.message?.replyToMessage }),
     HAS_TEXT({ it.message?.text }),
     HAS_STICKER({ it.message?.sticker }),

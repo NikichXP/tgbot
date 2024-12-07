@@ -13,14 +13,13 @@ import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.bson.types.ObjectId
-import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.findAll
+import org.springframework.data.mongodb.core.findOne
+import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import org.springframework.data.mongodb.core.*
-import org.springframework.data.mongodb.core.query.Query
-
 
 @Service
 class ChildCareCommandHandler(
@@ -63,12 +62,11 @@ class ChildCareCommandHandler(
 
     override fun botSupported(bot: TgBot): Boolean = bot == TgBot.CHILDTRACKERBOT
 
-    override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT)
+    override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
 
     override suspend fun handleUpdate(update: Update) {
 
         if (update.getContextChatId() != appConfig.adminId) {
-            tgOperations.replyToCurrentMessage("${update.getContextChatId()} != ${appConfig.adminId}")
             tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
             return
         }
