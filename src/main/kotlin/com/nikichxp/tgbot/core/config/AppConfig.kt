@@ -1,11 +1,9 @@
 package com.nikichxp.tgbot.core.config
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "app")
 open class AppConfig(
-    @Value("\${app.admin-id}")
     var adminId: Long,
     var webhook: String,
     var localEnv: Boolean,
