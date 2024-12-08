@@ -18,7 +18,7 @@ data class ChildStateTransition(
 )
 
 @Service
-class ChildStateTransitionFactory {
+class ChildStateTransitionService {
 
     private val transitions = mutableSetOf<ChildStateTransition>()
 
@@ -32,6 +32,14 @@ class ChildStateTransitionFactory {
 
     private fun transition(from: ChildActivity, to: ChildActivity, name: String) {
         transitions.add(ChildStateTransition(from, to, name))
+    }
+
+    fun getStateText(state: ChildActivity): String {
+        return when (state) {
+            SLEEP -> "Спит"
+            WAKE_UP -> "Бодрствует"
+            EATING -> "Кушает"
+        }
     }
 
     fun getPossibleTransitions(from: ChildActivity): Map<ChildActivity, String> {

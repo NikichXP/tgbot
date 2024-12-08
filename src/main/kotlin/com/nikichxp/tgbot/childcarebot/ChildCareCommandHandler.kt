@@ -17,22 +17,9 @@ class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
     private val appConfig: AppConfig,
-    private val childStateTransitionFactory: ChildStateTransitionFactory
+    private val stateTransitionService: ChildStateTransitionService
 ) : CommandHandler, UpdateHandler, Authenticable {
 
-    private val buttonStateMap = mapOf(
-        ChildActivity.SLEEP to "Уснула",
-        ChildActivity.WAKE_UP to "Проснулась",
-        ChildActivity.EATING to "Кушает"
-    )
-
-    private val stateButtonMap = buttonStateMap.map { it.value to it.key }.toMap()
-
-    private val possibleTransitions = mapOf(
-        ChildActivity.SLEEP to setOf(ChildActivity.WAKE_UP),
-        ChildActivity.WAKE_UP to setOf(ChildActivity.EATING, ChildActivity.SLEEP),
-        ChildActivity.EATING to setOf(ChildActivity.SLEEP)
-    )
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
@@ -51,7 +38,7 @@ class ChildCareCommandHandler(
 
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "Active state: ${buttonStateMap[lastState]}"
+            text = "Active state: ${stateTransitionService.getStateText(lastState)}"
             withKeyboard(listOf(buttons))
         }
     }
@@ -60,12 +47,14 @@ class ChildCareCommandHandler(
     suspend fun report() {
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = childActivityService.getActivities().joinToString("\n") { "${it.activity} at ${it.date}" }
+            text = childActivityService.getActivities()
+                .map { stateTransitionService.getStateText(it.activity) to it.date }
+                .joinToString("\n") { "${it.first} at ${it.second}" }
         }
     }
 
     private fun getButtonsForState(state: ChildActivity): List<String> {
-        return childStateTransitionFactory.getPossibleTransitions(state).map { it.value }
+        return stateTransitionService.getPossibleTransitions(state).map { it.value }
     }
 
     override fun botSupported(bot: TgBot): Boolean = bot == TgBot.CHILDTRACKERBOT
@@ -84,15 +73,14 @@ class ChildCareCommandHandler(
         }
 
         val currentState = childActivityService.getLatestState()
-        val possibleCommandStates = possibleTransitions[currentState]?.map(buttonStateMap::get) ?: emptyList()
+        val resultState = stateTransitionService.getResultState(currentState, command)
 
-        if (command in possibleCommandStates) {
-            val newState = stateButtonMap[command] ?: return
-            childActivityService.addActivity(newState)
+        if (resultState != null) {
+            childActivityService.addActivity(resultState)
             tgOperations.sendMessage {
                 text = "State changed to $command"
                 replyToCurrentMessage()
-                withKeyboard(listOf(getButtonsForState(newState)))
+                withKeyboard(listOf(getButtonsForState(resultState)))
             }
         } else {
             tgOperations.sendMessage {
