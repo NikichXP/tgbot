@@ -70,6 +70,8 @@ class ChildCareCommandHandler(
                 text = "No command found"
             }
             return
+        } else if (command.startsWith("/")) {
+            return
         }
 
         val currentState = childActivityService.getLatestState()
