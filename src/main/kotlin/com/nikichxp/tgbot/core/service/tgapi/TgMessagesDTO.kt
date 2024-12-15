@@ -32,6 +32,12 @@ class TgSendMessage {
         )
     }
 
+    fun withInlineKeyboard(buttons: List<List<Pair<String, String>>>) {
+        this.replyMarkup = TgInlineKeyboard(
+            buttons.map { it.map { (text, callbackData) -> TgInlineButton(text, callbackData = callbackData) } }
+        )
+    }
+
     fun removeKeyboard() {
         this.replyMarkup = TgRemoveKeyboard()
     }

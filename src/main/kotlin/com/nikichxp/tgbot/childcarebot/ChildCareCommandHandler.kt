@@ -53,6 +53,18 @@ class ChildCareCommandHandler(
         }
     }
 
+    @HandleCommand("/ctest")
+    suspend fun ctest() {
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = "ctest"
+            withInlineKeyboard(listOf(
+                listOf("< 5m" to "minus-5-min"),
+                listOf("5m >" to "plus-5-min")
+            ))
+        }
+    }
+
     private fun getButtonsForState(state: ChildActivity): List<String> {
         return stateTransitionService.getPossibleTransitions(state).map { it.value }
     }

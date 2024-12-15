@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.debug
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -19,10 +20,8 @@ import org.springframework.stereotype.Component
 class LogAllMessagesHandler(
     private val tgOperations: TgOperations,
     private val objectMapper: ObjectMapper,
+    private val appConfig: AppConfig
 ) : UpdateHandler, CommandHandler {
-
-    @Value("\${ADMIN_USER:0}")
-    private var adminUser: Long = 0
 
     private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -79,7 +78,7 @@ class LogAllMessagesHandler(
             path("admin") {
                 path("all") {
                     path("on") {
-                        if (chatId == adminUser) {
+                        if (chatId == appConfig.adminId) {
                             loggingToModeMap[chatId] = true
                             notify("admin log on")
                         } else {
