@@ -64,6 +64,7 @@ data class TgKeyboard(
 ): TgReplyMarkup
 
 data class TgInlineKeyboard(
+    @JsonProperty("inline_keyboard")
     val inlineKeyboard: List<List<TgInlineButton>>
 ): TgReplyMarkup
 
