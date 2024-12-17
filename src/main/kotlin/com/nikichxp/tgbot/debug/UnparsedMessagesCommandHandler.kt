@@ -32,9 +32,11 @@ class UnparsedMessagesCommandHandler(
     @HandleCommand("/unparsed")
     suspend fun listUnparsedMessages() {
         val unparsedMessages = mongoTemplate.findAll(UnparsedMessage::class.java)
-        tgOperations.sendMessage {
-            replyToCurrentMessage()
-            text = unparsedMessages.joinToString("\n") { it.toString() }
+        for (unparsedMessage in unparsedMessages) {
+            tgOperations.sendMessage {
+                replyToCurrentMessage()
+                text = unparsedMessage.toString()
+            }
         }
     }
 
