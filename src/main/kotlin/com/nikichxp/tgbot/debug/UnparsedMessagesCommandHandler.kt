@@ -9,6 +9,8 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextChatId
+import kotlinx.coroutines.delay
+import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 
@@ -18,6 +20,8 @@ class UnparsedMessagesCommandHandler(
     private val tgOperations: TgOperations,
     private val appConfig: AppConfig
 ) : CommandHandler, Authenticable {
+
+    private val log = LoggerFactory.getLogger(this.javaClass)
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.NIKICHBOT)
 
@@ -37,6 +41,30 @@ class UnparsedMessagesCommandHandler(
                 replyToCurrentMessage()
                 text = unparsedMessage.toString()
             }
+            delay(1_000)
+        }
+    }
+
+    @HandleCommand("/reparse")
+    suspend fun reparseUnparsedMessages() {
+        val unparsedMessages = mongoTemplate.findAll(UnparsedMessage::class.java)
+        log.info("Re-parsing started. ")
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = "Re-parsing started"
+        }
+        for (unparsedMessage in unparsedMessages) {
+            tgOperations.sendMessage {
+                replyToCurrentMessage()
+                text = "Re-parsing message: $unparsedMessage"
+            }
+            delay(1_000)
+            mongoTemplate.remove(unparsedMessage)
+            tgOperations.sendMessage {
+                replyToCurrentMessage()
+                text = "Message removed: $unparsedMessage"
+            }
+            delay(1_000)
         }
     }
 
