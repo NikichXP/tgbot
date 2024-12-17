@@ -26,11 +26,13 @@ class ChatCallbackHandler(
             .filter { it.supportedBotsCallbacks().contains(update.bot) }
             .find { it.isCallbackSupported(callbackContext) }
             ?.handleCallback(callbackContext, update)
-        val status = when(result) {
+
+        val status = when (result) {
             true -> "successfully handled"
             false -> "failed to handle"
             null -> "no handler found"
         }
+        
         log.info("chadId = ${update.getContextChatId()} | $callbackContext | $status")
         // TODO maybe log all failed callbacks?
     }
