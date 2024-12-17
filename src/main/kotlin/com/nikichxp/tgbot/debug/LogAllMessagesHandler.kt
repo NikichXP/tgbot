@@ -30,9 +30,7 @@ class LogAllMessagesHandler(
 
     override fun botSupported(bot: TgBot) = true
 
-    override fun getMarkers(): Set<UpdateMarker> {
-        return setOf(UpdateMarker.ALL)
-    }
+    override fun getMarkers(): Set<UpdateMarker> = UpdateMarker.entries.toSet()
 
     override suspend fun handleUpdate(update: Update) {
         val chatId = update.getContextChatId()

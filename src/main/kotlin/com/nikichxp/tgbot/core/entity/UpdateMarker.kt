@@ -17,6 +17,7 @@ enum class UpdateMarker(val predicate: Function<Update, Any?>) {
     REPLY({ it.message?.replyToMessage }),
     HAS_TEXT({ it.message?.text }),
     HAS_STICKER({ it.message?.sticker }),
+    HAS_CALLBACK({ it.callbackQuery }),
     FORWARDED_MESSAGE({ if (it.message?.forwardFrom != null || it.message?.forwardFromChat != null) true else null }),
     SINGLE_ATTACHMENT({ it.message?.document }),
     PHOTOS({ it.message?.photo })
