@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.core.converters
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.util.diffWith
 import org.bson.Document
@@ -14,20 +15,20 @@ import org.springframework.stereotype.Service
 class DocumentToUpdateConverter(
     private val objectMapper: ObjectMapper,
     private val mongoTemplate: MongoTemplate
-) : Converter<Document, Update> {
+) {
 
-    override fun convert(body: Document): Update? {
+    fun convert(body: Document, tgBot: TgBot): Update? {
         val source = body.toJson()
         try {
             val (update, diff) = parseUpdateAndGetDiff(source)
             if (diff.isEmpty()) {
                 return update
             } else {
-                mongoTemplate.save(UnparsedMessage(body, missedKeys = diff))
+                mongoTemplate.save(UnparsedMessage(body, missedKeys = diff, bot = tgBot))
             }
         } catch (exception: Exception) {
             exception.printStackTrace()
-            mongoTemplate.save(UnparsedMessage(body, message = exception.message))
+            mongoTemplate.save(UnparsedMessage(body, message = exception.message, bot = tgBot))
         }
         throw IllegalArgumentException("Cannot convert the incoming message")
     }

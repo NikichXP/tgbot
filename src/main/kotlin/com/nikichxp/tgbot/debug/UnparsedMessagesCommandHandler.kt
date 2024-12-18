@@ -7,10 +7,14 @@ import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
+import org.springframework.data.mongodb.core.findAll
+import org.springframework.data.mongodb.core.count
+import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextChatId
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 
@@ -18,7 +22,8 @@ import org.springframework.stereotype.Service
 class UnparsedMessagesCommandHandler(
     private val mongoTemplate: MongoTemplate,
     private val tgOperations: TgOperations,
-    private val appConfig: AppConfig
+    private val appConfig: AppConfig,
+    @Lazy private val messageEntryPoint: MessageEntryPoint
 ) : CommandHandler, Authenticable {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -35,7 +40,7 @@ class UnparsedMessagesCommandHandler(
 
     @HandleCommand("/unparsed")
     suspend fun listUnparsedMessages() {
-        val unparsedMessages = mongoTemplate.findAll(UnparsedMessage::class.java)
+        val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
         for (unparsedMessage in unparsedMessages) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
@@ -47,24 +52,17 @@ class UnparsedMessagesCommandHandler(
 
     @HandleCommand("/reparse")
     suspend fun reparseUnparsedMessages() {
-        val unparsedMessages = mongoTemplate.findAll(UnparsedMessage::class.java)
-        log.info("Re-parsing started. ")
+        val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
+        log.info("Re-parsing started. Task queue: ${unparsedMessages.size}")
+        for (unparsedMessage in unparsedMessages) {
+            mongoTemplate.remove(unparsedMessage)
+            messageEntryPoint.proceedRawData(unparsedMessage.content, unparsedMessage.bot)
+        }
+        val result = mongoTemplate.count<UnparsedMessage>()
+        log.info("Re-parsing finished. Unparsed messages left: $result")
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "Re-parsing started"
-        }
-        for (unparsedMessage in unparsedMessages) {
-            tgOperations.sendMessage {
-                replyToCurrentMessage()
-                text = "Re-parsing message: $unparsedMessage"
-            }
-            delay(1_000)
-            mongoTemplate.remove(unparsedMessage)
-            tgOperations.sendMessage {
-                replyToCurrentMessage()
-                text = "Message removed: $unparsedMessage"
-            }
-            delay(1_000)
+            text = "Re-parsing finished. Unparsed messages left: $result/${unparsedMessages.size}"
         }
     }
 

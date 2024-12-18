@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.service
 
+import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateContext
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class MessageEntryPoint(
-    private val conversionService: ConversionService,
+    private val converter: DocumentToUpdateConverter,
     private val updateProcessor: UpdateProcessor,
     private val rawJsonLogger: RawJsonLogger
 ) {
@@ -24,7 +25,7 @@ class MessageEntryPoint(
         logger.info("Received message: $body")
         rawJsonLogger.logEvent(body)
         try {
-            val update = conversionService.convert(body, Update::class.java)
+            val update = converter.convert(body, bot)
                 ?: throw IllegalArgumentException("Cannot convert the message")
             proceedUpdate(update, bot)
         } catch (e: Exception) {
