@@ -5,8 +5,10 @@ import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
+import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
 import com.nikichxp.tgbot.core.util.diffWith
 import org.bson.Document
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.convert.converter.Converter
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
@@ -14,7 +16,8 @@ import org.springframework.stereotype.Service
 @Service
 class DocumentToUpdateConverter(
     private val objectMapper: ObjectMapper,
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
     fun convert(body: Document, tgBot: TgBot): Update? {
@@ -24,11 +27,11 @@ class DocumentToUpdateConverter(
             if (diff.isEmpty()) {
                 return update
             } else {
-                mongoTemplate.save(UnparsedMessage(body, missedKeys = diff, bot = tgBot))
+                processUnparsed(UnparsedMessage(body, missedKeys = diff, bot = tgBot))
             }
         } catch (exception: Exception) {
             exception.printStackTrace()
-            mongoTemplate.save(UnparsedMessage(body, message = exception.message, bot = tgBot))
+            processUnparsed(UnparsedMessage(body, message = exception.message, bot = tgBot))
         }
         throw IllegalArgumentException("Cannot convert the incoming message")
     }
@@ -40,6 +43,10 @@ class DocumentToUpdateConverter(
         val flatSrc = JsonFlattener.flattenAsMap(source)
         val flatCtr = JsonFlattener.flattenAsMap(control)
         return update to flatSrc.keys.diffWith(flatCtr.keys)
+    }
+
+    private fun processUnparsed(unparsedMessage: UnparsedMessage) {
+        applicationEventPublisher.publishEvent(UnparsedMessageEvent(this, unparsedMessage))
     }
 
 }
