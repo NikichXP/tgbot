@@ -41,12 +41,26 @@ class UnparsedMessagesCommandHandler(
     @HandleCommand("/unparsed")
     suspend fun listUnparsedMessages() {
         val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
-        for (unparsedMessage in unparsedMessages) {
+
+        if (unparsedMessages.isEmpty()) {
+            tgOperations.sendMessage {
+                replyToCurrentMessage()
+                text = "No unparsed messages"
+            }
+            return
+        }
+
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = "Unparsed messages: ${unparsedMessages.size}"
+        }
+
+        for (unparsedMessage in unparsedMessages.shuffled().take(10)) {
+            delay(500)
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 text = unparsedMessage.toString()
             }
-            delay(1_000)
         }
     }
 
