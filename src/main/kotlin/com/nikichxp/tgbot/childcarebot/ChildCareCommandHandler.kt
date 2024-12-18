@@ -10,6 +10,7 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextChatId
+import com.nikichxp.tgbot.core.util.getContextUserId
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,17 +18,21 @@ class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
     private val appConfig: AppConfig,
-    private val stateTransitionService: ChildStateTransitionService
+    private val stateTransitionService: ChildStateTransitionService,
+    private val childInfoService: ChildInfoService
 ) : CommandHandler, UpdateHandler, Authenticable {
 
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     override suspend fun authenticate(update: Update): Boolean {
-        if (update.getContextChatId() != appConfig.adminId) {
+        val child = childInfoService.findChildByParent(update.getContextUserId()!!)
+
+        if (child == null) {
             tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
             return false
         }
+
         return true
     }
 

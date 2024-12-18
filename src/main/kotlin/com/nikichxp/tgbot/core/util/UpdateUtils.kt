@@ -7,6 +7,7 @@ import com.nikichxp.tgbot.core.dto.User
 import com.nikichxp.tgbot.core.entity.InteractionRole
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
 import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.tgbot.core.entity.UserId
 import kotlinx.coroutines.coroutineScope
 
 suspend fun getCurrentUpdateContext(): UpdateContext = coroutineScope {
@@ -20,7 +21,7 @@ fun Update.getContextChatId(): Long? = this.getMentionedMessage()?.chat?.id
 fun Update.getContextMessageId(): Long? = this.getMentionedMessage()?.messageId
 
 @JsonIgnore
-fun Update.getContextUserId(): Long? = this.getMentionedMessage()?.from?.id
+fun Update.getContextUserId(): UserId? = this.getMentionedMessage()?.from?.id
 
 @JsonIgnore
 fun Update.getContextUserName(): String? = this.getMentionedMessage()?.from?.username
