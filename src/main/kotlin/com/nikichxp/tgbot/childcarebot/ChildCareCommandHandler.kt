@@ -52,9 +52,14 @@ class ChildCareCommandHandler(
     suspend fun report() {
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = childActivityService.getActivities()
-                .map { stateTransitionService.getStateText(it.activity) to it.date }
-                .joinToString("\n") { "${it.first} at ${it.second}" }
+//            text = childActivityService.getActivities()
+//                .map { stateTransitionService.getStateText(it.activity) to it.date }
+//                .joinToString("\n") { "${it.first} at ${it.second}" }
+            text = "Выберите отчет"
+            withInlineKeyboard(listOf(
+                listOf("График сна" to "sleep-schedule"),
+                listOf("График кормления" to "feeding-schedule")
+            ))
         }
     }
 
