@@ -22,7 +22,7 @@ class GroupChatKarmaHandler(
         return setOf(HAS_TEXT, MESSAGE_IN_GROUP)
     }
 
-    override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
+    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
     override suspend fun handleUpdate(update: Update) {
         val messageAuthor = getMessageAuthorId(update)

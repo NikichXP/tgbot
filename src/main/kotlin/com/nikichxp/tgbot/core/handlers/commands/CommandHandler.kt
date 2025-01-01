@@ -1,9 +1,7 @@
 package com.nikichxp.tgbot.core.handlers.commands
 
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.handlers.BotSupportFeature
 import org.springframework.stereotype.Indexed
 
 @Indexed
-interface CommandHandler {
-    fun supportedBots(): Set<TgBot>
-}
+interface CommandHandler : BotSupportFeature

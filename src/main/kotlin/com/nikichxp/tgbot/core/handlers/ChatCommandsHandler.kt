@@ -3,9 +3,9 @@ package com.nikichxp.tgbot.core.handlers
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerScanner
+import com.nikichxp.tgbot.core.util.getContextChatId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -21,7 +21,8 @@ class ChatCommandsHandler(
         commandHandlerScanner.getHandlers().groupBy { it.command }
     }
 
-    override fun botSupported(bot: TgBot) = true
+    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
+    override fun isBotSupported(tgBot: TgBot): Boolean = true
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
@@ -29,7 +30,7 @@ class ChatCommandsHandler(
         val query = update.message!!.text!!.split(" ")
 
         val result = commandHandlerExecutorMap[query.first()]?.let {
-            it.filter { handler -> handler.handler.supportedBots().contains(update.bot) }
+            it.filter { handler -> handler.handler.isBotSupported(update.bot) }
                 .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(update) else true }
                 .map { handler -> commandHandlerExecutor.execute(handler, query, update) }
         }

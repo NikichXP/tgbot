@@ -31,7 +31,7 @@ class StickerReplyHandler(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
+    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY, UpdateMarker.HAS_STICKER)
 
     override suspend fun handleUpdate(update: Update) {

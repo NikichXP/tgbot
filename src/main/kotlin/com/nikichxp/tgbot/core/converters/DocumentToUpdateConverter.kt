@@ -9,7 +9,6 @@ import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
 import com.nikichxp.tgbot.core.util.diffWith
 import org.bson.Document
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.core.convert.converter.Converter
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 

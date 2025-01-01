@@ -13,7 +13,6 @@ import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
@@ -26,9 +25,8 @@ class LogAllMessagesHandler(
     private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    override fun supportedBots() = TgBot.entries.toSet()
-
-    override fun botSupported(bot: TgBot) = true
+    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
+    override fun isBotSupported(tgBot: TgBot): Boolean = true
 
     override fun getMarkers(): Set<UpdateMarker> = UpdateMarker.entries.toSet()
 

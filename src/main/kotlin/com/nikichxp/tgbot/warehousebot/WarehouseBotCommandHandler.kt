@@ -21,8 +21,6 @@ class WarehouseBotCommandHandler(
         "/update" to { update, args -> }
     )
 
-    override fun botSupported(bot: TgBot): Boolean = true
-
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.MESSAGE)
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)

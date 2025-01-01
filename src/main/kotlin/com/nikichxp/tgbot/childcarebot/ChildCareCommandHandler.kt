@@ -6,10 +6,11 @@ import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
+import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
+import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
-import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextUserId
 import org.springframework.stereotype.Service
 
@@ -20,7 +21,7 @@ class ChildCareCommandHandler(
     private val appConfig: AppConfig,
     private val stateTransitionService: ChildStateTransitionService,
     private val childInfoService: ChildInfoService
-) : CommandHandler, UpdateHandler, Authenticable {
+) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
 
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
@@ -79,8 +80,6 @@ class ChildCareCommandHandler(
         return stateTransitionService.getPossibleTransitions(state).map { it.value }
     }
 
-    override fun botSupported(bot: TgBot): Boolean = bot == TgBot.CHILDTRACKERBOT
-
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
 
     override suspend fun handleUpdate(update: Update) {
@@ -112,5 +111,17 @@ class ChildCareCommandHandler(
                 text = "not yet implemented"
             }
         }
+    }
+
+
+    override fun isCallbackSupported(callbackContext: CallbackContext): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun handleCallback(
+        callbackContext: CallbackContext,
+        update: Update
+    ): Boolean {
+        TODO("Not yet implemented")
     }
 }

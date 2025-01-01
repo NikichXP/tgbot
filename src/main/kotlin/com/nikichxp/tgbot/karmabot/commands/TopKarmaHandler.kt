@@ -3,8 +3,8 @@ package com.nikichxp.tgbot.karmabot.commands
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
+import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.karmabot.service.UserInfo
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find

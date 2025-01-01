@@ -16,14 +16,15 @@ class ChatCallbackHandler(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun botSupported(bot: TgBot) = true
+    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
+    override fun isBotSupported(tgBot: TgBot): Boolean = true
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_CALLBACK)
 
     override suspend fun handleUpdate(update: Update) {
         val callbackContext = CallbackContext(update)
         val result = callbackHandlers
-            .filter { it.supportedBotsCallbacks().contains(update.bot) }
+            .filter { it.isBotSupported(update.bot) }
             .find { it.isCallbackSupported(callbackContext) }
             ?.handleCallback(callbackContext, update)
 

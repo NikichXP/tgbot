@@ -7,8 +7,6 @@ import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import org.springframework.data.mongodb.core.findAll
-import org.springframework.data.mongodb.core.count
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextChatId
@@ -16,6 +14,8 @@ import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.count
+import org.springframework.data.mongodb.core.findAll
 import org.springframework.stereotype.Service
 
 @Service

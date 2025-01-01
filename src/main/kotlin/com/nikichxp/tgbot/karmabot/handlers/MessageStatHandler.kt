@@ -84,7 +84,7 @@ class MessageStatHandler(
         )
     }
 
-    override fun botSupported(bot: TgBot) = bot == TgBot.NIKICHBOT
+    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
     override fun getMarkers(): Set<UpdateMarker> {
         return setOf(UpdateMarker.MESSAGE_IN_GROUP)

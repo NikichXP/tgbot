@@ -23,8 +23,6 @@ class SummaryCommandHandler(
 
     override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
-    override fun botSupported(bot: TgBot): Boolean = supportedBots().contains(bot)
-
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_GROUP)
 
     override suspend fun handleUpdate(update: Update) {
