@@ -6,6 +6,6 @@ import com.nikichxp.tgbot.core.handlers.BotSupportFeature
 interface CallbackHandler : BotSupportFeature {
 
     fun isCallbackSupported(callbackContext: CallbackContext): Boolean
-    fun handleCallback(callbackContext: CallbackContext, update: Update): Boolean
+    suspend fun handleCallback(callbackContext: CallbackContext, update: Update): Boolean
 
 }

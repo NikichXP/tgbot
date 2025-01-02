@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
@@ -20,7 +21,8 @@ class ChildCareCommandHandler(
     private val childActivityService: ChildActivityService,
     private val appConfig: AppConfig,
     private val stateTransitionService: ChildStateTransitionService,
-    private val childInfoService: ChildInfoService
+    private val childInfoService: ChildInfoService,
+    private val objectMapper: ObjectMapper
 ) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
 
 
@@ -57,10 +59,12 @@ class ChildCareCommandHandler(
 //                .map { stateTransitionService.getStateText(it.activity) to it.date }
 //                .joinToString("\n") { "${it.first} at ${it.second}" }
             text = "Выберите отчет"
-            withInlineKeyboard(listOf(
-                listOf("График сна" to "sleep-schedule"),
-                listOf("График кормления" to "feeding-schedule")
-            ))
+            withInlineKeyboard(
+                listOf(
+                    listOf("График сна" to "sleep-schedule"),
+                    listOf("График кормления" to "feeding-schedule")
+                )
+            )
         }
     }
 
@@ -69,10 +73,12 @@ class ChildCareCommandHandler(
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = "ctest"
-            withInlineKeyboard(listOf(
-                listOf("< 5m" to "minus-5-min"),
-                listOf("5m >" to "plus-5-min")
-            ))
+            withInlineKeyboard(
+                listOf(
+                    listOf("< 5m" to "minus-5-min"),
+                    listOf("5m >" to "plus-5-min")
+                )
+            )
         }
     }
 
@@ -114,14 +120,16 @@ class ChildCareCommandHandler(
     }
 
 
-    override fun isCallbackSupported(callbackContext: CallbackContext): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun isCallbackSupported(callbackContext: CallbackContext): Boolean =
+        callbackContext.bot == TgBot.CHILDTRACKERBOT
 
-    override fun handleCallback(
+    override suspend fun handleCallback(
         callbackContext: CallbackContext,
         update: Update
     ): Boolean {
-        TODO("Not yet implemented")
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = "Got callback: ${objectMapper.writeValueAsString(update)}"
+        }
     }
 }
