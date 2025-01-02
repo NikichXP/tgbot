@@ -131,5 +131,6 @@ class ChildCareCommandHandler(
             replyToCurrentMessage()
             text = "Got callback: ${objectMapper.writeValueAsString(update)}"
         }
+        return true
     }
 }
