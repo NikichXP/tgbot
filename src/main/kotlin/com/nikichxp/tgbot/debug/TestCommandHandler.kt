@@ -43,19 +43,6 @@ class TestCommandHandler(
 
     @HandleCommand("/testkey")
     suspend fun testKeyboard(args: List<String>, update: Update): Boolean {
-        val keyboard = TgKeyboard(
-            listOf(
-                listOf(
-                    TgButton("Button 1"),
-                    TgButton("Button 2")
-                ),
-                listOf(
-                    TgButton("Button 3"),
-                    TgButton("Button 4")
-                )
-            )
-        )
-
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Here is your keyboard"
