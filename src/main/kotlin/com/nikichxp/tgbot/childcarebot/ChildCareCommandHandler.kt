@@ -135,10 +135,42 @@ class ChildCareCommandHandler(
         callbackContext: CallbackContext,
         update: Update
     ): Boolean {
-        tgOperations.sendMessage {
-            replyToCurrentMessage()
-            text = "Got callback: ${objectMapper.writeValueAsString(update)}"
+
+        val data = callbackContext.data
+
+        when {
+            data == "sleep-schedule" -> {
+                tgOperations.sendMessage {
+                    replyToCurrentMessage()
+                    text = "Sleep schedule"
+                }
+            }
+            data == "feeding-schedule" -> {
+                tgOperations.sendMessage {
+                    replyToCurrentMessage()
+                    text = "Feeding schedule"
+                }
+            }
+            data.startsWith("minus-") -> {
+                tgOperations.sendMessage {
+                    replyToCurrentMessage()
+                    text = "Minus minutes to sleep"
+                }
+            }
+            data.startsWith("plus-") -> {
+                tgOperations.sendMessage {
+                    replyToCurrentMessage()
+                    text = "Plus minutes to sleep"
+                }
+            }
+            else -> {
+                tgOperations.sendMessage {
+                    replyToCurrentMessage()
+                    text = "Unknown callback $data"
+                }
+            }
         }
+
         return true
     }
 }
