@@ -22,6 +22,7 @@ class ChildCareCommandHandler(
     private val appConfig: AppConfig,
     private val stateTransitionService: ChildStateTransitionHelper,
     private val childInfoService: ChildInfoService,
+    private val childReportHelper: ChildReportHelper,
     private val objectMapper: ObjectMapper
 ) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
 
@@ -139,18 +140,8 @@ class ChildCareCommandHandler(
         val data = callbackContext.data
 
         when {
-            data == "sleep-schedule" -> {
-                tgOperations.sendMessage {
-                    replyToCurrentMessage()
-                    text = "Sleep schedule"
-                }
-            }
-            data == "feeding-schedule" -> {
-                tgOperations.sendMessage {
-                    replyToCurrentMessage()
-                    text = "Feeding schedule"
-                }
-            }
+            data == "sleep-schedule" -> childReportHelper.sleepReport(callbackContext)
+            data == "feeding-schedule" -> childReportHelper.feedingReport(callbackContext)
             data.startsWith("minus-") -> {
                 tgOperations.sendMessage {
                     replyToCurrentMessage()

@@ -2,8 +2,9 @@ package com.nikichxp.tgbot.childcarebot
 
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.findAll
+import org.springframework.data.mongodb.core.find
 import org.springframework.data.mongodb.core.findOne
+import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -18,8 +19,8 @@ class ChildActivityService(
         mongoTemplate.save(event)
     }
 
-    fun getActivities(): List<ChildActivityEvent> {
-        return mongoTemplate.findAll()
+    fun getActivities(childId: Long): List<ChildActivityEvent> {
+        return mongoTemplate.find(Query.query(Criteria.where(ChildActivityEvent::childId.name).`is`(childId)));
     }
 
     fun getLatestState(): ChildActivity {
