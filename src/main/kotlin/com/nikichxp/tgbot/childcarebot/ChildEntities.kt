@@ -21,6 +21,7 @@ enum class ChildActivity {
 }
 
 data class ChildActivityEvent(
+    val childId: Long,
     val activity: ChildActivity,
     val date: LocalDateTime
 ) {

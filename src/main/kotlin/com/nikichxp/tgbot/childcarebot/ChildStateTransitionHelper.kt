@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 
 @Service
-class ChildStateTransitionService {
+class ChildStateTransitionHelper {
 
     private val transitions = mutableSetOf<ChildStateTransition>()
 
@@ -14,10 +14,6 @@ class ChildStateTransitionService {
         transition(ChildActivity.WAKE_UP, ChildActivity.SLEEP, "Уснула")
         transition(ChildActivity.WAKE_UP, ChildActivity.EATING, "Кушает")
         transition(ChildActivity.EATING, ChildActivity.WAKE_UP, "Доела")
-    }
-
-    private fun transition(from: ChildActivity, to: ChildActivity, name: String) {
-        transitions.add(ChildStateTransition(from, to, name))
     }
 
     fun getStateText(state: ChildActivity): String {
@@ -36,6 +32,10 @@ class ChildStateTransitionService {
 
     fun getResultState(from: ChildActivity, action: String): ChildActivity? {
         return transitions.find { it.from == from && it.name == action }?.to
+    }
+
+    private fun transition(from: ChildActivity, to: ChildActivity, name: String) {
+        transitions.add(ChildStateTransition(from, to, name))
     }
 
 }

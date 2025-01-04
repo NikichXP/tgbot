@@ -20,7 +20,7 @@ class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
     private val appConfig: AppConfig,
-    private val stateTransitionService: ChildStateTransitionService,
+    private val stateTransitionService: ChildStateTransitionHelper,
     private val childInfoService: ChildInfoService,
     private val objectMapper: ObjectMapper
 ) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
@@ -89,32 +89,40 @@ class ChildCareCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
 
     override suspend fun handleUpdate(update: Update) {
-        val command = update.message?.text
+        val text = update.message?.text
 
-        if (command == null) {
+        if (text == null) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
-                text = "No command found"
+                this.text = "No command found"
             }
             return
-        } else if (command.startsWith("/")) {
+        } else if (text.startsWith("/")) {
             return
         }
 
+        doStateTransition(text, update.getContextUserId()!!)
+    }
+
+    private suspend fun doStateTransition(text: String, userId: Long) {
+        val childInfo = childInfoService.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
         val currentState = childActivityService.getLatestState()
-        val resultState = stateTransitionService.getResultState(currentState, command)
+        val resultState = stateTransitionService.getResultState(currentState, text)
 
         if (resultState != null) {
-            childActivityService.addActivity(resultState)
-            tgOperations.sendMessage {
-                text = "State changed to $command"
-                replyToCurrentMessage()
-                withKeyboard(listOf(getButtonsForState(resultState)))
+            childActivityService.addActivity(childInfo.id, resultState)
+
+            for (parentId in childInfo.parents) {
+                tgOperations.sendMessage {
+                    chatId = parentId
+                    this.text = "State changed to $text"
+                    withKeyboard(listOf(getButtonsForState(resultState)))
+                }
             }
         } else {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
-                text = "not yet implemented"
+                this.text = "Result state is unreachable"
             }
         }
     }

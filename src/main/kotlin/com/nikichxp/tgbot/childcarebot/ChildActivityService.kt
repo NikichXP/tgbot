@@ -13,8 +13,8 @@ class ChildActivityService(
     private val mongoTemplate: MongoTemplate
 ) {
 
-    fun addActivity(activity: ChildActivity) {
-        val event = ChildActivityEvent(activity, LocalDateTime.now())
+    fun addActivity(childId: Long, activity: ChildActivity) {
+        val event = ChildActivityEvent(childId, activity, LocalDateTime.now())
         mongoTemplate.save(event)
     }
 
