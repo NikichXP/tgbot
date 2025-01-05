@@ -38,7 +38,12 @@ class ChildReportHelper(
                 "now"
             }
 
-            val duration = nextActivity?.date?.let { Duration.between(activity.date, it).toKotlinDuration().toString() }
+            val duration = nextActivity?.date?.let {
+                Duration.between(activity.date, it)
+                    .withSeconds(0)
+                    .withNanos(0)
+                    .toKotlinDuration().toString()
+            }
                 ?: "ongoing"
 
             result.add("From $currentActivityStr to $nextActivityStr: $duration")
