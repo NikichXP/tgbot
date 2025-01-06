@@ -24,7 +24,8 @@ class ChildReportHelper(
                     date = it.date
                         .withSecond(0)
                         .withNano(0)
-                        .atZone(ZoneId.of("UTC+1"))
+                        .atZone(ZoneId.of("UTC+2")) // TODO save timezone in db
+                        .withZoneSameInstant(ZoneId.of("UTC+1")) // TODO get zone from config
                         .toLocalDateTime()
                 )
             }
