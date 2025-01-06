@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.springframework.stereotype.Service
 import java.time.Duration
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.LinkedList
 import kotlin.time.toKotlinDuration
@@ -12,7 +13,7 @@ import kotlin.time.toKotlinDuration
 class ChildReportHelper(
     private val tgOperations: TgOperations,
     private val childInfoService: ChildInfoService,
-    private val childActivityService: ChildActivityService
+    private val childActivityService: ChildActivityService,
 ) {
 
     suspend fun sleepReport(callbackContext: CallbackContext) {
@@ -21,33 +22,41 @@ class ChildReportHelper(
             .sortedBy { it.date }
         val result = LinkedList<String>()
 
-        activities.forEachIndexed { index, activity ->
-            if (activity.activity != ChildActivity.SLEEP) {
-                return@forEachIndexed
+        activities
+            .map {
+                it.copy(
+                    date = it.date
+                        .withSecond(0)
+                        .withNano(0)
+                        .atZone(ZoneId.of("UTC+1"))
+                        .toLocalDateTime()
+                )
             }
-            val nextActivity = activities.getOrNull(index + 1)
-            val currentActivityStr = activity.date.format(longDateFormat)
-
-            val nextActivityStr = if (nextActivity != null) {
-                if (nextActivity.date.toLocalDate() == activity.date.toLocalDate()) {
-                    nextActivity.date.format(DateTimeFormatter.ofPattern("HH:mm"))
-                } else {
-                    nextActivity.date.format(longDateFormat)
+            .forEachIndexed { index, activity ->
+                if (activity.activity != ChildActivity.SLEEP) {
+                    return@forEachIndexed
                 }
-            } else {
-                "now"
-            }
+                val nextActivity = activities.getOrNull(index + 1)
+                val currentActivityStr = activity.date.format(longDateFormat)
 
-            val duration = nextActivity?.date?.let {
-                Duration.between(activity.date, it)
-                    .withSeconds(0)
-                    .withNanos(0)
-                    .toKotlinDuration().toString()
-            }
-                ?: "ongoing"
+                val nextActivityStr = if (nextActivity != null) {
+                    if (nextActivity.date.toLocalDate() == activity.date.toLocalDate()) {
+                        nextActivity.date.format(DateTimeFormatter.ofPattern("HH:mm"))
+                    } else {
+                        nextActivity.date.format(longDateFormat)
+                    }
+                } else {
+                    "now"
+                }
 
-            result.add("From $currentActivityStr to $nextActivityStr: $duration")
-        }
+                val duration = nextActivity?.date?.let {
+                    Duration.between(activity.date, it)
+                        .toKotlinDuration().toString()
+                }
+                    ?: "ongoing"
+
+                result.add("From $currentActivityStr to $nextActivityStr: $duration")
+            }
 
         tgOperations.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
     }
