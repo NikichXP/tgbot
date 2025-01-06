@@ -33,9 +33,10 @@ class ChildReportHelper(
                 )
             }
             .sortedBy { it.date }
+
         val result = LinkedList<String>()
 
-        var lastDayChecked = LocalDate.of(0, 0, 0)
+        var lastDayChecked = LocalDate.of(1, 1, 1)
         activities
             .forEachIndexed { index, activity ->
                 if (activity.activity != ChildActivity.SLEEP) {
