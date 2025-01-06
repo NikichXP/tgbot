@@ -19,10 +19,6 @@ class ChildReportHelper(
     suspend fun sleepReport(callbackContext: CallbackContext) {
         val child = getChild(callbackContext)
         val activities = childActivityService.getActivities(child.id)
-            .sortedBy { it.date }
-        val result = LinkedList<String>()
-
-        activities
             .map {
                 it.copy(
                     date = it.date
@@ -32,6 +28,10 @@ class ChildReportHelper(
                         .toLocalDateTime()
                 )
             }
+            .sortedBy { it.date }
+        val result = LinkedList<String>()
+
+        activities
             .forEachIndexed { index, activity ->
                 if (activity.activity != ChildActivity.SLEEP) {
                     return@forEachIndexed
