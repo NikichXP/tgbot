@@ -23,6 +23,15 @@ class ChildActivityService(
         return mongoTemplate.find(Query.query(Criteria.where(ChildActivityEvent::childId.name).`is`(childId)));
     }
 
+    fun getActivitiesSince(childId: Long, startDate: LocalDateTime): List<ChildActivityEvent> {
+        return mongoTemplate.find(
+            Query.query(
+                Criteria.where(ChildActivityEvent::childId.name).`is`(childId)
+                    .and(ChildActivityEvent::date.name).gte(startDate)
+            )
+        );
+    }
+
     fun getLatestState(): ChildActivity {
         val lastActivity = mongoTemplate.findOne<ChildActivityEvent>(
             Query().with(Sort.by(Sort.Order.desc(ChildActivityEvent::date.name))).limit(1)

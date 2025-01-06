@@ -4,6 +4,8 @@ import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.springframework.stereotype.Service
 import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.LinkedList
@@ -18,7 +20,8 @@ class ChildReportHelper(
 
     suspend fun sleepReport(callbackContext: CallbackContext) {
         val child = getChild(callbackContext)
-        val activities = childActivityService.getActivities(child.id)
+        val startDate = LocalDateTime.now().minusDays(7)
+        val activities = childActivityService.getActivitiesSince(child.id, startDate)
             .map {
                 it.copy(
                     date = it.date
@@ -32,11 +35,17 @@ class ChildReportHelper(
             .sortedBy { it.date }
         val result = LinkedList<String>()
 
+        var lastDayChecked = LocalDate.of(0, 0, 0)
         activities
             .forEachIndexed { index, activity ->
                 if (activity.activity != ChildActivity.SLEEP) {
                     return@forEachIndexed
                 }
+                if (activity.date.toLocalDate() != lastDayChecked) {
+                    lastDayChecked = activity.date.toLocalDate()
+                    result.add("\n")
+                }
+
                 val nextActivity = activities.getOrNull(index + 1)
                 val currentActivityStr = activity.date.format(longDateFormat)
 
