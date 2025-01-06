@@ -4,7 +4,6 @@ import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.springframework.stereotype.Service
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -36,40 +35,65 @@ class ChildReportHelper(
 
         val result = LinkedList<String>()
 
-        var lastDayChecked = LocalDate.of(1, 1, 1)
-        activities
-            .forEachIndexed { index, activity ->
-                if (activity.activity != ChildActivity.SLEEP) {
-                    return@forEachIndexed
-                }
-                if (activity.date.toLocalDate() != lastDayChecked) {
-                    lastDayChecked = activity.date.toLocalDate()
-                    result.add("\n")
-                }
+        val sleeps = mutableListOf<Pair<LocalDateTime, LocalDateTime?>>()
 
+        val now = LocalDateTime.now()
+
+        activities.forEachIndexed { index, activity ->
+            if (activity.activity == ChildActivity.SLEEP) {
                 val nextActivity = activities.getOrNull(index + 1)
-                val currentActivityStr = activity.date.format(longDateFormat)
+                sleeps.add(activity.date to (nextActivity?.date ?: now))
+            }
+        }
 
-                val nextActivityStr = if (nextActivity != null) {
-                    if (nextActivity.date.toLocalDate() == activity.date.toLocalDate()) {
-                        nextActivity.date.format(DateTimeFormatter.ofPattern("HH:mm"))
-                    } else {
-                        nextActivity.date.format(longDateFormat)
-                    }
-                } else {
-                    "now"
+        var lastDay = activities.minBy { it.date}.date.toLocalDate()
+
+        sleeps
+            .map { (a, b) -> (a to b) to (b?.let { formatSleep(a, it) } ?: a.format(longDateFormat)) }
+            .forEach { (pair, line) ->
+                if (pair.first.toLocalDate() != lastDay) {
+                    result.add("\n ${pair.first.toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM"))}:")
+                    lastDay = pair.first.toLocalDate()
                 }
-
-                val duration = nextActivity?.date?.let {
-                    Duration.between(activity.date, it)
-                        .toKotlinDuration().toString()
-                }
-                    ?: "ongoing"
-
-                result.add("From $currentActivityStr to $nextActivityStr: $duration")
+                result.add(line)
             }
 
+//        activities
+//            .forEachIndexed { index, activity ->
+//                if (activity.activity != ChildActivity.SLEEP) {
+//                    return@forEachIndexed
+//                }
+//
+//                val nextActivity = activities.getOrNull(index + 1)
+//                val currentActivityStr = activity.date.format(longDateFormat)
+//
+//                val nextActivityStr = if (nextActivity != null) {
+//                    if (nextActivity.date.toLocalDate() == activity.date.toLocalDate()) {
+//                        nextActivity.date.format(DateTimeFormatter.ofPattern("HH:mm"))
+//                    } else {
+//                        nextActivity.date.format(longDateFormat)
+//                    }
+//                } else {
+//                    "now"
+//                }
+//
+//                val duration = nextActivity?.date?.let {
+//                    Duration.between(activity.date, it)
+//                        .toKotlinDuration().toString()
+//                }
+//                    ?: "до сих пор"
+//
+//                result.add("From $currentActivityStr to $nextActivityStr: $duration")
+//            }
+
         tgOperations.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
+    }
+
+    private fun formatSleep(from: LocalDateTime, to: LocalDateTime): String {
+        val duration = Duration.between(from, to).toKotlinDuration().toString()
+        val format = if (from.toLocalDate() == to.toLocalDate()) shortDateFormat else longDateFormat
+
+        return "${from.format(longDateFormat)} - ${to.format(format)} ($duration)"
     }
 
     suspend fun feedingReport(callbackContext: CallbackContext) {
@@ -82,7 +106,8 @@ class ChildReportHelper(
     }
 
     companion object {
-        private val longDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+        private val longDateFormat = DateTimeFormatter.ofPattern("dd/MM HH:mm")
+        private val shortDateFormat = DateTimeFormatter.ofPattern("HH:mm")
     }
 
 }
