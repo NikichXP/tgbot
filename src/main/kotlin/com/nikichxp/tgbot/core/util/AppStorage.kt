@@ -16,6 +16,10 @@ class AppStorage(
 
     fun getData(key: String) = mongoTemplate.findById<AppData>(key)
 
+    fun getOrPut(key: String, defaultValue: String): String {
+        return getData(key)?.value ?: defaultValue.also { saveData(key, it) }
+    }
+
 }
 
 @Document("app_data")

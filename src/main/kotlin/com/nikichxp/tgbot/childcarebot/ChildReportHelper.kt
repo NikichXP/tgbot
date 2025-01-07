@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.util.AppStorage
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.LocalDateTime
@@ -15,9 +16,13 @@ class ChildReportHelper(
     private val tgOperations: TgOperations,
     private val childInfoService: ChildInfoService,
     private val childActivityService: ChildActivityService,
+    private val appStorage: AppStorage
 ) {
 
     suspend fun sleepReport(callbackContext: CallbackContext) {
+        val hostTimeZone = appStorage.getOrPut("timezone.child.host", "UTC+2")
+        val userTimeZone = appStorage.getOrPut("timezone.child.user", "UTC+1")
+
         val child = getChild(callbackContext)
         val startDate = LocalDateTime.now().minusDays(7)
         val activities = childActivityService.getActivitiesSince(child.id, startDate)
@@ -26,8 +31,8 @@ class ChildReportHelper(
                     date = it.date
                         .withSecond(0)
                         .withNano(0)
-                        .atZone(ZoneId.of("UTC+2")) // TODO save timezone in db
-                        .withZoneSameLocal(ZoneId.of("UTC+1")) // TODO get zone from config
+                        .atZone(ZoneId.of(hostTimeZone))
+                        .withZoneSameInstant(ZoneId.of(userTimeZone))
                         .toLocalDateTime()
                 )
             }
