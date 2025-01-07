@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.LinkedList
 import kotlin.time.toKotlinDuration
@@ -28,12 +29,9 @@ class ChildReportHelper(
         val activities = childActivityService.getActivitiesSince(child.id, startDate)
             .map {
                 it.copy(
-                    date = it.date
+                    date = convertDate(it.date, hostTimeZone, userTimeZone)
                         .withSecond(0)
                         .withNano(0)
-                        .atZone(ZoneId.of(hostTimeZone))
-                        .withZoneSameInstant(ZoneId.of(userTimeZone))
-                        .toLocalDateTime()
                 )
             }
             .sortedBy { it.date }
@@ -42,7 +40,7 @@ class ChildReportHelper(
 
         val sleeps = mutableListOf<Pair<LocalDateTime, LocalDateTime?>>()
 
-        val now = LocalDateTime.now()
+        val now = ZonedDateTime.now().withZoneSameInstant(ZoneId.of(userTimeZone)).toLocalDateTime()
 
         activities.forEachIndexed { index, activity ->
             if (activity.activity == ChildActivity.SLEEP) {
@@ -63,35 +61,14 @@ class ChildReportHelper(
                 result.add(line)
             }
 
-//        activities
-//            .forEachIndexed { index, activity ->
-//                if (activity.activity != ChildActivity.SLEEP) {
-//                    return@forEachIndexed
-//                }
-//
-//                val nextActivity = activities.getOrNull(index + 1)
-//                val currentActivityStr = activity.date.format(longDateFormat)
-//
-//                val nextActivityStr = if (nextActivity != null) {
-//                    if (nextActivity.date.toLocalDate() == activity.date.toLocalDate()) {
-//                        nextActivity.date.format(DateTimeFormatter.ofPattern("HH:mm"))
-//                    } else {
-//                        nextActivity.date.format(longDateFormat)
-//                    }
-//                } else {
-//                    "now"
-//                }
-//
-//                val duration = nextActivity?.date?.let {
-//                    Duration.between(activity.date, it)
-//                        .toKotlinDuration().toString()
-//                }
-//                    ?: "до сих пор"
-//
-//                result.add("From $currentActivityStr to $nextActivityStr: $duration")
-//            }
-
         tgOperations.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
+    }
+
+    private fun convertDate(date: LocalDateTime, from: String, to: String): LocalDateTime {
+        return date
+            .atZone(ZoneId.of(from))
+            .withZoneSameInstant(ZoneId.of(to))
+            .toLocalDateTime()
     }
 
     private fun formatSleep(from: LocalDateTime, to: LocalDateTime): String {
