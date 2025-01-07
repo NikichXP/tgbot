@@ -80,7 +80,7 @@ class ChildReportHelper(
     }
 
     suspend fun feedingReport(callbackContext: CallbackContext) {
-
+        tgOperations.replyToCurrentMessage("not implemented yet")
     }
 
     private fun getChild(callbackContext: CallbackContext): ChildInfo {

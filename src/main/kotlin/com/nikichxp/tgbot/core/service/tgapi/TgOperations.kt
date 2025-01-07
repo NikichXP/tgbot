@@ -132,7 +132,8 @@ class TgOperations(
     ) {
         try {
             val body = objectMapper.valueToTree<JsonNode>(message)
-            restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", request = body)
+            val response = restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", request = body)
+            logger.info("Response on send: $response")
         } catch (tooManyRequests: TooManyRequests) {
             if (retryNumber <= 5) {
                 logger.warn("429 error reached: try #$retryNumber, message = $message")
