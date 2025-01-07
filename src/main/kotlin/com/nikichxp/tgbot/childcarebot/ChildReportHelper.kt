@@ -40,7 +40,8 @@ class ChildReportHelper(
 
         val sleeps = mutableListOf<Pair<LocalDateTime, LocalDateTime?>>()
 
-        val now = ZonedDateTime.now().withZoneSameInstant(ZoneId.of(userTimeZone)).toLocalDateTime()
+        val now = ZonedDateTime.now().withSecond(0).withNano(0)
+            .withZoneSameInstant(ZoneId.of(userTimeZone)).toLocalDateTime()
 
         activities.forEachIndexed { index, activity ->
             if (activity.activity == ChildActivity.SLEEP) {
@@ -49,7 +50,7 @@ class ChildReportHelper(
             }
         }
 
-        var lastDay = activities.minBy { it.date}.date.toLocalDate()
+        var lastDay = activities.minBy { it.date }.date.toLocalDate()
 
         sleeps
             .map { (a, b) -> (a to b) to (b?.let { formatSleep(a, it) } ?: a.format(longDateFormat)) }
