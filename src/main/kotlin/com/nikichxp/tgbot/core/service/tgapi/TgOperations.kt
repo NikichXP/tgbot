@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException.TooManyRequests
 import org.springframework.web.client.RestTemplate
@@ -129,22 +130,17 @@ class TgOperations(
         message: TgSendMessage,
         tgBot: TgBot,
         retryNumber: Int = 0
-    ) {
+    ): ResponseEntity<TgSentMessageResponse> {
         try {
             val body = objectMapper.valueToTree<JsonNode>(message)
-            val response = restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", request = body)
-            logger.info("Response on send: $response")
+            return restTemplate.postForEntity<TgSentMessageResponse>("${apiFor(tgBot)}/sendMessage", request = body)
         } catch (tooManyRequests: TooManyRequests) {
             if (retryNumber <= 5) {
                 logger.warn("429 error reached: try #$retryNumber, message = $message")
-                coroutineScope {
-                    launch {
-                        delay(5_000)
-                        sendMessageInternal(message = message, tgBot = tgBot, retryNumber = retryNumber + 1)
-                    }
-                }
+                delay(5_000)
+                return sendMessageInternal(message = message, tgBot = tgBot, retryNumber = retryNumber + 1)
             } else {
-                tooManyRequests.printStackTrace()
+                throw tooManyRequests
             }
         }
     }

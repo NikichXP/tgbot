@@ -25,7 +25,7 @@ class CommandHandlerExecutor {
             }
         }
 
-        return handler.function.callSuspend(*executionArgs.toTypedArray()) as Boolean
+        return handler.function.callSuspend(*executionArgs.toTypedArray()) as? Boolean ?: true
     }
 
 }
