@@ -22,11 +22,10 @@ class SendMessageToAdminService(
         }
 
         try {
-            tgOperations.sendMessage(
-                chatId = adminId,
-                text = message,
-                tgBot = TgBot.NIKICHBOT
-            )
+            tgOperations.sendMessage(TgBot.NIKICHBOT) {
+                chatId = adminId
+                text = message
+            }
         } catch (e: Exception) {
             log.warn("Failed to send version update message to bot ${TgBot.NIKICHBOT}", e)
         }

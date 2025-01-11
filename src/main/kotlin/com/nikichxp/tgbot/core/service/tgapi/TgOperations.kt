@@ -78,6 +78,22 @@ class TgOperations(
         sendMessage(chatId, text, replyToMessageId, retryNumber, getCurrentUpdateContext().tgBot)
     }
 
+    suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
+        sendMessage(getCurrentUpdateContext().tgBot, messageDSL)
+    }
+
+    suspend fun sendMessage(tgBot: TgBot, messageDSL: suspend TgSendMessage.() -> Unit) {
+        val message = TgSendMessage.create(messageDSL)
+        sendMessageInternal(message, tgBot)
+    }
+
+    suspend fun sendMessage(
+        message: TgSendMessage,
+        tgBot: TgBot
+    ) {
+        sendMessageInternal(message, tgBot)
+    }
+
     suspend fun sendMessage(
         chatId: Long,
         text: String,
@@ -100,7 +116,7 @@ class TgOperations(
                 coroutineScope {
                     launch {
                         delay(5_000)
-                        sendMessage(chatId, text, replyToMessageId, retryNumber + 1)
+                        sendMessage(chatId, text, replyToMessageId, retryNumber + 1, tgBot)
                     }
                 }
             } else {
@@ -109,31 +125,24 @@ class TgOperations(
         }
     }
 
-    suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
-        val message = TgSendMessage.create(messageDSL)
-        sendMessageInternal(message, getCurrentUpdateContext().tgBot)
-    }
-
-    suspend fun sendMessage(tgBot: TgBot, messageDSL: TgSendMessage.() -> Unit) {
-        val message = TgSendMessage.create(messageDSL)
-        sendMessageInternal(message, tgBot)
-    }
-
-    suspend fun sendMessage(
-        message: TgSendMessage,
-        tgBot: TgBot
-    ) {
-        sendMessageInternal(message, tgBot)
-    }
-
     private suspend fun sendMessageInternal(
         message: TgSendMessage,
         tgBot: TgBot,
         retryNumber: Int = 0
-    ): ResponseEntity<TgSentMessageResponse> {
+    ) {
         try {
             val body = objectMapper.valueToTree<JsonNode>(message)
-            return restTemplate.postForEntity<TgSentMessageResponse>("${apiFor(tgBot)}/sendMessage", request = body)
+            val response = restTemplate.postForEntity<TgSentMessageResponse>(
+                "${apiFor(tgBot)}/sendMessage",
+                request = body
+            )
+            message.callbacks.forEach {
+                coroutineScope {
+                    launch {
+                        it(response.body!!)
+                    }
+                }
+            }
         } catch (tooManyRequests: TooManyRequests) {
             if (retryNumber <= 5) {
                 logger.warn("429 error reached: try #$retryNumber, message = $message")

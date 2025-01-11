@@ -15,6 +15,8 @@ class TgSendMessage {
     @JsonProperty("reply_parameters")
     var replyParameters: TgReplyParameters? = null
 
+    val callbacks = mutableListOf<TgSentMessageResponse.() -> Unit>()
+
     suspend fun sendInCurrentChat() {
         val update = getCurrentUpdateContext().update
         this.chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
@@ -40,6 +42,10 @@ class TgSendMessage {
 
     fun removeKeyboard() {
         this.replyMarkup = TgRemoveKeyboard()
+    }
+
+    fun withCallback(callback: TgSentMessageResponse.() -> Unit) {
+        callbacks.add(callback)
     }
 
     companion object {
