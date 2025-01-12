@@ -13,6 +13,7 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextUserId
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
@@ -26,6 +27,7 @@ class ChildCareCommandHandler(
     private val objectMapper: ObjectMapper
 ) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
 
+    private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
@@ -33,7 +35,7 @@ class ChildCareCommandHandler(
         val child = childInfoService.findChildByParent(update.getContextUserId()!!)
 
         if (child == null) {
-            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
+            logger.warn("No user found for child: user id = ${update.getContextUserId()}")
             return false
         }
 
