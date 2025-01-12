@@ -1,7 +1,5 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -20,11 +18,9 @@ import org.springframework.stereotype.Service
 class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
-    private val appConfig: AppConfig,
     private val stateTransitionService: ChildStateTransitionHelper,
     private val childInfoService: ChildInfoService,
-    private val childReportHelper: ChildReportHelper,
-    private val objectMapper: ObjectMapper
+    private val childReportHelper: ChildReportHelper
 ) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
