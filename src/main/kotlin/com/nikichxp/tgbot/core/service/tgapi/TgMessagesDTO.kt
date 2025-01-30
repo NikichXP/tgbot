@@ -15,7 +15,7 @@ class TgSendMessage {
     @JsonProperty("reply_parameters")
     var replyParameters: TgReplyParameters? = null
 
-    val callbacks = mutableListOf<TgSentMessageResponse.() -> Unit>()
+    val callbacks = mutableListOf<(TgSentMessageResponse) -> Unit>()
 
     suspend fun sendInCurrentChat() {
         val update = getCurrentUpdateContext().update
@@ -44,7 +44,7 @@ class TgSendMessage {
         this.replyMarkup = TgRemoveKeyboard()
     }
 
-    fun withCallback(callback: TgSentMessageResponse.() -> Unit) {
+    fun withCallback(callback: (TgSentMessageResponse) -> Unit) {
         callbacks.add(callback)
     }
 

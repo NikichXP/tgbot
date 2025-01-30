@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "result": {
+    "message_id": 12345,
+    "from": {
+      "id": 12345678,
+      "is_bot": true,
+      "first_name": "bot name",
+      "username": "test_bot"
+    },
+    "chat": {
+      "id": 123123,
+      "first_name": "User",
+      "username": "username",
+      "type": "private"
+    },
+    "date": 1700000000,
+    "text": "text comes here"
+  }
+}

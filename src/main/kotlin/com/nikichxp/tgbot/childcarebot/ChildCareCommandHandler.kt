@@ -116,6 +116,9 @@ class ChildCareCommandHandler(
                     chatId = parentId
                     this.text = "State changed to $text"
                     withKeyboard(listOf(getButtonsForState(resultState)))
+                    withCallback {
+                        logger.info("Callback: ok = ${it.ok}, message id = ${it.result?.messageId}")
+                    }
                 }
             }
         } else {

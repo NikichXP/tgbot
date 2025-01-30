@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: tgbot
+  cloud:
+    config:
+      enabled: false
