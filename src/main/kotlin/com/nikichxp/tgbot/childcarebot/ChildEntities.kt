@@ -1,6 +1,8 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.tgbot.core.dto.ChatId
 import com.nikichxp.tgbot.core.entity.UserId
+import com.sun.nio.sctp.MessageInfo
 import org.bson.types.ObjectId
 import java.time.LocalDateTime
 
@@ -26,5 +28,11 @@ data class ChildActivityEvent(
     val date: LocalDateTime
 ) {
     lateinit var id: ObjectId
+
+    var relatedMessages = mutableListOf<TgMessageInfo>()
 }
 
+class TgMessageInfo(
+    val chatId: Long,
+    val messageId: Long
+)

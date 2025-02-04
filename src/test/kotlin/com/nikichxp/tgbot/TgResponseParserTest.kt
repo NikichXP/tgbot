@@ -2,7 +2,10 @@ package com.nikichxp.tgbot
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.nikichxp.tgbot.childcarebot.ChildRelatedEntity
+import com.nikichxp.tgbot.childcarebot.SentMessage
 import com.nikichxp.tgbot.core.config.ApplicationBeans
+import com.nikichxp.tgbot.core.dto.ChatId
 import com.nikichxp.tgbot.core.service.tgapi.TgSentMessageResponse
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test
@@ -20,11 +23,11 @@ class TgResponseParserTest {
     lateinit var objectMapper: ObjectMapper
 
     @Value("classpath:responses/sentMessageResponse.json")
-    lateinit var resourceFile: Resource
+    lateinit var sentMessageResponse: Resource
 
     @Test
     fun mapsResponse() {
-        val response = objectMapper.readValue<TgSentMessageResponse>(resourceFile.file)
+        val response = objectMapper.readValue<TgSentMessageResponse>(sentMessageResponse.file)
 
         assertThat(response).isNotNull()
         assertThat(response.result?.messageId).isNotNull().isNotEqualTo(0L)
