@@ -37,22 +37,6 @@ class TgOperations(
     private val bots = tgBotConfig.getInitializedBots()
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @PostConstruct
-    fun registerWebhooks() {
-        if (appConfig.localEnv || appConfig.suspendBotRegistering) {
-            logger.info("Local env: skip webhook setting")
-            bots.forEach { tgUpdatePollService.startPollingFor(it) }
-        } else {
-            logger.info("Registering bots: ${bots.map { it.bot }}")
-            bots.forEach {
-                val webhookSet = runBlocking { tgSetWebhookService.register(it) }
-                if (!webhookSet) {
-                    logger.warn("Webhook setting failed for bot: ${it.bot}, doing polling instead")
-                    tgUpdatePollService.startPollingFor(it)
-                }
-            }
-        }
-    }
 
     private suspend fun getCurrentUpdateContext(): UpdateContext = coroutineScope {
         this.coroutineContext[UpdateContext] ?: try {

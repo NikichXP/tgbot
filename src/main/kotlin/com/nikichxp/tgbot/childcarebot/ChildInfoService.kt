@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.childcarebot
 import com.nikichxp.tgbot.core.entity.UserId
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.findById
 import org.springframework.data.mongodb.core.findOne
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -16,6 +17,11 @@ class ChildInfoService(
     @Cacheable("childInfo")
     fun findChildByParent(parentId: UserId): ChildInfo? {
         return mongoTemplate.findOne(Query.query(Criteria.where(ChildInfo::parents.name).`is`(parentId)))
+    }
+
+    @Cacheable("childInfo")
+    fun findChildById(childId: Int): ChildInfo? {
+        return mongoTemplate.findById(childId)
     }
 
 }
