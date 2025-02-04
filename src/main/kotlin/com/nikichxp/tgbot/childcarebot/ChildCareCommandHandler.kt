@@ -20,7 +20,7 @@ class ChildCareCommandHandler(
     private val childActivityService: ChildActivityService,
     private val stateTransitionService: ChildStateTransitionHelper,
     private val childInfoService: ChildInfoService,
-    private val childReportHelper: ChildReportHelper
+    private val childReportHelper: ChildReportHelper,
 ) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -109,7 +109,7 @@ class ChildCareCommandHandler(
         val resultState = stateTransitionService.getResultState(currentState, text)
 
         if (resultState != null) {
-            childActivityService.addActivity(childInfo.id, resultState)
+            val event = childActivityService.addActivity(childInfo.id, resultState)
 
             for (parentId in childInfo.parents) {
                 tgOperations.sendMessage {
@@ -117,6 +117,14 @@ class ChildCareCommandHandler(
                     this.text = "State changed to $text"
                     withKeyboard(listOf(getButtonsForState(resultState)))
                     withCallback {
+                        if (it.ok) {
+                            childActivityService.addMessageToEvent(
+                                event.id,
+                                chatId = it.result!!.chat.id,
+                                messageId = it.result.messageId
+                            )
+                        }
+
                         logger.info("Callback: ok = ${it.ok}, message id = ${it.result?.messageId}")
                     }
                 }
@@ -135,7 +143,7 @@ class ChildCareCommandHandler(
 
     override suspend fun handleCallback(
         callbackContext: CallbackContext,
-        update: Update
+        update: Update,
     ): Boolean {
 
         val data = callbackContext.data
@@ -149,12 +157,14 @@ class ChildCareCommandHandler(
                     text = "Minus minutes to sleep"
                 }
             }
+
             data.startsWith("plus-") -> {
                 tgOperations.sendMessage {
                     replyToCurrentMessage()
                     text = "Plus minutes to sleep"
                 }
             }
+
             else -> {
                 tgOperations.sendMessage {
                     replyToCurrentMessage()
