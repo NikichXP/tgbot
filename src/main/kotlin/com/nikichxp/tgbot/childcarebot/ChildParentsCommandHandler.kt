@@ -79,7 +79,7 @@ class ChildParentsCommandHandler(
             }
             return
         }
-        val childId = args[0].toInt()
+        val childId = args[1].toInt()
         val child = childInfoService.findChildById(childId) ?: throw IllegalStateException("Child not found")
         tgOperations.sendMessage {
             replyToCurrentMessage()
