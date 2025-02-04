@@ -72,10 +72,10 @@ class ChildParentsCommandHandler(
 
     @HandleCommand("/listparents")
     suspend fun listParents(args: List<String>) {
-        if (args.size != 1) {
+        if (args.size != 2) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
-                text = "Usage: /listparents <child_id>"
+                text = "Usage: /listparents <child_id>, got: ${args.joinToString(", ")}"
             }
             return
         }
