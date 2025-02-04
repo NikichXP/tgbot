@@ -31,7 +31,6 @@ class ChildParentsCommandHandler(
         return true
     }
 
-
     @HandleCommand("/addparent")
     suspend fun addParent(args: List<String>) {
         if (args.size != 2) {
@@ -41,9 +40,10 @@ class ChildParentsCommandHandler(
             }
             return
         }
-        val childId = args[0].toInt()
-        val parentId = args[1].toLong()
-        val child = childInfoService.findChildById(childId) ?: throw IllegalStateException("Child not found")
+
+        val childId = args[1].toLong()
+        val parentId = args[2].toLong()
+        val child = childInfoService.findChildById(childId) ?: notFound()
         child.parents += parentId
         tgOperations.sendMessage {
             replyToCurrentMessage()
@@ -60,9 +60,9 @@ class ChildParentsCommandHandler(
             }
             return
         }
-        val childId = args[0].toInt()
-        val parentId = args[1].toLong()
-        val child = childInfoService.findChildById(childId) ?: throw IllegalStateException("Child not found")
+        val childId = args[1].toLong()
+        val parentId = args[2].toLong()
+        val child = childInfoService.findChildById(childId) ?: notFound()
         child.parents -= parentId
         tgOperations.sendMessage {
             replyToCurrentMessage()
@@ -79,11 +79,20 @@ class ChildParentsCommandHandler(
             }
             return
         }
-        val childId = args[1].toInt()
-        val child = childInfoService.findChildById(childId) ?: throw IllegalStateException("Child not found")
+        val childId = args[1].toLong()
+        val child = childInfoService.findChildById(childId) ?: notFound(childId)
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = "Parents: ${child.parents.joinToString()}"
         }
+    }
+
+    private suspend fun <T> notFound(message: Any? = null): T {
+        val errorMessage = "Child not found" + (message?.let { ": $it." } ?: ".")
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = errorMessage
+        }
+        throw IllegalArgumentException(errorMessage)
     }
 }

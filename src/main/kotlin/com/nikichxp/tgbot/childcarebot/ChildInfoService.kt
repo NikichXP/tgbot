@@ -20,7 +20,7 @@ class ChildInfoService(
     }
 
     @Cacheable("childInfo")
-    fun findChildById(childId: Int): ChildInfo? {
+    fun findChildById(childId: Long): ChildInfo? {
         return mongoTemplate.findById(childId)
     }
 
