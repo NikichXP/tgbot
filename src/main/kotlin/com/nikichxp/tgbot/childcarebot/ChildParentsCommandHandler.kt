@@ -33,7 +33,7 @@ class ChildParentsCommandHandler(
 
     @HandleCommand("/addparent")
     suspend fun addParent(args: List<String>) {
-        if (args.size != 2) {
+        if (args.size != 3) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /addparent <child_id> <parent_id>"
@@ -53,7 +53,7 @@ class ChildParentsCommandHandler(
 
     @HandleCommand("/removeparent")
     suspend fun removeParent(args: List<String>) {
-        if (args.size != 2) {
+        if (args.size != 3) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /removeparent <child_id> <parent_id>"
