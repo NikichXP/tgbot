@@ -12,8 +12,6 @@ class ChildStateTransitionHelper {
     fun init() {
         transition(ChildActivity.SLEEP, ChildActivity.WAKE_UP, "Проснулась")
         transition(ChildActivity.WAKE_UP, ChildActivity.SLEEP, "Уснула")
-//        transition(ChildActivity.WAKE_UP, ChildActivity.EATING, "Кушает")
-//        transition(ChildActivity.EATING, ChildActivity.WAKE_UP, "Доела")
     }
 
     fun getStateText(state: ChildActivity): String {
