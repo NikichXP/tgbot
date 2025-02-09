@@ -57,7 +57,7 @@ class ChildCareCommandHandler(
             text = "Выберите отчет"
             withInlineKeyboard(
                 listOf(
-                    listOf("График кормления" to "feeding-schedule")
+                    listOf("График сна" to "sleep-schedule")
                 )
             )
         }
