@@ -1,4 +1,4 @@
-package com.nikichxp.tgbot
+package com.nikichxp.tgbot.utils
 
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import kotlinx.coroutines.runBlocking
