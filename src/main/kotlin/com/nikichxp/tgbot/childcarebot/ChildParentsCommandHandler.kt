@@ -33,7 +33,7 @@ class ChildParentsCommandHandler(
 
     @HandleCommand("/addparent")
     suspend fun addParent(args: List<String>) {
-        if (args.size != 3) {
+        if (args.size != 2) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /addparent <child_id> <parent_id>"
@@ -41,8 +41,8 @@ class ChildParentsCommandHandler(
             return
         }
 
-        val childId = args[1].toLong()
-        val parentId = args[2].toLong()
+        val childId = args[0].toLong()
+        val parentId = args[1].toLong()
         val child = childInfoService.findChildById(childId) ?: notFound()
         child.parents += parentId
         tgOperations.sendMessage {
@@ -53,15 +53,15 @@ class ChildParentsCommandHandler(
 
     @HandleCommand("/removeparent")
     suspend fun removeParent(args: List<String>) {
-        if (args.size != 3) {
+        if (args.size != 2) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /removeparent <child_id> <parent_id>"
             }
             return
         }
-        val childId = args[1].toLong()
-        val parentId = args[2].toLong()
+        val childId = args[0].toLong()
+        val parentId = args[1].toLong()
         val child = childInfoService.findChildById(childId) ?: notFound()
         child.parents -= parentId
         tgOperations.sendMessage {
@@ -72,14 +72,14 @@ class ChildParentsCommandHandler(
 
     @HandleCommand("/listparents")
     suspend fun listParents(args: List<String>) {
-        if (args.size != 2) {
+        if (args.size != 1) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /listparents <child_id>, got: ${args.joinToString(", ")}"
             }
             return
         }
-        val childId = args[1].toLong()
+        val childId = args[0].toLong()
         val child = childInfoService.findChildById(childId) ?: notFound(childId)
         tgOperations.sendMessage {
             replyToCurrentMessage()
