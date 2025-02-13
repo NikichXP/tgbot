@@ -22,18 +22,17 @@ class TopKarmaHandler(
 
     // TODO add realtop
     @HandleCommand("/top")
-    suspend fun processCommand(args: List<String>, update: Update): Boolean {
-        if (args.isNotEmpty()) {
-            tgOperations.sendToCurrentChat("Additional args are not supported yet")
-            return true
-        }
+    suspend fun processCommand(): Boolean {
+
         // TODO do create a DAO for userInfo and karma already!
         val users = mongoTemplate.find<UserInfo>(Query.query(Criteria.where("rating").ne(0.0)))
         val ratingStr = users.sortedBy { -it.rating }.joinToString(separator = "\n") {
             "${it.username ?: ("id=" + it.id.toString())}: ${it.rating}"
         }
-        update.run {
-            tgOperations.sendToCurrentChat("Top users are:\n$ratingStr")
+
+        tgOperations.sendMessage {
+            sendInCurrentChat()
+            text = "Top users are:\n$ratingStr"
         }
         return true
     }

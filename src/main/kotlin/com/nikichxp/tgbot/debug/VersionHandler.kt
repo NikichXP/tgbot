@@ -19,7 +19,7 @@ class VersionHandler(
 
     // TODO add other commands, make it array
     @HandleCommand("/version")
-    suspend fun processCommand(args: List<String>, update: Update): Boolean {
+    suspend fun processCommand(): Boolean {
         tgOperations.replyToCurrentMessage("version: ${versionProvider.appVersion}")
         return true
     }
