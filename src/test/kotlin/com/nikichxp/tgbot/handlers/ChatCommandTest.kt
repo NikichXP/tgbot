@@ -38,7 +38,6 @@ class ChatCommandTest {
         )
     }
 
-    @Suppress("RedundantSuspendModifier")
     @ParameterizedTest
     @MethodSource("provideCommands")
     fun `test how commands are parsed`(command: String, expectedArgs: List<String>) {
@@ -48,7 +47,7 @@ class ChatCommandTest {
 
         class TestHandler : CommandHandler {
             @HandleCommand("/hello")
-            suspend fun hello(args: List<String>) {
+            fun hello(args: List<String>) {
                 assertThat(args).isEqualTo(whatWeExpect.get())
             }
 
