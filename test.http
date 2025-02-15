@@ -1,0 +1,32 @@
+POST http://localhost:8080/handle/nikichbot
+Content-Type: application/json
+
+{
+  "update_id": 123456789,
+  "message": {
+    "message_id": 12345,
+    "from": {
+      "id": 888888888,
+      "is_bot": false,
+      "first_name": "Test",
+      "username": "testuser",
+      "language_code": "ru",
+      "is_premium": true
+    },
+    "chat": {
+      "id": 888888888,
+      "first_name": "Test",
+      "username": "User",
+      "type": "private"
+    },
+    "date": 1731809486,
+    "text": "/testmessage",
+    "entities": [
+      {
+        "offset": 0,
+        "length": 10,
+        "type": "bot_command"
+      }
+    ]
+  }
+}
