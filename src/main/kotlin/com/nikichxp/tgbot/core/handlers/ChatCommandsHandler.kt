@@ -28,22 +28,18 @@ class ChatCommandsHandler(
 
     override suspend fun handleUpdate(update: Update) {
         val query = update.message!!.text!!.split(" ")
+        val command = query.first()
+        val args = query.drop(1).filter(String::isNotEmpty)
 
-        val result = commandHandlerExecutorMap[query.first()]?.let {
+        val result = commandHandlerExecutorMap[command]?.let {
             it.filter { handler -> handler.handler.isBotSupported(update.bot) }
                 .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(update) else true }
-                .map { handler ->
-                    commandHandlerExecutor.execute(
-                        handler,
-                        query.drop(1).filter { s -> s.isNotEmpty() },
-                        update
-                    )
-                }
+                .map { handler -> commandHandlerExecutor.execute(handler, args, update) }
         }
 
         val log = when {
             result == null -> "unknown command"
-            result.isEmpty() -> "no handlers for command ${query.first()} suitable for bot ${update.bot}"
+            result.isEmpty() -> "no handlers for command '$command' handlers for bot ${update.bot}"
             result.all { it } -> "successfully handled command"
             result.any { it } -> "partially handled command (${result.count { it }}/${result.size})"
             else -> "failed executing command"
