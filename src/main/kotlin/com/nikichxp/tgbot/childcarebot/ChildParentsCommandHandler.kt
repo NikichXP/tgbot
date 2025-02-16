@@ -43,8 +43,10 @@ class ChildParentsCommandHandler(
 
         val childId = args[0].toLong()
         val parentId = args[1].toLong()
-        val child = childInfoService.findChildById(childId) ?: notFound()
-        child.parents += parentId
+
+        childInfoService.updateById(childId) {
+            it.parents += parentId
+        }
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = "Parent added"
@@ -62,8 +64,10 @@ class ChildParentsCommandHandler(
         }
         val childId = args[0].toLong()
         val parentId = args[1].toLong()
-        val child = childInfoService.findChildById(childId) ?: notFound()
-        child.parents -= parentId
+
+        childInfoService.updateById(childId) {
+            it.parents -= parentId
+        }
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = "Parent removed"

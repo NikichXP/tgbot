@@ -24,4 +24,10 @@ class ChildInfoService(
         return mongoTemplate.findById(childId)
     }
 
+    fun updateById(childId: Long, update: (ChildInfo) -> Unit) {
+        val child = findChildById(childId) ?: return
+        update(child)
+        mongoTemplate.save(child)
+    }
+
 }
