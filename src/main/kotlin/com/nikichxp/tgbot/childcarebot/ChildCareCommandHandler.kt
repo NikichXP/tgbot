@@ -5,8 +5,6 @@ import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
-import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
@@ -19,9 +17,8 @@ class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
     private val stateTransitionService: ChildStateTransitionHelper,
-    private val childInfoService: ChildInfoService,
-    private val childReportHelper: ChildReportHelper,
-) : CommandHandler, UpdateHandler, CallbackHandler, Authenticable {
+    private val childInfoService: ChildInfoService
+) : CommandHandler, UpdateHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -133,41 +130,4 @@ class ChildCareCommandHandler(
         }
     }
 
-    override fun isCallbackSupported(callbackContext: CallbackContext): Boolean =
-        callbackContext.bot == TgBot.CHILDTRACKERBOT
-
-    override suspend fun handleCallback(
-        callbackContext: CallbackContext,
-        update: Update,
-    ): Boolean {
-
-        val data = callbackContext.data
-
-        when {
-            data == "sleep-schedule" -> childReportHelper.sleepReport(callbackContext)
-            data == "feeding-schedule" -> childReportHelper.feedingReport(callbackContext)
-            data.startsWith("minus-") -> {
-                tgOperations.sendMessage {
-                    replyToCurrentMessage()
-                    text = "Minus minutes to sleep"
-                }
-            }
-
-            data.startsWith("plus-") -> {
-                tgOperations.sendMessage {
-                    replyToCurrentMessage()
-                    text = "Plus minutes to sleep"
-                }
-            }
-
-            else -> {
-                tgOperations.sendMessage {
-                    replyToCurrentMessage()
-                    text = "Unknown callback $data"
-                }
-            }
-        }
-
-        return true
-    }
 }
