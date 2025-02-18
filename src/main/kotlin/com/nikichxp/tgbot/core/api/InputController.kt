@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.error.NotAuthorizedException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
+import com.nikichxp.tgbot.core.tooling.TracerService
 import org.bson.Document
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.function.server.*
 class InputController(
     private val messageEntryPoint: MessageEntryPoint,
     private val appConfig: AppConfig,
+    private val tracerService: TracerService
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -35,12 +37,14 @@ class InputController(
             // TODO return ok only if one of handlers/all supported handlers processed the message
             ServerResponse.ok().bodyValueAndAwait("ok")
         }
+
         path("/tracer").nest {
-            GET("/") {
+            GET("/list") {
                 authenticate(it)
-                ServerResponse.ok().bodyValueAndAwait("test response")
+                ServerResponse.ok().bodyValueAndAwait(tracerService.list())
             }
         }
+
         onError<Exception> { err, _ ->
             when (err) {
                 is NotAuthorizedException -> status(403).bodyValueAndAwait("Fuck off")

@@ -9,13 +9,13 @@ import org.bson.Document
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
+import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.index.Index
 import org.springframework.stereotype.Service
-import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 @Service
-class RawJsonLogger(
+class TracerService(
     private val mongoTemplate: MongoTemplate,
     private val coroutineDispatcher: CoroutineDispatcher,
     appConfig: AppConfig
@@ -33,6 +33,8 @@ class RawJsonLogger(
             .ensureIndex(Index().on("time", Sort.Direction.ASC).expire(indexTTL, TimeUnit.HOURS))
     }
 
+    fun list() = mongoTemplate.findAll<EventTrace>()
+
     suspend fun logEvent(data: Document) = coroutineScope {
         if (storingEnabled) {
             val trace = EventTrace(data)
@@ -46,5 +48,3 @@ class RawJsonLogger(
         }
     }
 }
-
-data class EventTrace(val data: Document, val time: Instant = Instant.now())

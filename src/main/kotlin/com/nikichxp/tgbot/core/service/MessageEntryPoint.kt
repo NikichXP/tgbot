@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.tooling.RawJsonLogger
+import com.nikichxp.tgbot.core.tooling.TracerService
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import org.bson.Document
@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service
 class MessageEntryPoint(
     private val converter: DocumentToUpdateConverter,
     private val updateProcessor: UpdateProcessor,
-    private val rawJsonLogger: RawJsonLogger
+    private val tracerService: TracerService
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     suspend fun proceedRawData(body: Document, bot: TgBot) {
         logger.info("Received message: $body")
-        rawJsonLogger.logEvent(body)
+        tracerService.logEvent(body)
         try {
             val update = converter.convert(body, bot)
                 ?: throw IllegalArgumentException("Cannot convert the message")
