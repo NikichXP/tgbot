@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.api
 
+import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.error.NotAuthorizedException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
@@ -12,6 +13,7 @@ import org.springframework.web.reactive.function.server.*
 @Configuration
 class InputController(
     private val messageEntryPoint: MessageEntryPoint,
+    private val appConfig: AppConfig,
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -35,8 +37,8 @@ class InputController(
         }
         path("/tracer").nest {
             GET("/") {
-                val token = getToken(it)
-                ServerResponse.ok().bodyValueAndAwait("test response: $token")
+                authenticate(it)
+                ServerResponse.ok().bodyValueAndAwait("test response")
             }
         }
         onError<Exception> { err, _ ->
@@ -48,7 +50,11 @@ class InputController(
         }
     }
 
-    private fun getToken(request: ServerRequest) =
-        request.headers().header("token").firstOrNull() ?: throw NotAuthorizedException()
+    private fun authenticate(request: ServerRequest) {
+        val submittedToken = request.headers().header("token").firstOrNull()
+        if (submittedToken != appConfig.tracer.token) {
+            throw NotAuthorizedException()
+        }
+    }
 
 }
