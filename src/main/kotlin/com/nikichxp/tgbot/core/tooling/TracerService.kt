@@ -33,7 +33,7 @@ class TracerService(
             .ensureIndex(Index().on("time", Sort.Direction.ASC).expire(indexTTL, TimeUnit.HOURS))
     }
 
-    fun list() = mongoTemplate.findAll<EventTrace>()
+    fun list() = mongoTemplate.findAll<EventTrace>().sortedByDescending { it.time }
 
     suspend fun logEvent(data: Document) = coroutineScope {
         if (storingEnabled) {
