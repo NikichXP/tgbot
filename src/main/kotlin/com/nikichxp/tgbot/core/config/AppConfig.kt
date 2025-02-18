@@ -25,7 +25,8 @@ open class AppConfig(
 
         class Tracer(
             var store: Boolean = false,
-            var ttl: Long = 1
+            var ttl: Long = 1,
+            var token: String? = null // leave null to disable viewing of traces
         )
     }
 }
