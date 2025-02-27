@@ -23,9 +23,11 @@ class InputController(
 
     @Bean
     fun router() = coRouter {
+
         GET("/echo") {
             ServerResponse.ok().bodyValueAndAwait("ok")
         }
+
         POST("/handle/{bot}") {
             val botToken = it.pathVariable("bot")
             val botEntity = botMap[botToken] ?: run {
