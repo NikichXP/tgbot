@@ -1,7 +1,12 @@
 package com.nikichxp.tgbot.childcarebot.state
 
-import com.nikichxp.tgbot.childcarebot.*
+import com.nikichxp.tgbot.childcarebot.ChildActivity
+import com.nikichxp.tgbot.childcarebot.ChildActivityService
+import com.nikichxp.tgbot.childcarebot.ChildInfo
+import com.nikichxp.tgbot.childcarebot.ChildStateTransitionHelper
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -9,18 +14,20 @@ import org.springframework.stereotype.Service
 class StateTransitionService(
     private val tgOperations: TgOperations,
     private val childActivityService: ChildActivityService,
-    private val stateTransitionHelper: ChildStateTransitionHelper
+    private val stateTransitionHelper: ChildStateTransitionHelper,
+    private val transitionHandlers: List<StateTransitionHandler>,
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     suspend fun performStateTransition(
         childInfo: ChildInfo,
-        resultState: ChildActivity,
-        text: String
+        initialState: ChildActivity,
+        destinationState: ChildActivity,
+        text: String,
     ) {
-        val event = childActivityService.addActivity(childInfo.id, resultState)
-        val resultKeyboard = stateTransitionHelper.getPossibleTransitions(resultState).map { it.value }
+        val event = childActivityService.addActivity(childInfo.id, destinationState)
+        val resultKeyboard = stateTransitionHelper.getPossibleTransitions(destinationState).map { it.value }
 
         for (parentId in childInfo.parents) {
             tgOperations.sendMessage {
@@ -41,6 +48,22 @@ class StateTransitionService(
                 }
             }
         }
+
+        val transitionDetails = TransitionDetails(
+            from = initialState,
+            to = destinationState,
+            childId = childInfo.id
+        )
+
+        transitionHandlers
+            .filter { it.from().contains(transitionDetails.from) && it.to().contains(transitionDetails.to) }
+            .forEach {
+                coroutineScope {
+                    launch {
+                        it.onTransition(transitionDetails)
+                    }
+                }
+            }
     }
 
 }

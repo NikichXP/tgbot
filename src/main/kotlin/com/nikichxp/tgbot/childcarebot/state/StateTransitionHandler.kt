@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.childcarebot.state
 
 import com.nikichxp.tgbot.childcarebot.ChildActivity
 import com.nikichxp.tgbot.childcarebot.TgMessageInfo
-import com.nikichxp.tgbot.core.dto.MessageId
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Indexed
@@ -15,9 +14,15 @@ interface StateTransitionHandler {
     fun from(): Set<ChildActivity>
     fun to(): Set<ChildActivity>
 
-    fun doTransition(from: ChildActivity, to: ChildActivity, childId: Long)
+    suspend fun onTransition(transitionDetails: TransitionDetails)
 
 }
+
+data class TransitionDetails(
+    val from: ChildActivity,
+    val to: ChildActivity,
+    val childId: Long
+)
 
 @Service
 class AddTimeNavigationHandler(
@@ -28,9 +33,8 @@ class AddTimeNavigationHandler(
 
     override fun to() = setOf(ChildActivity.SLEEP)
 
-    override fun doTransition(from: ChildActivity, to: ChildActivity, childId: Long) {
-
-        TODO("Not yet implemented")
+    override suspend fun onTransition(transitionDetails: TransitionDetails) {
+        // TODO
     }
 
 }

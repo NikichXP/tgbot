@@ -100,7 +100,7 @@ class ChildCareCommandHandler(
         val resultState = stateTransitionHelper.getResultState(currentState, text)
 
         if (resultState != null) {
-            stateTransitionService.performStateTransition(childInfo, resultState, text)
+            stateTransitionService.performStateTransition(childInfo, currentState, resultState, text)
         } else {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
