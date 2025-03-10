@@ -1,23 +1,30 @@
 package com.nikichxp.tgbot.childcarebot.state
 
 import com.nikichxp.tgbot.childcarebot.ChildActivity
-import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.Field
-import org.springframework.data.mongodb.core.mapping.FieldType
+import com.nikichxp.tgbot.childcarebot.ChildActivityService
+import com.nikichxp.tgbot.childcarebot.TgMessageInfo
+import jakarta.annotation.PostConstruct
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
-class ActiveUpdateSleepTimeJob(
-    // info about event to track
-) {
-    @Id
-    @Field(targetType = FieldType.OBJECT_ID)
-    lateinit var id: String
-}
-
 @Service
-class UpdateSleepTimeService() : StateTransitionHandler {
+class UpdateSleepTimeService(
+    private val childActivityService: ChildActivityService
+) : StateTransitionHandler {
+
+    private val trackingEntities = mutableMapOf<Long, TgMessageInfo>()
+
+    @PostConstruct
+    fun findLastEvents() {
+        val addKids = childActivityService.getAllChildrenThatHasEvents()
+        addKids.forEach{ kid ->
+            val action = childActivityService.getLatestState(kid)
+            if (action == ChildActivity.SLEEP) {
+
+            }
+        }
+    }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     fun jobItself() {
