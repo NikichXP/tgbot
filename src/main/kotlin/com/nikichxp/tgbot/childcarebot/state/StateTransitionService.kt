@@ -1,13 +1,11 @@
 package com.nikichxp.tgbot.childcarebot.state
 
-import com.nikichxp.tgbot.childcarebot.ChildActivity
-import com.nikichxp.tgbot.childcarebot.ChildActivityService
-import com.nikichxp.tgbot.childcarebot.ChildInfo
-import com.nikichxp.tgbot.childcarebot.ChildStateTransitionHelper
+import com.nikichxp.tgbot.childcarebot.*
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,6 +14,7 @@ class StateTransitionService(
     private val childActivityService: ChildActivityService,
     private val stateTransitionHelper: ChildStateTransitionHelper,
     private val transitionHandlers: List<StateTransitionHandler>,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -54,6 +53,13 @@ class StateTransitionService(
             to = destinationState,
             childId = childInfo.id
         )
+
+        val message = ChildActivityEventMessage(
+            event = event,
+            transitionDetails = transitionDetails
+        )
+
+        applicationEventPublisher.publishEvent(message)
 
         transitionHandlers
             .filter { it.from().contains(transitionDetails.from) && it.to().contains(transitionDetails.to) }
