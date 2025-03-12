@@ -73,7 +73,7 @@ class ChildReportHelper(
     }
 
     private fun formatSleep(from: LocalDateTime, to: LocalDateTime): String {
-        val duration = Duration.between(from, to).toKotlinDuration().toString()
+        val duration = getDurationStringBetween(from, to)
         val format = if (from.toLocalDate() == to.toLocalDate()) shortDateFormat else longDateFormat
 
         return "${from.format(longDateFormat)} - ${to.format(format)} ($duration)"

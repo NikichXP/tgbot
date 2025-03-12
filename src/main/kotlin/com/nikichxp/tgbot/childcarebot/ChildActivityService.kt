@@ -39,12 +39,7 @@ class ChildActivityService(
         return lastActivity?.activity ?: ChildActivity.WAKE_UP
     }
 
-    fun getLatestState(childId: Long): ChildActivity {
-        val lastActivity = getLastActivity(childId)
-        return lastActivity?.activity ?: ChildActivity.WAKE_UP
-    }
-
-    fun getLastActivity(childId: Long): ChildActivityEvent? {
+    fun getLastEvent(childId: Long): ChildActivityEvent? {
         return mongoTemplate.findOne<ChildActivityEvent>(
             Query(
                 Criteria.where(ChildActivityEvent::childId.name).`is`(childId)

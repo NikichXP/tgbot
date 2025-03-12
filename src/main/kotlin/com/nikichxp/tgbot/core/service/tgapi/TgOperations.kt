@@ -157,6 +157,18 @@ class TgOperations(
         )
     }
 
+    suspend fun updateMessageText(chatId: Long, messageId: Long, text: String, bot: TgBot) {
+        val args = mutableListOf<Pair<String, Any>>(
+            "chat_id" to chatId,
+            "message_id" to messageId,
+            "text" to text
+        )
+
+        val response = restTemplate.postForEntity<String>("${apiFor(bot)}/editMessageText", args.toMap())
+
+        logger.info("Update message text: $response")
+    }
+
     private fun apiFor(tgBot: TgBot): String {
         return "https://api.telegram.org/bot${tgBotConfig.getBotInfo(tgBot)!!.token}"
     }
