@@ -31,7 +31,7 @@ class UpdateSleepTimeService(
         addKids.forEach { loadChild(it) }
     }
 
-    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
+//    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
     fun jobItself() {
         runBlocking {
             trackingEntities.forEach { (_, eventState) ->
