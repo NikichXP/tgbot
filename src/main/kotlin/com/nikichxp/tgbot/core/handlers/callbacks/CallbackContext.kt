@@ -10,7 +10,8 @@ data class CallbackContext(
     var messageText: String,
     var buttonText: String,
     var bot: TgBot,
-    var chatId: Long
+    var chatId: Long,
+    var messageId: Long
 ) {
     constructor(update: Update) : this(
         userId = update.callbackQuery?.from?.id!!,
@@ -19,6 +20,7 @@ data class CallbackContext(
         buttonText = update.callbackQuery.message.replyMarkup?.inlineKeyboard?.flatten()
             ?.find { it.callbackData == update.callbackQuery.data }?.text!!,
         bot = update.bot,
-        chatId = update.getContextChatId() ?: -1L
+        chatId = update.getContextChatId() ?: -1L,
+        messageId = update.callbackQuery.message.messageId
     )
 }
