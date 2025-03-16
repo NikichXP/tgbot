@@ -157,12 +157,15 @@ class TgOperations(
         )
     }
 
-    suspend fun updateMessageText(chatId: Long, messageId: Long, text: String, bot: TgBot) {
+    // TODO change replyMarkup type
+    suspend fun updateMessageText(chatId: Long, messageId: Long, text: String, bot: TgBot, replyMarkup: Any? = null) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
             "message_id" to messageId,
             "text" to text
         )
+
+        replyMarkup?.let { args += "reply_markup" to replyMarkup }
 
         val response = restTemplate.postForEntity<String>("${apiFor(bot)}/editMessageText", args.toMap())
 

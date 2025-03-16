@@ -48,18 +48,7 @@ class TestCommandHandler(
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Here is your inline keyboard"
-            withInlineKeyboard(
-                listOf(
-                    listOf(
-                        "Button 1" to "btn-1",
-                        "Button 2" to "btn-2"
-                    ),
-                    listOf(
-                        "Button 3" to "btn-3",
-                        "Button 4" to "btn-4"
-                    )
-                )
-            )
+            withInlineKeyboard(getKeys())
         }
 
         tgOperations.sendMessage(message, update.bot)
@@ -101,8 +90,20 @@ class TestCommandHandler(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,
-            bot = callbackContext.bot
+            bot = callbackContext.bot,
+            replyMarkup = getKeys()
         )
         return true
     }
+
+    private fun getKeys() = listOf(
+        listOf(
+            "Button 1" to "btn-1",
+            "Button 2" to "btn-2"
+        ),
+        listOf(
+            "Button 3" to "btn-3",
+            "Button 4" to "btn-4"
+        )
+    )
 }
