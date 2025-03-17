@@ -88,7 +88,7 @@ class TestCommandHandler(
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,
             bot = callbackContext.bot,
-            replyMarkup = TgInlineKeyboard(getKeys())
+            replyMarkup = TgInlineKeyboard.of(getKeys())
         )
         return true
     }

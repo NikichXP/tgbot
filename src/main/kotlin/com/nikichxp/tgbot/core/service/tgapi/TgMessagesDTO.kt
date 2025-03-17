@@ -73,9 +73,21 @@ data class TgInlineKeyboard(
     @JsonProperty("inline_keyboard")
     val inlineKeyboard: List<List<TgInlineButton>>
 ): TgReplyMarkup {
-    constructor(buttons: List<List<Pair<String, String>>>): this(
-        inlineKeyboard = buttons.map { it.map { (text, callback) -> TgInlineButton(text, callbackData = callback) } }
-    )
+
+    companion object {
+        fun of(buttons: List<List<Pair<String, String>>>): TgInlineKeyboard {
+
+            return TgInlineKeyboard(inlineKeyboard = buttons.map {
+                it.map { (text, callback) ->
+                    TgInlineButton(
+                        text,
+                        callbackData = callback
+                    )
+                }
+            })
+        }
+    }
+
 }
 
 data class TgInlineButton(
