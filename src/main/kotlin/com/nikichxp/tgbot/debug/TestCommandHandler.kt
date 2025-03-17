@@ -6,10 +6,7 @@ import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgButton
-import com.nikichxp.tgbot.core.service.tgapi.TgKeyboard
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
-import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
+import com.nikichxp.tgbot.core.service.tgapi.*
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
@@ -84,14 +81,14 @@ class TestCommandHandler(
 
     override suspend fun handleCallback(
         callbackContext: CallbackContext,
-        update: Update
+        update: Update,
     ): Boolean {
         tgOperations.updateMessageText(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,
             bot = callbackContext.bot,
-            replyMarkup = getKeys()
+            replyMarkup = TgInlineKeyboard(getKeys())
         )
         return true
     }

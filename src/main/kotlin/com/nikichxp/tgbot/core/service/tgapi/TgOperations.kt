@@ -31,7 +31,7 @@ class TgOperations(
     private val tgBotConfig: TgBotConfig,
     private val appConfig: AppConfig,
     private val errorStorageService: ErrorStorageService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) {
 
     private val bots = tgBotConfig.getInitializedBots()
@@ -57,7 +57,7 @@ class TgOperations(
         chatId: Long,
         text: String,
         replyToMessageId: Long? = null,
-        retryNumber: Int = 0
+        retryNumber: Int = 0,
     ) {
         sendMessage(chatId, text, replyToMessageId, retryNumber, getCurrentUpdateContext().tgBot)
     }
@@ -73,7 +73,7 @@ class TgOperations(
 
     suspend fun sendMessage(
         message: TgSendMessage,
-        tgBot: TgBot
+        tgBot: TgBot,
     ) {
         sendMessageInternal(message, tgBot)
     }
@@ -83,7 +83,7 @@ class TgOperations(
         text: String,
         replyToMessageId: Long? = null,
         retryNumber: Int = 0,
-        tgBot: TgBot
+        tgBot: TgBot,
     ) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
@@ -112,7 +112,7 @@ class TgOperations(
     private suspend fun sendMessageInternal(
         message: TgSendMessage,
         tgBot: TgBot,
-        retryNumber: Int = 0
+        retryNumber: Int = 0,
     ) {
         try {
             val body = objectMapper.valueToTree<JsonNode>(message)
@@ -157,8 +157,13 @@ class TgOperations(
         )
     }
 
-    // TODO change replyMarkup type
-    suspend fun updateMessageText(chatId: Long, messageId: Long, text: String, bot: TgBot, replyMarkup: Any? = null) {
+    suspend fun updateMessageText(
+        chatId: Long,
+        messageId: Long,
+        text: String,
+        bot: TgBot,
+        replyMarkup: TgReplyMarkup? = null,
+    ) {
         val args = mutableListOf<Pair<String, Any>>(
             "chat_id" to chatId,
             "message_id" to messageId,
