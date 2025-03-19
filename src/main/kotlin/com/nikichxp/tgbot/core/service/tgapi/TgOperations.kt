@@ -164,15 +164,20 @@ class TgOperations(
         bot: TgBot,
         replyMarkup: TgReplyMarkup? = null,
     ) {
-        val args = mutableListOf<Pair<String, Any>>(
+
+        val args = mutableMapOf<String, Any>(
             "chat_id" to chatId,
             "message_id" to messageId,
             "text" to text
         )
 
-        replyMarkup?.let { args += "reply_markup" to replyMarkup }
+        replyMarkup?.let { args["reply_markup"] = replyMarkup }
 
-        val response = restTemplate.postForEntity<String>("${apiFor(bot)}/editMessageText", args.toMap())
+        val body = objectMapper.valueToTree<JsonNode>(args)
+
+        logger.info("Sending update message text: $body")
+
+        val response = restTemplate.postForEntity<String>("${apiFor(bot)}/editMessageText", body)
 
         logger.info("Update message text: $response")
     }
