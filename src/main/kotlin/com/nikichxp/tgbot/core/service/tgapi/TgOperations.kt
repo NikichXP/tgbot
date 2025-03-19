@@ -28,6 +28,7 @@ class TgOperations(
     private val restTemplate: RestTemplate,
     private val tgSetWebhookService: TgBotSetWebhookService,
     private val tgUpdatePollService: TgUpdatePollService,
+    private val tgCommandExecutor: TgCommandExecutor,
     private val tgBotConfig: TgBotConfig,
     private val appConfig: AppConfig,
     private val errorStorageService: ErrorStorageService,
@@ -114,28 +115,20 @@ class TgOperations(
         tgBot: TgBot,
         retryNumber: Int = 0,
     ) {
-        try {
-            val body = objectMapper.valueToTree<JsonNode>(message)
-            val response = restTemplate.postForEntity<TgSentMessageResponse>(
-                "${apiFor(tgBot)}/sendMessage",
-                request = body
-            )
+        val rawResponse = tgCommandExecutor.execute(tgBot, "sendMessage", message)
+        val response = objectMapper.treeToValue(rawResponse.body, TgSentMessageResponse::class.java)
+//            val body = objectMapper.valueToTree<JsonNode>(message)
+//            val response = restTemplate.postForEntity<TgSentMessageResponse>(
+//                "${apiFor(tgBot)}/sendMessage",
+//                request = body
+//            )
             message.callbacks.forEach {
                 coroutineScope {
                     launch {
-                        it(response.body!!)
+                        it(response)
                     }
                 }
             }
-        } catch (tooManyRequests: TooManyRequests) {
-            if (retryNumber <= 5) {
-                logger.warn("429 error reached: try #$retryNumber, message = $message")
-                delay(5_000)
-                return sendMessageInternal(message = message, tgBot = tgBot, retryNumber = retryNumber + 1)
-            } else {
-                throw tooManyRequests
-            }
-        }
     }
 
     suspend fun sendToCurrentChat(text: String, replyMarkup: TgReplyMarkup? = null) {
