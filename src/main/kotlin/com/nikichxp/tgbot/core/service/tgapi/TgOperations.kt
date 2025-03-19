@@ -5,39 +5,26 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.entity.TgBotConfig
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.service.helper.ErrorStorageService
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
-import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.client.HttpClientErrorException.TooManyRequests
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.client.getForEntity
-import org.springframework.web.client.postForEntity
 
 @Service
 class TgOperations(
-    private val restTemplate: RestTemplate,
     private val tgSetWebhookService: TgBotSetWebhookService,
     private val tgUpdatePollService: TgUpdatePollService,
-    private val tgCommandExecutor: TgCommandExecutor,
-    private val tgBotConfig: TgBotConfig,
+    private val tgMethodExecutor: TgMethodExecutor,
     private val appConfig: AppConfig,
     private val errorStorageService: ErrorStorageService,
     private val objectMapper: ObjectMapper,
 ) {
 
-    private val bots = tgBotConfig.getInitializedBots()
     private val logger = LoggerFactory.getLogger(this::class.java)
-
 
     private suspend fun getCurrentUpdateContext(): UpdateContext = coroutineScope {
         this.coroutineContext[UpdateContext] ?: try {
@@ -50,8 +37,8 @@ class TgOperations(
 
     private suspend fun getCurrentUpdate(): Update = getCurrentUpdateContext().update
 
-    fun deleteWebhook(tgBot: TgBot) {
-        restTemplate.getForEntity<String>(apiFor(tgBot) + "/deleteWebhook").body
+    suspend fun deleteWebhook(tgBot: TgBot) {
+        tgMethodExecutor.execute(tgBot, "deleteWebhook", mapOf<String, Any>())
     }
 
     suspend fun sendMessage(
@@ -60,7 +47,11 @@ class TgOperations(
         replyToMessageId: Long? = null,
         retryNumber: Int = 0,
     ) {
-        sendMessage(chatId, text, replyToMessageId, retryNumber, getCurrentUpdateContext().tgBot)
+        sendMessage {
+            this.chatId = chatId
+            this.text = text
+            this.replyParameters = replyToMessageId?.let { TgReplyParameters(chatId, it) }
+        }
     }
 
     suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
@@ -79,56 +70,20 @@ class TgOperations(
         sendMessageInternal(message, tgBot)
     }
 
-    suspend fun sendMessage(
-        chatId: Long,
-        text: String,
-        replyToMessageId: Long? = null,
-        retryNumber: Int = 0,
-        tgBot: TgBot,
-    ) {
-        val args = mutableListOf<Pair<String, Any>>(
-            "chat_id" to chatId,
-            "text" to text
-        )
-
-        replyToMessageId?.apply { args += "reply_to_message_id" to replyToMessageId }
-
-        try {
-            restTemplate.postForEntity<String>("${apiFor(tgBot)}/sendMessage", args.toMap())
-        } catch (tooManyRequests: TooManyRequests) {
-            if (retryNumber <= 5) {
-                logger.warn("429 error reached: try #$retryNumber, chatId = $chatId, text = $text")
-                coroutineScope {
-                    launch {
-                        delay(5_000)
-                        sendMessage(chatId, text, replyToMessageId, retryNumber + 1, tgBot)
-                    }
-                }
-            } else {
-                tooManyRequests.printStackTrace()
-            }
-        }
-    }
-
     private suspend fun sendMessageInternal(
         message: TgSendMessage,
         tgBot: TgBot,
         retryNumber: Int = 0,
     ) {
-        val rawResponse = tgCommandExecutor.execute(tgBot, "sendMessage", message)
+        val rawResponse = tgMethodExecutor.execute(tgBot, "sendMessage", message)
         val response = objectMapper.treeToValue(rawResponse.body, TgSentMessageResponse::class.java)
-//            val body = objectMapper.valueToTree<JsonNode>(message)
-//            val response = restTemplate.postForEntity<TgSentMessageResponse>(
-//                "${apiFor(tgBot)}/sendMessage",
-//                request = body
-//            )
-            message.callbacks.forEach {
-                coroutineScope {
-                    launch {
-                        it(response)
-                    }
+        message.callbacks.forEach {
+            coroutineScope {
+                launch {
+                    it(response)
                 }
             }
+        }
     }
 
     suspend fun sendToCurrentChat(text: String, replyMarkup: TgReplyMarkup? = null) {
@@ -168,15 +123,8 @@ class TgOperations(
 
         val body = objectMapper.valueToTree<JsonNode>(args)
 
-        logger.info("Sending update message text: $body")
+        val response = tgMethodExecutor.execute(bot, "editMessageText", body)
 
-        val response = restTemplate.postForEntity<String>("${apiFor(bot)}/editMessageText", body)
-
-        logger.info("Update message text: $response")
+        logger.info("Update message text: ${response.body}")
     }
-
-    private fun apiFor(tgBot: TgBot): String {
-        return "https://api.telegram.org/bot${tgBotConfig.getBotInfo(tgBot)!!.token}"
-    }
-
 }

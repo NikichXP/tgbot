@@ -13,13 +13,13 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.client.postForEntity
 
 @Service
-class TgCommandExecutor(
+class TgMethodExecutor(
     private val objectMapper: ObjectMapper,
     private val restTemplate: RestTemplate,
     private val tgBotConfig: TgBotConfig
 ) {
 
-    private val logger = LoggerFactory.getLogger(TgCommandExecutor::class.java)
+    private val logger = LoggerFactory.getLogger(TgMethodExecutor::class.java)
 
     suspend fun execute(tgBot: TgBot, method: String, parameters: Any): ResponseEntity<JsonNode> {
         return execute(tgBot, method, parameters, 0)
