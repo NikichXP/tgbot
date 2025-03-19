@@ -29,7 +29,7 @@ class TgMethodExecutor(
         try {
             val body = objectMapper.valueToTree<JsonNode>(parameters)
             return restTemplate.postForEntity<JsonNode>(
-                "${apiFor(tgBot)}/sendMessage",
+                "${apiFor(tgBot)}/$method",
                 request = body
             )
         } catch (tooManyRequests: TooManyRequests) {
