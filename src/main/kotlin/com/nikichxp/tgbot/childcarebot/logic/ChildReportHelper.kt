@@ -1,16 +1,17 @@
-package com.nikichxp.tgbot.childcarebot
+package com.nikichxp.tgbot.childcarebot.logic
 
+import com.nikichxp.tgbot.childcarebot.ChildActivity
+import com.nikichxp.tgbot.childcarebot.ChildInfo
+import com.nikichxp.tgbot.childcarebot.getDurationStringBetween
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.AppStorage
 import org.springframework.stereotype.Service
-import java.time.Duration
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.LinkedList
-import kotlin.time.toKotlinDuration
 
 @Service
 class ChildReportHelper(

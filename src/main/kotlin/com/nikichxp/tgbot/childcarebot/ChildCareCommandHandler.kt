@@ -1,5 +1,8 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.tgbot.childcarebot.logic.ChildActivityService
+import com.nikichxp.tgbot.childcarebot.logic.ChildInfoService
+import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionHelper
 import com.nikichxp.tgbot.childcarebot.state.StateTransitionService
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot

@@ -1,6 +1,8 @@
 package com.nikichxp.tgbot.childcarebot.state
 
 import com.nikichxp.tgbot.childcarebot.*
+import com.nikichxp.tgbot.childcarebot.logic.ChildActivityService
+import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionHelper
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import jakarta.annotation.PostConstruct

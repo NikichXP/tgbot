@@ -1,5 +1,7 @@
-package com.nikichxp.tgbot.childcarebot
+package com.nikichxp.tgbot.childcarebot.logic
 
+import com.nikichxp.tgbot.childcarebot.ChildActivity
+import com.nikichxp.tgbot.childcarebot.ChildStateTransition
 import jakarta.annotation.PostConstruct
 import org.springframework.stereotype.Service
 

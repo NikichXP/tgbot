@@ -1,5 +1,6 @@
-package com.nikichxp.tgbot.childcarebot
+package com.nikichxp.tgbot.childcarebot.logic
 
+import com.nikichxp.tgbot.childcarebot.ChildInfo
 import com.nikichxp.tgbot.core.entity.UserId
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.mongodb.core.MongoTemplate

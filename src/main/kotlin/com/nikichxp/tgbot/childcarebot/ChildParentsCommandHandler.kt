@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.tgbot.childcarebot.logic.ChildInfoService
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
