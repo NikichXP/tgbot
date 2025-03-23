@@ -56,6 +56,14 @@ class ChildActivityService(
         )
     }
 
+    fun getLastEvents(childId: Long, count: Int): List<ChildActivityEvent> {
+        return mongoTemplate.find<ChildActivityEvent>(
+            Query(
+                Criteria.where(ChildActivityEvent::childId.name).`is`(childId)
+            ).with(Sort.by(Sort.Order.desc(ChildActivityEvent::date.name))).limit(count)
+        )
+    }
+
     fun addMessageToEvent(eventId: ChildEventId, chatId: Long, messageId: Long) {
         val event = mongoTemplate.findById<ChildActivityEvent>(eventId) ?: return
         event.sentMessages += TgMessageInfo(chatId = chatId, messageId = messageId)

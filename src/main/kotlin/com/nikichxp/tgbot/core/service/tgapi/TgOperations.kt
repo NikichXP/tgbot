@@ -2,11 +2,10 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.service.helper.ErrorStorageService
+import com.nikichxp.tgbot.core.service.helper.ErrorService
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
 import kotlinx.coroutines.coroutineScope
@@ -16,12 +15,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class TgOperations(
-    private val tgSetWebhookService: TgBotSetWebhookService,
-    private val tgUpdatePollService: TgUpdatePollService,
     private val tgMethodExecutor: TgMethodExecutor,
-    private val appConfig: AppConfig,
-    private val errorStorageService: ErrorStorageService,
-    private val objectMapper: ObjectMapper,
+    private val errorService: ErrorService,
+    private val objectMapper: ObjectMapper
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -30,7 +26,7 @@ class TgOperations(
         this.coroutineContext[UpdateContext] ?: try {
             throw IllegalStateException("No update context found")
         } catch (e: Exception) {
-            errorStorageService.logAndReportError(logger, "No update context found", e)
+            errorService.logAndReportError(logger, "No update context found", e)
             throw e
         }
     }
@@ -60,20 +56,12 @@ class TgOperations(
 
     suspend fun sendMessage(tgBot: TgBot, messageDSL: suspend TgSendMessage.() -> Unit) {
         val message = TgSendMessage.create(messageDSL)
-        sendMessageInternal(message, tgBot)
+        sendMessage(message, tgBot)
     }
 
     suspend fun sendMessage(
         message: TgSendMessage,
         tgBot: TgBot,
-    ) {
-        sendMessageInternal(message, tgBot)
-    }
-
-    private suspend fun sendMessageInternal(
-        message: TgSendMessage,
-        tgBot: TgBot,
-        retryNumber: Int = 0,
     ) {
         val rawResponse = tgMethodExecutor.execute(tgBot, "sendMessage", message)
         val response = objectMapper.treeToValue(rawResponse.body, TgSentMessageResponse::class.java)
@@ -90,7 +78,7 @@ class TgOperations(
         val update = getCurrentUpdate()
         update.getContextChatId()?.let {
             sendMessage(it, text)
-        } ?: errorStorageService.logAndReportError(logger, "Cannot send message reply to current chat: $text", update)
+        } ?: errorService.logAndReportError(logger, "Cannot send message reply to current chat: $text", update)
     }
 
     suspend fun replyToCurrentMessage(text: String, replyMarkup: TgReplyMarkup? = null) {
@@ -98,7 +86,7 @@ class TgOperations(
         val update = getCurrentUpdate()
         update.getContextChatId()?.let {
             sendMessage(it, text, update.getContextMessageId())
-        } ?: errorStorageService.logAndReportError(
+        } ?: errorService.logAndReportError(
             logger,
             "Cannot send message reply to current message: $text",
             update

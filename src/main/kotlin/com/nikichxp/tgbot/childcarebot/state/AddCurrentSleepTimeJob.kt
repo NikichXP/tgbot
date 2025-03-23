@@ -9,11 +9,8 @@ import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationListener
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.time.Duration
 import java.time.LocalDateTime
-import java.util.concurrent.TimeUnit
 
 @Service
 class UpdateSleepTimeService(

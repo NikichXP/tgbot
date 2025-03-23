@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 
 @Service
-class ErrorStorageService(
+class ErrorService(
     private val mongoTemplate: MongoTemplate
 ) {
 
