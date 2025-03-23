@@ -10,8 +10,7 @@ class ChildStateTransitionHelper {
 
     private val transitions = mutableSetOf<ChildStateTransition>()
 
-    @PostConstruct
-    fun init() {
+    init {
         transition(ChildActivity.SLEEP, ChildActivity.WAKE_UP, "Проснулась")
         transition(ChildActivity.WAKE_UP, ChildActivity.SLEEP, "Уснула")
     }
