@@ -16,6 +16,9 @@ abstract class ChildKeyboardProviderService {
 
     abstract fun getKeyboardForState(state: ChildActivity): TgReplyMarkup
 
+    protected fun getItems(state: ChildActivity): List<List< String>> {
+        return listOf(stateTransitionHelper.getPossibleTransitions(state).values.toList())
+    }
 
 }
 
