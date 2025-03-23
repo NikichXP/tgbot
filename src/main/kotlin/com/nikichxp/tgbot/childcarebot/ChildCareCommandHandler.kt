@@ -22,7 +22,8 @@ class ChildCareCommandHandler(
     private val childActivityService: ChildActivityService,
     private val stateTransitionHelper: ChildStateTransitionHelper,
     private val childInfoService: ChildInfoService,
-    private val stateTransitionService: StateTransitionService
+    private val stateTransitionService: StateTransitionService,
+    private val childKeyboardProviderService: ChildKeyboardProviderService
 ) : CommandHandler, UpdateHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
