@@ -44,12 +44,12 @@ class ChildCareCommandHandler(
     @HandleCommand("/status")
     suspend fun status() {
         val lastState = childActivityService.getLatestState()
-        val buttons = stateTransitionHelper.getPossibleTransitions(lastState).map { it.value }
+        val keyboard = childKeyboardProviderService.getKeyboardForState(lastState)
 
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = "Active state: ${stateTransitionHelper.getStateText(lastState)}"
-            withKeyboard(listOf(buttons))
+            withKeyboard(keyboard)
         }
     }
 

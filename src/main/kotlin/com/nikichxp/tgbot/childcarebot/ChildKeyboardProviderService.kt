@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionHelper
+import com.nikichxp.tgbot.core.service.tgapi.TgButton
 import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgReplyMarkup
@@ -16,8 +17,8 @@ abstract class ChildKeyboardProviderService {
 
     abstract fun getKeyboardForState(state: ChildActivity): TgReplyMarkup
 
-    protected fun getItems(state: ChildActivity): List<List< String>> {
-        return listOf(stateTransitionHelper.getPossibleTransitions(state).values.toList())
+    protected fun getItems(state: ChildActivity): List<String> {
+        return stateTransitionHelper.getPossibleTransitions(state).values.toList()
     }
 
 }
@@ -26,14 +27,15 @@ abstract class ChildKeyboardProviderService {
 @Primary
 class ReplyKeyboardProviderService : ChildKeyboardProviderService() {
 
-    override fun getKeyboardForState(state: ChildActivity): TgKeyboard {
-        TODO("Not yet implemented")
-    }
+    override fun getKeyboardForState(state: ChildActivity): TgKeyboard = TgKeyboard(
+        keyboard = listOf(
+            getItems(state).map { TgButton(it) }
+        )
+    )
 
 }
 
 @Service
-@ConditionalOnMissingBean(ReplyKeyboardProviderService::class)
 class InlineKeyboardProviderService : ChildKeyboardProviderService() {
 
     override fun getKeyboardForState(state: ChildActivity): TgInlineKeyboard {
