@@ -49,7 +49,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("com.github.wnameless.json:json-flattener:0.17.2")
+    implementation("com.github.wnameless.json:json-flattener:0.17.3")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
