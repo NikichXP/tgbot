@@ -6,7 +6,6 @@ import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgReplyMarkup
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 
