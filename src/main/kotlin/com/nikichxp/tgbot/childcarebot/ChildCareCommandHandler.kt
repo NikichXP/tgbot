@@ -13,6 +13,7 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextUserId
+import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -23,7 +24,7 @@ class ChildCareCommandHandler(
     private val stateTransitionHelper: ChildStateTransitionHelper,
     private val childInfoService: ChildInfoService,
     private val stateTransitionService: StateTransitionService,
-    private val childKeyboardProviderService: ChildKeyboardProviderService
+    private val childKeyboardProviderService: ChildKeyboardProviderService,
 ) : CommandHandler, UpdateHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -42,8 +43,10 @@ class ChildCareCommandHandler(
     }
 
     @HandleCommand("/status")
-    suspend fun status() {
-        val lastState = childActivityService.getLatestState()
+    suspend fun status(update: Update) {
+        val childInfo = update.getContextUserId()?.let { childInfoService.findChildByParent(it) }
+            ?: throw IllegalStateException("Child not found")
+        val lastState = childActivityService.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
         val keyboard = childKeyboardProviderService.getKeyboardForState(lastState)
 
         tgOperations.sendMessage {
@@ -100,7 +103,7 @@ class ChildCareCommandHandler(
 
     private suspend fun doStateTransition(text: String, userId: Long) {
         val childInfo = childInfoService.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
-        val currentState = childActivityService.getLatestState()
+        val currentState = childActivityService.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
         val resultState = stateTransitionHelper.getResultState(currentState, text)
 
         if (resultState != null) {

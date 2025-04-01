@@ -40,14 +40,6 @@ class ChildActivityService(
         );
     }
 
-    @Deprecated("use with id")
-    fun getLatestState(): ChildActivity {
-        val lastActivity = mongoTemplate.findOne<ChildActivityEvent>(
-            Query().with(Sort.by(Sort.Order.desc(ChildActivityEvent::date.name))).limit(1)
-        )
-        return lastActivity?.activity ?: ChildActivity.WAKE_UP
-    }
-
     fun getLastEvent(childId: Long): ChildActivityEvent? {
         return mongoTemplate.findOne<ChildActivityEvent>(
             Query(

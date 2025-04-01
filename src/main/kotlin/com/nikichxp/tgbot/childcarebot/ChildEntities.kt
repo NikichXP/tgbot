@@ -31,6 +31,7 @@ data class ChildActivityEvent(
 ) {
     lateinit var id: ChildEventId
 
+    var state = activity
     var sentMessages = mutableListOf<TgMessageInfo>()
 }
 
