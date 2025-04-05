@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 import kotlin.collections.plusAssign
 
 @Service
-class ChildActivityService(
+class ChildActivityRepo(
     private val mongoTemplate: MongoTemplate,
 ) {
 

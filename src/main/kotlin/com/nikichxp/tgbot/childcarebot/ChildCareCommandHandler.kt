@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.nikichxp.tgbot.childcarebot.logic.ChildActivityService
-import com.nikichxp.tgbot.childcarebot.logic.ChildInfoService
-import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionHelper
+import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
+import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
+import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.childcarebot.state.StateTransitionService
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
@@ -13,18 +13,17 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextUserId
-import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class ChildCareCommandHandler(
     private val tgOperations: TgOperations,
-    private val childActivityService: ChildActivityService,
-    private val stateTransitionHelper: ChildStateTransitionHelper,
-    private val childInfoService: ChildInfoService,
+    private val childActivityRepo: ChildActivityRepo,
+    private val stateTransitionHelper: ChildStateTransitionProvider,
+    private val childInfoRepo: ChildInfoRepo,
     private val stateTransitionService: StateTransitionService,
-    private val childKeyboardProviderService: ChildKeyboardProviderService,
+    private val childKeyboardProvider: ChildKeyboardProvider,
 ) : CommandHandler, UpdateHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -32,7 +31,7 @@ class ChildCareCommandHandler(
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     override suspend fun authenticate(update: Update): Boolean {
-        val child = childInfoService.findChildByParent(update.getContextUserId()!!)
+        val child = childInfoRepo.findChildByParent(update.getContextUserId()!!)
 
         if (child == null) {
             logger.warn("No user found for child: user id = ${update.getContextUserId()}")
@@ -44,10 +43,10 @@ class ChildCareCommandHandler(
 
     @HandleCommand("/status")
     suspend fun status(update: Update) {
-        val childInfo = update.getContextUserId()?.let { childInfoService.findChildByParent(it) }
+        val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
             ?: throw IllegalStateException("Child not found")
-        val lastState = childActivityService.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
-        val keyboard = childKeyboardProviderService.getKeyboardForState(lastState)
+        val lastState = childActivityRepo.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
+        val keyboard = childKeyboardProvider.getKeyboardForState(lastState)
 
         tgOperations.sendMessage {
             replyToCurrentMessage()
@@ -102,8 +101,8 @@ class ChildCareCommandHandler(
     }
 
     private suspend fun doStateTransition(text: String, userId: Long) {
-        val childInfo = childInfoService.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
-        val currentState = childActivityService.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
+        val childInfo = childInfoRepo.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
+        val currentState = childActivityRepo.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
         val resultState = stateTransitionHelper.getResultState(currentState, text)
 
         if (resultState != null) {

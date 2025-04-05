@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.childcarebot.state
 
 import com.nikichxp.tgbot.childcarebot.*
-import com.nikichxp.tgbot.childcarebot.logic.ChildActivityService
-import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionHelper
+import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
+import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import jakarta.annotation.PostConstruct
@@ -14,8 +14,8 @@ import java.time.LocalDateTime
 
 @Service
 class UpdateSleepTimeService(
-    private val childActivityService: ChildActivityService,
-    private val childStateTransitionHelper: ChildStateTransitionHelper,
+    private val childActivityRepo: ChildActivityRepo,
+    private val childStateTransitionProvider: ChildStateTransitionProvider,
     private val tgOperations: TgOperations,
 ) : ApplicationListener<ChildActivityEventMessage> {
 
@@ -25,7 +25,7 @@ class UpdateSleepTimeService(
 
     @PostConstruct
     fun findLastEvents() {
-        val addKids = childActivityService.getAllChildrenThatHasEvents()
+        val addKids = childActivityRepo.getAllChildrenThatHasEvents()
 
         addKids.forEach { loadChild(it) }
     }
@@ -35,7 +35,7 @@ class UpdateSleepTimeService(
         runBlocking {
             trackingEntities.forEach { (_, eventState) ->
                 val statusMessage = StringBuilder()
-                    .append(childStateTransitionHelper.getStateText(eventState.activity))
+                    .append(childStateTransitionProvider.getStateText(eventState.activity))
                     .append(" (")
                     .append(getDurationStringBetween(eventState.date, LocalDateTime.now()))
                     .append(')')
@@ -58,7 +58,7 @@ class UpdateSleepTimeService(
     }
 
     private fun loadChild(childId: Long) {
-        val event = childActivityService.getLastEvent(childId) ?: return
+        val event = childActivityRepo.getLastEvent(childId) ?: return
         trackingEntities[event.childId] = event
     }
 

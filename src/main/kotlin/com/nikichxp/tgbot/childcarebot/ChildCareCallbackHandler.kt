@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.nikichxp.tgbot.childcarebot.logic.ChildInfoService
+import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
@@ -15,14 +15,14 @@ import org.springframework.stereotype.Service
 @Service
 class ChildCareCallbackHandler(
     private val tgOperations: TgOperations,
-    private val childInfoService: ChildInfoService,
+    private val childInfoRepo: ChildInfoRepo,
     private val childReportHelper: ChildReportHelper,
 ) : Authenticable, CallbackHandler {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override suspend fun authenticate(update: Update): Boolean {
-        val child = childInfoService.findChildByParent(update.getContextUserId()!!)
+        val child = childInfoRepo.findChildByParent(update.getContextUserId()!!)
 
         if (child == null) {
             logger.warn("No user found for child: user id = ${update.getContextUserId()}")

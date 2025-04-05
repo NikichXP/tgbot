@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.nikichxp.tgbot.childcarebot.logic.ChildInfoService
+import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class ChildParentsCommandHandler(
-    private val childInfoService: ChildInfoService,
+    private val childInfoRepo: ChildInfoRepo,
     private val tgOperations: TgOperations
 ) : CommandHandler, Authenticable {
 
@@ -22,7 +22,7 @@ class ChildParentsCommandHandler(
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     override suspend fun authenticate(update: Update): Boolean {
-        val child = childInfoService.findChildByParent(update.getContextUserId()!!)
+        val child = childInfoRepo.findChildByParent(update.getContextUserId()!!)
 
         if (child == null) {
             logger.warn("No user found for child: user id = ${update.getContextUserId()}")
@@ -45,7 +45,7 @@ class ChildParentsCommandHandler(
         val childId = args[0].toLong()
         val parentId = args[1].toLong()
 
-        childInfoService.updateById(childId) {
+        childInfoRepo.updateById(childId) {
             it.parents += parentId
         }
         tgOperations.sendMessage {
@@ -66,7 +66,7 @@ class ChildParentsCommandHandler(
         val childId = args[0].toLong()
         val parentId = args[1].toLong()
 
-        childInfoService.updateById(childId) {
+        childInfoRepo.updateById(childId) {
             it.parents -= parentId
         }
         tgOperations.sendMessage {
@@ -85,7 +85,7 @@ class ChildParentsCommandHandler(
             return
         }
         val childId = args[0].toLong()
-        val child = childInfoService.findChildById(childId) ?: notFound(childId)
+        val child = childInfoRepo.findChildById(childId) ?: notFound(childId)
         tgOperations.sendMessage {
             replyToCurrentMessage()
             text = "Parents: ${child.parents.joinToString()}"

@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Service
 
 @Service
-class ChildInfoService(
+class ChildInfoRepo(
     private val mongoTemplate: MongoTemplate
 ) {
 

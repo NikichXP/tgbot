@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionHelper
+import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.core.service.tgapi.TgButton
 import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgKeyboard
@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 
-abstract class ChildKeyboardProviderService {
+abstract class ChildKeyboardProvider {
 
     @Autowired
-    lateinit var stateTransitionHelper: ChildStateTransitionHelper
+    lateinit var stateTransitionHelper: ChildStateTransitionProvider
 
     abstract fun getKeyboardForState(state: ChildActivity): TgReplyMarkup
 
@@ -24,7 +24,7 @@ abstract class ChildKeyboardProviderService {
 
 @Service
 @Primary
-class ReplyKeyboardProviderService : ChildKeyboardProviderService() {
+class ReplyKeyboardProvider : ChildKeyboardProvider() {
 
     override fun getKeyboardForState(state: ChildActivity): TgKeyboard = TgKeyboard(
         keyboard = listOf(
@@ -35,7 +35,7 @@ class ReplyKeyboardProviderService : ChildKeyboardProviderService() {
 }
 
 @Service
-class InlineKeyboardProviderService : ChildKeyboardProviderService() {
+class InlineKeyboardProvider : ChildKeyboardProvider() {
 
     override fun getKeyboardForState(state: ChildActivity): TgInlineKeyboard {
         TODO("Not yet implemented")

@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.childcarebot.state
 
 import com.nikichxp.tgbot.childcarebot.*
-import com.nikichxp.tgbot.childcarebot.logic.ChildActivityService
-import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionHelper
+import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
+import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service
 @Service
 class StateTransitionService(
     private val tgOperations: TgOperations,
-    private val childActivityService: ChildActivityService,
-    private val stateTransitionHelper: ChildStateTransitionHelper,
+    private val childActivityRepo: ChildActivityRepo,
+    private val stateTransitionHelper: ChildStateTransitionProvider,
     private val transitionHandlers: List<StateTransitionHandler>,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
@@ -27,7 +27,7 @@ class StateTransitionService(
         destinationState: ChildActivity,
         text: String,
     ) {
-        val event = childActivityService.addActivity(childInfo.id, destinationState)
+        val event = childActivityRepo.addActivity(childInfo.id, destinationState)
         val resultKeyboard = stateTransitionHelper.getPossibleTransitions(destinationState).map { it.value }
 
         for (parentId in childInfo.parents) {
@@ -38,7 +38,7 @@ class StateTransitionService(
                 withKeyboard(listOf(resultKeyboard))
                 withCallback {
                     if (it.ok) {
-                        childActivityService.addMessageToEvent(
+                        childActivityRepo.addMessageToEvent(
                             event.id,
                             chatId = it.result!!.chat.id,
                             messageId = it.result.messageId

@@ -16,8 +16,8 @@ import java.util.LinkedList
 @Service
 class ChildReportHelper(
     private val tgOperations: TgOperations,
-    private val childInfoService: ChildInfoService,
-    private val childActivityService: ChildActivityService,
+    private val childInfoRepo: ChildInfoRepo,
+    private val childActivityRepo: ChildActivityRepo,
     private val appStorage: AppStorage
 ) {
 
@@ -27,7 +27,7 @@ class ChildReportHelper(
 
         val child = getChild(callbackContext)
         val startDate = LocalDateTime.now().minusDays(7)
-        val activities = childActivityService.getActivitiesSince(child.id, startDate)
+        val activities = childActivityRepo.getActivitiesSince(child.id, startDate)
             .map {
                 it.copy(
                     date = convertDate(it.date, hostTimeZone, userTimeZone)
@@ -86,7 +86,7 @@ class ChildReportHelper(
 
     private fun getChild(callbackContext: CallbackContext): ChildInfo {
         val userId = callbackContext.userId
-        return childInfoService.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
+        return childInfoRepo.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
     }
 
     companion object {
