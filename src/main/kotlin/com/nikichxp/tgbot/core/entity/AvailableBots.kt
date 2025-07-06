@@ -34,7 +34,7 @@ class TgBotProvider(
     }
 
     fun getBotInfo(bot: TgBot): BotInfo? {
-        return botMap.getOrPut(bot) { CachedBotInfo(computeBotInfo(bot)!!) }.botInfo
+        return computeBotInfo(bot)//botMap.getOrPut(bot) { CachedBotInfo(computeBotInfo(bot)!!) }.botInfo
     }
 
     fun getInitializedBots(): List<BotInfo> {
