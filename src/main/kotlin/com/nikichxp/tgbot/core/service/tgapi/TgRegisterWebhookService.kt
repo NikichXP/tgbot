@@ -10,7 +10,6 @@ import org.springframework.web.client.RestTemplate
 
 @Service
 class TgRegisterWebhookService(
-    private val restTemplate: RestTemplate,
     private val tgSetWebhookService: TgBotSetWebhookService,
     private val tgUpdatePollService: TgUpdatePollService,
     private val tgBotProvider: TgBotProvider,

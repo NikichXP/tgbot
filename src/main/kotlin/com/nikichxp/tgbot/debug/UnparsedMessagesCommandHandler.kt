@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.debug
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
@@ -23,6 +24,7 @@ class UnparsedMessagesCommandHandler(
     private val mongoTemplate: MongoTemplate,
     private val tgOperations: TgOperations,
     private val appConfig: AppConfig,
+    private val objectMapper: ObjectMapper,
     @Lazy private val messageEntryPoint: MessageEntryPoint
 ) : CommandHandler, Authenticable {
 
@@ -59,7 +61,7 @@ class UnparsedMessagesCommandHandler(
             delay(500)
             tgOperations.sendMessage {
                 replyToCurrentMessage()
-                text = unparsedMessage.toString()
+                text = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(unparsedMessage.content)
             }
         }
     }
