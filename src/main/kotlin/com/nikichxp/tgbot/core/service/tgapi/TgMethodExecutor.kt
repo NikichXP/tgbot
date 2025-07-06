@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.core.service.tgapi
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.entity.TgBotConfig
+import com.nikichxp.tgbot.core.entity.TgBotProvider
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -16,7 +16,7 @@ import org.springframework.web.client.postForEntity
 class TgMethodExecutor(
     private val objectMapper: ObjectMapper,
     private val restTemplate: RestTemplate,
-    private val tgBotConfig: TgBotConfig
+    private val tgBotProvider: TgBotProvider
 ) {
 
     private val logger = LoggerFactory.getLogger(TgMethodExecutor::class.java)
@@ -43,7 +43,7 @@ class TgMethodExecutor(
     }
 
     private fun apiFor(tgBot: TgBot): String {
-        return "https://api.telegram.org/bot${tgBotConfig.getBotInfo(tgBot)!!.token}"
+        return "https://api.telegram.org/bot${tgBotProvider.getBotInfo(tgBot)!!.token}"
     }
 
     companion object {

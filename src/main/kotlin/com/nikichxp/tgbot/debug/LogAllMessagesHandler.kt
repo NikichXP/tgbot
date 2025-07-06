@@ -25,10 +25,10 @@ class LogAllMessagesHandler(
     private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
+    override fun supportedBots(): Set<TgBot> = TgBot.values().toSet()
     override fun isBotSupported(tgBot: TgBot): Boolean = true
 
-    override fun getMarkers(): Set<UpdateMarker> = UpdateMarker.entries.toSet()
+    override fun getMarkers(): Set<UpdateMarker> = UpdateMarker.values().toSet()
 
     override suspend fun handleUpdate(update: Update) {
         val chatId = update.getContextChatId()

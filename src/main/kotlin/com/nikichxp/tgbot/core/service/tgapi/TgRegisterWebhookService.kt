@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.TgBotConfig
+import com.nikichxp.tgbot.core.entity.TgBotProvider
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -13,11 +13,11 @@ class TgRegisterWebhookService(
     private val restTemplate: RestTemplate,
     private val tgSetWebhookService: TgBotSetWebhookService,
     private val tgUpdatePollService: TgUpdatePollService,
-    private val tgBotConfig: TgBotConfig,
+    private val tgBotProvider: TgBotProvider,
     private val appConfig: AppConfig,
 ) {
 
-    private val bots = tgBotConfig.getInitializedBots()
+    private val bots = tgBotProvider.getInitializedBots()
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostConstruct

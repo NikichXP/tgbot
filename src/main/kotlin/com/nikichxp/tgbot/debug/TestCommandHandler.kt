@@ -15,7 +15,7 @@ class TestCommandHandler(
     private val tgOperations: TgOperations,
 ) : CommandHandler, CallbackHandler {
 
-    override fun supportedBots() = TgBot.entries.toSet()
+    override fun supportedBots() = TgBot.values().toSet()
 
     @HandleCommand("/ping")
     suspend fun processCommand(): Boolean {

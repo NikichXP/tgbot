@@ -16,7 +16,7 @@ class ChatCallbackHandler(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
+    override fun supportedBots(): Set<TgBot> = TgBot.values().toSet()
     override fun isBotSupported(tgBot: TgBot): Boolean = true
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_CALLBACK)

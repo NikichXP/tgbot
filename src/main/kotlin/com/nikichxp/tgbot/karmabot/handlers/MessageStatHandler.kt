@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.karmabot.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.entity.TgBotConfig
+import com.nikichxp.tgbot.core.entity.TgBotProvider
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -35,7 +35,7 @@ TODO
 @Component
 class MessageStatHandler(
     private val mongoTemplate: MongoTemplate,
-    private val tgBotConfig: TgBotConfig,
+    private val tgBotProvider: TgBotProvider,
     private val tgOperations: TgOperations
 ) : UpdateHandler {
 
