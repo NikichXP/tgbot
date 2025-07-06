@@ -1,7 +1,5 @@
 package com.nikichxp.tgbot.core.entity.bots
 
-import com.nikichxp.tgbot.core.config.AppConfig
-import jakarta.annotation.PostConstruct
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service

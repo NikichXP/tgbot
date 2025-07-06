@@ -6,7 +6,9 @@ import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.*
+import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
+import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
