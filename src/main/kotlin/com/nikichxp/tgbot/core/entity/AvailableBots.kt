@@ -6,11 +6,11 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
 
 enum class TgBot(val botName: String) {
     NIKICHBOT("nikichbot"), ALLMYSTUFFBOT("allmystuffbot"), SANTABOT("santabot"),
-    DEMOBOT("demobot"), CHILDTRACKERBOT("childtrackerbot")
+    DEMOBOT("demobot"),
+    CHILDTRACKERBOT("childtrackerbot")
 }
 
 data class BotInfo(
@@ -27,18 +27,18 @@ class TgBotProvider(
 
     private val botMap = ConcurrentHashMap<TgBot, CachedBotInfo>()
 
-    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
+    @Scheduled(cron = "0 * * * * *")
     fun cleanCache() {
         val now = LocalDateTime.now()
         botMap.entries.removeIf { it.value.expire.isBefore(now) }
     }
 
     fun getBotInfo(bot: TgBot): BotInfo? {
-        return computeBotInfo(bot)//botMap.getOrPut(bot) { CachedBotInfo(computeBotInfo(bot)!!) }.botInfo
+        return botMap.getOrPut(bot) { CachedBotInfo(computeBotInfo(bot)) }?.botInfo
     }
 
     fun getInitializedBots(): List<BotInfo> {
-        return TgBot.values().mapNotNull { getBotInfo(it) }
+        return TgBot.entries.mapNotNull { getBotInfo(it) }
     }
 
     private fun computeBotInfo(bot: TgBot): BotInfo? {
@@ -59,7 +59,7 @@ class TgBotProvider(
     }
 
     private data class CachedBotInfo(
-        val botInfo: BotInfo
+        val botInfo: BotInfo?
     ) {
         val expire: LocalDateTime = LocalDateTime.now().plusMinutes(5)
     }
