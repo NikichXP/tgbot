@@ -42,17 +42,14 @@ class TgBotProvider(
     }
 
     private fun computeBotInfo(bot: TgBot): BotInfo? {
-        val configKey = String.format(BOT_TEMPLATE, bot.name)
 
-        val token = appStorage.getOrPut(
-            configKey, when (bot) {
-                TgBot.NIKICHBOT -> appConfig.tokens.nikichBot
-                TgBot.ALLMYSTUFFBOT -> appConfig.tokens.allMyStuffBot
-                TgBot.SANTABOT -> appConfig.tokens.santaBot
-                TgBot.DEMOBOT -> appConfig.tokens.demoBot
-                TgBot.CHILDTRACKERBOT -> appConfig.tokens.childTrackerBot
-            } ?: return null
-        )
+        val token = when (bot) {
+            TgBot.NIKICHBOT -> appConfig.tokens.nikichBot
+            TgBot.ALLMYSTUFFBOT -> appConfig.tokens.allMyStuffBot
+            TgBot.SANTABOT -> appConfig.tokens.santaBot
+            TgBot.DEMOBOT -> appConfig.tokens.demoBot
+            TgBot.CHILDTRACKERBOT -> appConfig.tokens.childTrackerBot
+        } ?: return null
 
         return BotInfo(
             bot = bot,
