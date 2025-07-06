@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.ChatCommandsHandler
 import com.nikichxp.tgbot.core.handlers.commands.*
 import kotlinx.coroutines.runBlocking

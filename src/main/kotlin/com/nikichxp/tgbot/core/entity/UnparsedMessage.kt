@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.entity
 
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import org.bson.Document
 import org.springframework.data.mongodb.core.index.Indexed
 import java.time.LocalDateTime

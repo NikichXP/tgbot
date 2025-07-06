@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.tooling.TracerService
 import kotlinx.coroutines.coroutineScope

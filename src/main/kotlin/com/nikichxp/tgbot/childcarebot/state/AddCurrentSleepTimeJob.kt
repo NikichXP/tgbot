@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.childcarebot.state
 import com.nikichxp.tgbot.childcarebot.*
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking

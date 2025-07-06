@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

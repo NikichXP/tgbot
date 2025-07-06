@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.debug
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -25,7 +25,7 @@ class LogAllMessagesHandler(
     private val loggingToModeMap = mutableMapOf<Long, Boolean>()
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    override fun supportedBots(): Set<TgBot> = TgBot.values().toSet()
+    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
     override fun isBotSupported(tgBot: TgBot): Boolean = true
 
     override fun getMarkers(): Set<UpdateMarker> = UpdateMarker.values().toSet()

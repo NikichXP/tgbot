@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -15,7 +15,7 @@ class TestCommandHandler(
     private val tgOperations: TgOperations,
 ) : CommandHandler, CallbackHandler {
 
-    override fun supportedBots() = TgBot.values().toSet()
+    override fun supportedBots() = TgBot.entries.toSet()
 
     @HandleCommand("/ping")
     suspend fun processCommand(): Boolean {

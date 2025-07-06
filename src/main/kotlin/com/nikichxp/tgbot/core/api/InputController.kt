@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.api
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.error.NotAuthorizedException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.tooling.TracerService
@@ -19,7 +19,7 @@ class InputController(
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
-    private val botMap = TgBot.values().associateBy { it.botName }
+    private val botMap = TgBot.entries.associateBy { it.botName }
 
     @Bean
     fun router() = coRouter {

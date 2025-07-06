@@ -2,8 +2,8 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.entity.TgBot
-import com.nikichxp.tgbot.core.entity.TgBotProvider
+import com.nikichxp.tgbot.core.entity.bots.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBotProvider
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity

@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.BotInfo
+import com.nikichxp.tgbot.core.entity.bots.BotInfo
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import io.ktor.client.*
 import io.ktor.client.call.*

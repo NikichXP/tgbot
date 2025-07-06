@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.BotInfo
+import com.nikichxp.tgbot.core.entity.bots.BotInfo
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.forms.*

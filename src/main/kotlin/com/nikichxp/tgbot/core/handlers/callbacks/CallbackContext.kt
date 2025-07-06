@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.handlers.callbacks
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.util.getContextChatId
 
 data class CallbackContext(

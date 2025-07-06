@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerScanner
@@ -21,7 +21,7 @@ class ChatCommandsHandler(
         commandHandlerScanner.getHandlers().groupBy { it.command }
     }
 
-    override fun supportedBots(): Set<TgBot> = TgBot.values().toSet()
+    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
     override fun isBotSupported(tgBot: TgBot): Boolean = true
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)

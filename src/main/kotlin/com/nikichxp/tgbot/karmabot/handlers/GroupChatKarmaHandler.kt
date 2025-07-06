@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.dto.User
 import com.nikichxp.tgbot.core.entity.InteractionRole
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.UpdateMarker.HAS_TEXT
 import com.nikichxp.tgbot.core.entity.UpdateMarker.MESSAGE_IN_GROUP

@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.handlers
 
-import com.nikichxp.tgbot.core.entity.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBot
 
 interface BotSupportFeature {
 
