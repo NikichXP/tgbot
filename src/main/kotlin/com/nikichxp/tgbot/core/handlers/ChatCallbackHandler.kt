@@ -16,6 +16,8 @@ class ChatCallbackHandler(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
+    // TODO Do I need to have features like inline/callback?
+    override fun requiredFeatures() = setOf<String>()
     override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
     override fun isBotSupported(tgBot: TgBot): Boolean = true
 

@@ -51,6 +51,7 @@ class ChatCommandTest {
                 assertThat(args).isEqualTo(whatWeExpect.get())
             }
 
+            override fun requiredFeatures() = setOf<String>()
             override fun supportedBots(): Set<TgBot> = setOf(bot)
         }
 

@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
+import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
@@ -29,6 +30,8 @@ class UnparsedMessagesCommandHandler(
 ) : CommandHandler, Authenticable {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
+
+    override fun requiredFeatures() = setOf(Features.DEBUG)
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.NIKICHBOT)
 
