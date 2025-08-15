@@ -69,20 +69,20 @@ class UnparsedMessagesCommandHandler(
         }
     }
 
-    @HandleCommand("/reparse")
-    suspend fun reparseUnparsedMessages() {
-        val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
-        log.info("Re-parsing started. Task queue: ${unparsedMessages.size}")
-        for (unparsedMessage in unparsedMessages) {
-            mongoTemplate.remove(unparsedMessage)
-            messageEntryPoint.proceedRawData(unparsedMessage.content, unparsedMessage.bot)
-        }
-        val result = mongoTemplate.count<UnparsedMessage>()
-        log.info("Re-parsing finished. Unparsed messages left: $result")
-        tgOperations.sendMessage {
-            replyToCurrentMessage()
-            text = "Re-parsing finished. Unparsed messages left: $result/${unparsedMessages.size}"
-        }
-    }
+//    @HandleCommand("/reparse")
+//    suspend fun reparseUnparsedMessages() {
+//        val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
+//        log.info("Re-parsing started. Task queue: ${unparsedMessages.size}")
+//        for (unparsedMessage in unparsedMessages) {
+//            mongoTemplate.remove(unparsedMessage)
+//            messageEntryPoint.proceedRawData(unparsedMessage.content, unparsedMessage.bot)
+//        }
+//        val result = mongoTemplate.count<UnparsedMessage>()
+//        log.info("Re-parsing finished. Unparsed messages left: $result")
+//        tgOperations.sendMessage {
+//            replyToCurrentMessage()
+//            text = "Re-parsing finished. Unparsed messages left: $result/${unparsedMessages.size}"
+//        }
+//    }
 
 }
