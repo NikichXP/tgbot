@@ -5,6 +5,7 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.bots.TgBotProvider
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
+import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.UserFormatter
@@ -50,6 +51,14 @@ class MessageStatHandler(
             .forEach { reportInChat(it) }
     }
 
+    override fun requiredFeatures() = setOf(Features.KARMA)
+
+    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
+
+    override fun getMarkers(): Set<UpdateMarker> {
+        return setOf(UpdateMarker.MESSAGE_IN_GROUP)
+    }
+
     @Scheduled(fixedDelay = 10, timeUnit = TimeUnit.SECONDS)
     fun saveData() {
         mongoTemplate.save(userStat)
@@ -84,11 +93,7 @@ class MessageStatHandler(
         )
     }
 
-    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
-    override fun getMarkers(): Set<UpdateMarker> {
-        return setOf(UpdateMarker.MESSAGE_IN_GROUP)
-    }
 
     override suspend fun handleUpdate(update: Update) {
         val (userId, userName) = getIdAndName(update)

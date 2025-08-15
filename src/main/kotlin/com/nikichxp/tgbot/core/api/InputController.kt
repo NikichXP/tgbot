@@ -1,25 +1,22 @@
 package com.nikichxp.tgbot.core.api
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.error.NotAuthorizedException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
+import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.tooling.TracerService
 import org.bson.Document
-import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.*
 
 @Configuration
 class InputController(
+    private val tgBotV2Service: TgBotV2Service,
     private val messageEntryPoint: MessageEntryPoint,
     private val appConfig: AppConfig,
     private val tracerService: TracerService
 ) {
-
-    private val logger = LoggerFactory.getLogger(this.javaClass)
-    private val botMap = TgBot.entries.associateBy { it.botName }
 
     @Bean
     fun router() = coRouter {
@@ -27,13 +24,10 @@ class InputController(
             ServerResponse.ok().bodyValueAndAwait("ok")
         }
         POST("/handle/{bot}") {
-            val botToken = it.pathVariable("bot")
-            val botEntity = botMap[botToken] ?: run {
-                logger.error("Unknown bot handle command: $botToken")
-                throw IllegalArgumentException()
-            }
+            val botId = it.pathVariable("bot")
+            val botV2Entity = tgBotV2Service.getBotById(botId)
             val body = it.awaitBody<Document>()
-            messageEntryPoint.proceedRawData(body, botEntity)
+            messageEntryPoint.proceedRawData(body, botV2Entity)
             // TODO return ok only if one of handlers/all supported handlers processed the message
             ServerResponse.ok().bodyValueAndAwait("ok")
         }

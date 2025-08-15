@@ -5,6 +5,7 @@ import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
+import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
@@ -31,6 +32,8 @@ class ChildCareCallbackHandler(
 
         return true
     }
+
+    override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 

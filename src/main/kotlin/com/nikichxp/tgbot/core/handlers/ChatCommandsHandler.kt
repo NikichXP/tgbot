@@ -21,6 +21,8 @@ class ChatCommandsHandler(
         commandHandlerScanner.getHandlers().groupBy { it.command }
     }
 
+    override fun requiredFeatures() = setOf<String>()
+
     override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
     override fun isBotSupported(tgBot: TgBot): Boolean = true
 

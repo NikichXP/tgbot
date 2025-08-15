@@ -8,6 +8,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
+import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -29,6 +30,8 @@ class ChildCareCommandHandler(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
+
+    override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 
     override suspend fun authenticate(update: Update): Boolean {
         val child = childInfoRepo.findChildByParent(update.getContextUserId()!!)

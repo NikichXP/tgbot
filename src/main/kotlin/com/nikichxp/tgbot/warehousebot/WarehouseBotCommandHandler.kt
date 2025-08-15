@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.warehousebot
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBot
+import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
@@ -23,6 +24,7 @@ class WarehouseBotCommandHandler(
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.MESSAGE)
 
+    override fun requiredFeatures() = setOf(Features.WAREHOUSE)
     override fun supportedBots(): Set<TgBot> = setOf(TgBot.ALLMYSTUFFBOT)
 
     override fun canHandle(update: Update): Boolean {

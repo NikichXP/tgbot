@@ -21,7 +21,14 @@ class UpdateProcessor(
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     suspend fun proceedUpdate(updateContext: UpdateContext) {
-        val supportedHandlers = handlers.filter { isHandlerSupportedFor(updateContext, it) }
+        val supportedHandlers = handlers
+            .filter {
+                if (updateContext.tgBotV2 != null) {
+                    isHandlerSupportedForV2(updateContext, it)
+                } else {
+                    isHandlerSupportedFor(updateContext, it)
+                }
+            }
         if (supportedHandlers.isEmpty()) {
             throw IllegalArgumentException("No handler found for ${objectMapper.writeValueAsString(updateContext)}")
         }
@@ -48,6 +55,19 @@ class UpdateProcessor(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private suspend fun isHandlerSupportedForV2(context: UpdateContext, handler: UpdateHandler): Boolean {
+        val botInfo = context.tgBotV2 ?: return false
+        val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
+        val botSupported = botInfo.supportedFeatures.containsAll(handler.requiredFeatures())
+        val handlerAllows = handler.canHandle(context.update)
+        val isAuthenticated = if (handler is Authenticable) {
+            handler.authenticate(context.update)
+        } else {
+            true
+        }
+        return markerSupported && botSupported && handlerAllows && isAuthenticated
     }
 
     private suspend fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
