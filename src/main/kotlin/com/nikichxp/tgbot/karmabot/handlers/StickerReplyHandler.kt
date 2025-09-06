@@ -3,7 +3,6 @@ package com.nikichxp.tgbot.karmabot.handlers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
@@ -33,7 +32,6 @@ class StickerReplyHandler(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun requiredFeatures() = setOf(Features.KARMA)
-    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY, UpdateMarker.HAS_STICKER)
 
     override suspend fun handleUpdate(update: Update) {
@@ -80,7 +78,10 @@ class StickerReplyHandler(
             }
         }
 
-        tgOperations.sendToCurrentChat("I CAN SEE THE STICKER REACTION! The reaction is: $emoji")
+        tgOperations.sendMessage {
+            sendInCurrentChat()
+            text = "I CAN SEE THE STICKER REACTION! The reaction is: $emoji"
+        }
     }
 }
 

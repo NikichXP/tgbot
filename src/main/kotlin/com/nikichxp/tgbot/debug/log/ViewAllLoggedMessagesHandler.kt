@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.debug.log
 
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -20,8 +19,6 @@ class ViewAllLoggedMessagesHandler(
 ) : CommandHandler {
 
     override fun requiredFeatures() = setOf(Features.DEBUG)
-    override fun supportedBots(): Set<TgBot> = TgBot.entries.toSet()
-    override fun isBotSupported(tgBot: TgBot): Boolean = true
 
     @HandleCommand("/logging")
     suspend fun configureLogging(args: List<String>, update: Update): Boolean {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -16,7 +15,6 @@ import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.count
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.stereotype.Service
 
@@ -32,8 +30,6 @@ class UnparsedMessagesCommandHandler(
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     override fun requiredFeatures() = setOf(Features.DEBUG)
-
-    override fun supportedBots(): Set<TgBot> = setOf(TgBot.NIKICHBOT)
 
     override suspend fun authenticate(update: Update): Boolean {
         if (update.getContextChatId() != appConfig.adminId) {

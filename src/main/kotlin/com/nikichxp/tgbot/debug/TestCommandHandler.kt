@@ -1,7 +1,6 @@
 package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
@@ -19,8 +18,6 @@ class TestCommandHandler(
 ) : CommandHandler, CallbackHandler {
 
     override fun requiredFeatures() = setOf(Features.DEBUG)
-
-    override fun supportedBots() = TgBot.entries.toSet()
 
     @HandleCommand("/ping")
     suspend fun processCommand(): Boolean {
@@ -92,7 +89,7 @@ class TestCommandHandler(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,
-            bot = callbackContext.bot,
+            bot = callbackContext.botInfo,
             replyMarkup = TgInlineKeyboard.of(getKeys())
         )
         return true

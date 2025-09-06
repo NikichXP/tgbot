@@ -2,6 +2,8 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.BotInfo
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.service.TgBotV2Service
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.forms.*
@@ -13,23 +15,25 @@ import org.springframework.stereotype.Service
 @Service
 class TgBotSetWebhookService(
     private val client: HttpClient,
+    private val tgBotV2Service: TgBotV2Service,
     appConfig: AppConfig
 ) {
 
     private var webHookUrl = appConfig.webhook
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun register(botInfo: BotInfo): Boolean {
+    suspend fun register(botInfo: TgBotInfoV2): Boolean {
         val response = postCallWith(apiUrl(botInfo), mapOf("url" to "$webHookUrl/${botInfo.name}"))
         val status = response.status.value in 200..299
         logger.info(formatLog(botInfo, "Register state $status with message: ${response.body<String>()}"))
         return status
     }
 
-    private fun formatLog(botInfo: BotInfo, message: String): String = "Bot = ${botInfo.name}, message = $message"
+    private fun formatLog(botInfo: TgBotInfoV2, message: String): String = "Bot = ${botInfo.name}, message = $message"
 
-    private fun apiUrl(botInfo: BotInfo): String {
-        return "https://api.telegram.org/bot${botInfo.token}/setWebhook"
+    private fun apiUrl(botInfo: TgBotInfoV2): String {
+        val token = tgBotV2Service.getTokenById(botInfo.name)
+        return "https://api.telegram.org/bot$token/setWebhook"
     }
 
     private suspend fun postCallWith(url: String, args: Map<String, String>): HttpResponse {

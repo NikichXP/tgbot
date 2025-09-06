@@ -33,26 +33,26 @@ class UpdateSleepTimeService(
     }
 
 //    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.MINUTES)
-    fun jobItself() {
-        runBlocking {
-            trackingEntities.forEach { (_, eventState) ->
-                val statusMessage = StringBuilder()
-                    .append(childStateTransitionProvider.getStateText(eventState.activity))
-                    .append(" (")
-                    .append(getDurationStringBetween(eventState.date, LocalDateTime.now()))
-                    .append(')')
-                    .toString()
-                eventState.sentMessages.forEach { message ->
-                    tgOperations.updateMessageText(
-                        chatId = message.chatId,
-                        messageId = message.messageId,
-                        text = statusMessage,
-                        bot = TgBot.CHILDTRACKERBOT
-                    )
-                }
-            }
-        }
-    }
+//    fun jobItself() {  /// NOT USED
+//        runBlocking {
+//            trackingEntities.forEach { (_, eventState) ->
+//                val statusMessage = StringBuilder()
+//                    .append(childStateTransitionProvider.getStateText(eventState.activity))
+//                    .append(" (")
+//                    .append(getDurationStringBetween(eventState.date, LocalDateTime.now()))
+//                    .append(')')
+//                    .toString()
+//                eventState.sentMessages.forEach { message ->
+//                    tgOperations.updateMessageText(
+//                        chatId = message.chatId,
+//                        messageId = message.messageId,
+//                        text = statusMessage,
+//                        bot = TgBot.CHILDTRACKERBOT
+//                    )
+//                }
+//            }
+//        }
+//    }
 
     override fun onApplicationEvent(event: ChildActivityEventMessage) {
         logger.info("Update sleep time event listener for id: ${event.event.childId}")

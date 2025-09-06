@@ -6,7 +6,6 @@ import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.childcarebot.state.StateTransitionService
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -28,8 +27,6 @@ class ChildCareCommandHandler(
 ) : CommandHandler, UpdateHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
-
-    override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 

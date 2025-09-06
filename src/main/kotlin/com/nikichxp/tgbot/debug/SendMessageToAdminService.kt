@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBot
+import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service
 @Service
 class SendMessageToAdminService(
     private val tgOperations: TgOperations,
+    private val botV2Service: TgBotV2Service,
     private val appConfig: AppConfig
 ) {
 
@@ -22,7 +24,7 @@ class SendMessageToAdminService(
         }
 
         try {
-            tgOperations.sendMessage(TgBot.NIKICHBOT) {
+            tgOperations.sendMessage(botV2Service.getBotById(TgBot.NIKICHBOT.name)) {
                 chatId = adminId
                 text = message
             }

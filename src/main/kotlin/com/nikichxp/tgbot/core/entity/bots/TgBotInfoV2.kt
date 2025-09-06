@@ -1,13 +1,11 @@
 package com.nikichxp.tgbot.core.entity.bots
 
-import org.springframework.data.annotation.Id
-import org.springframework.data.mongodb.core.mapping.Document
+data class TgBotInfoV2(var name: String, var supportedFeatures: Set<String>) {
 
-@Document(collection = "tgBotInfo")
-data class TgBotInfoV2(@Id var name: String) {
+    constructor(bot: TgBotInfoV2Entity) : this(bot.name, bot.supportedFeatures)
 
-    lateinit var token: String
-
-    var supportedFeatures = setOf<String>()
+    fun getCorrespondingLegacyBot(): TgBot {
+        return TgBot.valueOf(name)
+    }
 
 }

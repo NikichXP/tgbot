@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.service.helper.ErrorService
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
@@ -33,9 +34,9 @@ class TgOperations(
 
     private suspend fun getCurrentUpdate(): Update = getCurrentUpdateContext().update
 
-    suspend fun deleteWebhook(tgBot: TgBot) {
-        tgMethodExecutor.execute(tgBot, "deleteWebhook", mapOf<String, Any>())
-    }
+//    suspend fun deleteWebhook(tgBot: TgBot) {
+//        tgMethodExecutor.execute(tgBot, "deleteWebhook", mapOf<String, Any>())
+//    }
 
     suspend fun sendMessage(
         chatId: Long,
@@ -51,17 +52,17 @@ class TgOperations(
     }
 
     suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
-        sendMessage(getCurrentUpdateContext().tgBot, messageDSL)
+        sendMessage(getCurrentUpdateContext().tgBotV2, messageDSL)
     }
 
-    suspend fun sendMessage(tgBot: TgBot, messageDSL: suspend TgSendMessage.() -> Unit) {
+    suspend fun sendMessage(tgBot: TgBotInfoV2, messageDSL: suspend TgSendMessage.() -> Unit) {
         val message = TgSendMessage.create(messageDSL)
         sendMessage(message, tgBot)
     }
 
     suspend fun sendMessage(
         message: TgSendMessage,
-        tgBot: TgBot,
+        tgBot: TgBotInfoV2,
     ) {
         val rawResponse = tgMethodExecutor.execute(tgBot, "sendMessage", message)
         val response = objectMapper.treeToValue(rawResponse.body, TgSentMessageResponse::class.java)
@@ -72,13 +73,6 @@ class TgOperations(
                 }
             }
         }
-    }
-
-    suspend fun sendToCurrentChat(text: String, replyMarkup: TgReplyMarkup? = null) {
-        val update = getCurrentUpdate()
-        update.getContextChatId()?.let {
-            sendMessage(it, text)
-        } ?: errorService.logAndReportError(logger, "Cannot send message reply to current chat: $text", update)
     }
 
     suspend fun replyToCurrentMessage(text: String, replyMarkup: TgReplyMarkup? = null) {
@@ -97,7 +91,7 @@ class TgOperations(
         chatId: Long,
         messageId: Long,
         text: String,
-        bot: TgBot,
+        bot: TgBotInfoV2,
         replyMarkup: TgReplyMarkup? = null,
     ) {
 

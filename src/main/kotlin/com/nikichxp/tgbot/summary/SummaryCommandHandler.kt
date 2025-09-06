@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.summary
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -23,7 +22,6 @@ class SummaryCommandHandler(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun requiredFeatures() = setOf(Features.SUMMARY)
-    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_GROUP)
 

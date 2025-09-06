@@ -2,7 +2,9 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.BotInfo
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
+import com.nikichxp.tgbot.core.service.TgBotV2Service
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -23,10 +25,9 @@ import java.util.concurrent.TimeUnit
 @Service
 class TgUpdatePollService(
     private val client: HttpClient,
+    private val tgBotV2Service: TgBotV2Service,
     @Lazy
     private val messageEntryPoint: MessageEntryPoint,
-    @Lazy
-    private val tgOperations: TgOperations,
     private val mongoTemplate: MongoTemplate
 ) {
 
@@ -36,25 +37,24 @@ class TgUpdatePollService(
     private val scope = CoroutineScope(dispatcher)
     private val activePollingBots = ConcurrentSet<PollingInfo>()
 
-    fun startPollingFor(botInfo: BotInfo) {
-        val lastKnownMessage = mongoTemplate.findById<BotLastKnownMessage>(botInfo.bot.name)
+    fun startPollingFor(botInfo: TgBotInfoV2) {
+        val lastKnownMessage = mongoTemplate.findById<BotLastKnownMessage>(botInfo.name)
         activePollingBots.add(PollingInfo(botInfo, lastKnownMessage?.updateId ?: 0))
         logger.info("Start update polling for bot ${botInfo.name}")
     }
 
     @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.SECONDS)
     fun pollData() {
-
-
         activePollingBots.map { info ->
             scope.launch {
+                val token = tgBotV2Service.getTokenById(info.bot.name)
                 val response =
-                    client.get("https://api.telegram.org/bot${info.bot.token}/getUpdates?offset=${info.lastUpdate}")
+                    client.get("https://api.telegram.org/bot$token/getUpdates?offset=${info.lastUpdate}")
                 when (response.status.value) {
                     in 200..299 -> {
                         val responseBody = response.body<TgResponse>()
                         for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
-                            messageEntryPoint.proceedUpdate(update, info.bot.bot)
+                            messageEntryPoint.proceedUpdate(update, info.bot)
                             val hasUpdated = info.process(update.updateId)
                             if (hasUpdated) {
                                 mongoTemplate.save(BotLastKnownMessage(info.bot.name, update.updateId))
@@ -83,7 +83,7 @@ data class TgResponse(
 )
 
 data class PollingInfo(
-    val bot: BotInfo,
+    val bot: TgBotInfoV2,
     var lastUpdate: Long = 0
 ) {
     // todo maybe consider using 2 structures?

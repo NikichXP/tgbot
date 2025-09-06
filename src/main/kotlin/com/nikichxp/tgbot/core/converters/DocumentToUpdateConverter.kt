@@ -5,7 +5,7 @@ import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
-import com.nikichxp.tgbot.core.entity.bots.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.util.diffWith
 import org.bson.Document
 import org.springframework.context.ApplicationEventPublisher
@@ -19,7 +19,7 @@ class DocumentToUpdateConverter(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
-    fun convert(body: Document, tgBot: TgBot): Update? {
+    fun convert(body: Document, tgBot: TgBotInfoV2): Update? {
         val source = body.toJson()
         try {
             val (update, diff) = parseUpdateAndGetDiff(source)

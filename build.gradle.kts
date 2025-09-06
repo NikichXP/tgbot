@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 val ktorVersion: String = "3.0.3"
-val kotlinVersion: String = "2.2.0"
+val kotlinVersion: String = "2.2.10"
 val coroutinesVersion: String = "1.10.1"
 
 val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
@@ -51,7 +51,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("com.github.wnameless.json:json-flattener:0.17.3")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+    }
 }
 
 dependencyManagement {

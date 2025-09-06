@@ -24,18 +24,17 @@ class MessageEntryPoint(
     suspend fun proceedRawData(body: Document, bot: TgBotInfoV2) {
         logger.info("Received message: $body")
         tracerService.logEvent(body)
-        val legacyBot = getBot(bot)
         try {
-            val update = converter.convert(body, legacyBot)
+            val update = converter.convert(body, bot)
                 ?: throw IllegalArgumentException("Cannot convert the message")
-            proceedUpdate(update, legacyBot)
+            proceedUpdate(update, bot)
         } catch (e: Exception) {
             // TODO think about error handling
             logger.error("Failed to process the message", e)
         }
     }
 
-    suspend fun proceedUpdate(update: Update, bot: TgBot) {
+    suspend fun proceedUpdate(update: Update, bot: TgBotInfoV2) {
         update.bot = bot
         val updateContext = UpdateContext(update, bot)
         coroutineScope {

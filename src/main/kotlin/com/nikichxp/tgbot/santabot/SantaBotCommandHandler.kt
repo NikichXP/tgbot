@@ -1,7 +1,6 @@
 package com.nikichxp.tgbot.santabot
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -24,7 +23,6 @@ class SantaBotCommandHandler(
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun requiredFeatures() = setOf(Features.SANTA)
-    override fun supportedBots() = setOf(TgBot.SANTABOT)
 
     @HandleCommand("/create")
     private suspend fun commandCreate(args: List<String>, update: Update): Boolean {

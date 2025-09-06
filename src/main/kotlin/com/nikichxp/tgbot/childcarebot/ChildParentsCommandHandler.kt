@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -19,8 +18,6 @@ class ChildParentsCommandHandler(
 ) : CommandHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
-
-    override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
 
     override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 

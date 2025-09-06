@@ -2,8 +2,8 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.entity.bots.TgBot
-import com.nikichxp.tgbot.core.entity.bots.TgBotProvider
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.service.TgBotV2Service
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -16,20 +16,20 @@ import org.springframework.web.client.postForEntity
 class TgMethodExecutor(
     private val objectMapper: ObjectMapper,
     private val restTemplate: RestTemplate,
-    private val tgBotProvider: TgBotProvider
+    private val tgBotV2Service: TgBotV2Service
 ) {
 
     private val logger = LoggerFactory.getLogger(TgMethodExecutor::class.java)
 
-    suspend fun execute(tgBot: TgBot, method: String, parameters: Any): ResponseEntity<JsonNode> {
+    suspend fun execute(tgBot: TgBotInfoV2, method: String, parameters: Any): ResponseEntity<JsonNode> {
         return execute(tgBot, method, parameters, 0)
     }
 
-    private suspend fun execute(tgBot: TgBot, method: String, parameters: Any, retryNumber: Int): ResponseEntity<JsonNode> {
+    private suspend fun execute(tgBot: TgBotInfoV2, method: String, parameters: Any, retryNumber: Int): ResponseEntity<JsonNode> {
         try {
             val body = objectMapper.valueToTree<JsonNode>(parameters)
             return restTemplate.postForEntity<JsonNode>(
-                "${apiFor(tgBot)}/$method",
+                "${apiFor(tgBot.name)}/$method",
                 request = body
             )
         } catch (tooManyRequests: TooManyRequests) {
@@ -42,8 +42,8 @@ class TgMethodExecutor(
         }
     }
 
-    private fun apiFor(tgBot: TgBot): String {
-        return "https://api.telegram.org/bot${tgBotProvider.getBotInfo(tgBot)!!.token}"
+    private fun apiFor(tgBotName: String): String {
+        return "https://api.telegram.org/bot${tgBotV2Service.getTokenById(tgBotName)}"
     }
 
     companion object {

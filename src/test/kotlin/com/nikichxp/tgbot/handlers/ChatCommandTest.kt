@@ -2,10 +2,12 @@ package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.TgBot
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.handlers.ChatCommandsHandler
 import com.nikichxp.tgbot.core.handlers.commands.*
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -43,7 +45,7 @@ class ChatCommandTest {
     fun `test how commands are parsed`(command: String, expectedArgs: List<String>) {
 
         whatWeExpect.set(expectedArgs)
-        val bot = TgBot.NIKICHBOT
+        val bot = mock<TgBotInfoV2>()
 
         class TestHandler : CommandHandler {
             @HandleCommand("/hello")
@@ -52,7 +54,6 @@ class ChatCommandTest {
             }
 
             override fun requiredFeatures() = setOf<String>()
-            override fun supportedBots(): Set<TgBot> = setOf(bot)
         }
 
         val update = mock<Update>(RETURNS_DEEP_STUBS)

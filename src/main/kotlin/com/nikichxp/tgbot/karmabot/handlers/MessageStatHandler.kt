@@ -2,8 +2,6 @@ package com.nikichxp.tgbot.karmabot.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.entity.bots.TgBot
-import com.nikichxp.tgbot.core.entity.bots.TgBotProvider
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -36,7 +34,6 @@ TODO
 @Component
 class MessageStatHandler(
     private val mongoTemplate: MongoTemplate,
-    private val tgBotProvider: TgBotProvider,
     private val tgOperations: TgOperations
 ) : UpdateHandler {
 
@@ -52,8 +49,6 @@ class MessageStatHandler(
     }
 
     override fun requiredFeatures() = setOf(Features.KARMA)
-
-    override fun supportedBots() = setOf(TgBot.NIKICHBOT)
 
     override fun getMarkers(): Set<UpdateMarker> {
         return setOf(UpdateMarker.MESSAGE_IN_GROUP)

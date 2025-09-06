@@ -35,10 +35,7 @@ class ChildCareCallbackHandler(
 
     override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 
-    override fun supportedBots(): Set<TgBot> = setOf(TgBot.CHILDTRACKERBOT)
-
-    override fun isCallbackSupported(callbackContext: CallbackContext): Boolean =
-        callbackContext.bot == TgBot.CHILDTRACKERBOT
+    override fun isCallbackSupported(callbackContext: CallbackContext): Boolean = true // TODO add filtering on command
 
     override suspend fun handleCallback(
         callbackContext: CallbackContext,

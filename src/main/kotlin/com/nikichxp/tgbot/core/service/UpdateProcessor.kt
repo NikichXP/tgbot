@@ -22,13 +22,7 @@ class UpdateProcessor(
 
     suspend fun proceedUpdate(updateContext: UpdateContext) {
         val supportedHandlers = handlers
-            .filter {
-                if (updateContext.tgBotV2 != null) {
-                    isHandlerSupportedForV2(updateContext, it)
-                } else {
-                    isHandlerSupportedFor(updateContext, it)
-                }
-            }
+            .filter { isHandlerSupportedForV2(updateContext, it) }
         if (supportedHandlers.isEmpty()) {
             throw IllegalArgumentException("No handler found for ${objectMapper.writeValueAsString(updateContext)}")
         }
@@ -70,17 +64,17 @@ class UpdateProcessor(
         return markerSupported && botSupported && handlerAllows && isAuthenticated
     }
 
-    private suspend fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
-        val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
-        val botSupported = handler.isBotSupported(context.tgBot)
-        val handlerAllows = handler.canHandle(context.update)
-        val isAuthenticated = if (handler is Authenticable) {
-            handler.authenticate(context.update)
-        } else {
-            true
-        }
-        return markerSupported && botSupported && handlerAllows && isAuthenticated
-    }
+//    private suspend fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
+//        val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
+//        val botSupported = handler.isBotSupported(context.tgBot)
+//        val handlerAllows = handler.canHandle(context.update)
+//        val isAuthenticated = if (handler is Authenticable) {
+//            handler.authenticate(context.update)
+//        } else {
+//            true
+//        }
+//        return markerSupported && botSupported && handlerAllows && isAuthenticated
+//    }
 
     data class UpdateProcessContext(
         val context: UpdateContext,

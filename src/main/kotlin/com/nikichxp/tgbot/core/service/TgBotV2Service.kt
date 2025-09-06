@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.findById
@@ -12,15 +13,20 @@ class TgBotV2Service(
 ) {
 
     fun getBotById(botId: String): TgBotInfoV2 {
-        return mongoTemplate.findById(botId) ?: throw IllegalArgumentException("Bot with id $botId not found")
+        return TgBotInfoV2(getBotEntityById(botId))
     }
 
     fun listBots(): List<TgBotInfoV2> {
-        return mongoTemplate.findAll()
+        return mongoTemplate.findAll<TgBotInfoV2Entity>().map { TgBotInfoV2(it) }
     }
 
     fun getTokenById(botId: String): String {
-        return mongoTemplate.findById<TgBotInfoV2>(botId)?.token ?: throw IllegalArgumentException("Bot with id $botId not found")
+        return getBotEntityById(botId).token
+    }
+
+    private fun getBotEntityById(botId: String): TgBotInfoV2Entity {
+        return mongoTemplate.findById<TgBotInfoV2Entity>(botId)
+            ?: throw IllegalArgumentException("Bot with id $botId not found")
     }
 
 }
