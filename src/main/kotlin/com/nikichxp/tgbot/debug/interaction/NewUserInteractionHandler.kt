@@ -31,9 +31,9 @@ class NewUserInteractionHandler(
             return
         }
 
-        val interactionHappenedBefore = userInteractionService.registerUserInteraction(userId, botName)
+        val newInteraction = userInteractionService.registerUserInteraction(userId, botName)
 
-        if (!interactionHappenedBefore) {
+        if (newInteraction) {
             val involvedParties = update.getContextInvolvedParties().asSequence()
                 .map { pair -> "${pair.key}:${pair.value}" }
                 .reduce { a, b -> "$a | $b" }
