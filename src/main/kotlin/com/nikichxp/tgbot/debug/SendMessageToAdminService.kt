@@ -16,15 +16,15 @@ class SendMessageToAdminService(
 
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    var adminId: Long = appConfig.adminId
-
     suspend fun sendMessage(message: String) {
+        val adminId: Long = appConfig.adminId
+
         if (adminId == 0L) {
             return
         }
 
         try {
-            tgOperations.sendMessage(botV2Service.getBotById(TgBot.NIKICHBOT.name)) {
+            tgOperations.sendMessage(botV2Service.getAdminBot()) {
                 chatId = adminId
                 text = message
             }

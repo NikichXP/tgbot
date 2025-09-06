@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.service.helper.ErrorService
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
@@ -18,7 +19,8 @@ import org.springframework.stereotype.Service
 class TgOperations(
     private val tgMethodExecutor: TgMethodExecutor,
     private val errorService: ErrorService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val tgBotService: TgBotV2Service
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

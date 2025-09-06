@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.service
 
+import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -9,8 +10,13 @@ import org.springframework.stereotype.Service
 
 @Service
 class TgBotV2Service(
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
+    private val appConfig: AppConfig
 ) {
+
+    fun getAdminBot(): TgBotInfoV2 {
+        return appConfig.adminBot?.let { getBotById(it) } ?: throw IllegalStateException("Admin bot is not configured")
+    }
 
     fun getBotById(botId: String): TgBotInfoV2 {
         return TgBotInfoV2(getBotEntityById(botId))

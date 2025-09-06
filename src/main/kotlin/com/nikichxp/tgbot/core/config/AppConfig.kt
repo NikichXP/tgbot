@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "app")
 open class AppConfig(
     var adminId: Long,
+    var adminBot: String?,
     var webhook: String,
     var localEnv: Boolean,
     var tokens: Tokens,

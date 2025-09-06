@@ -27,6 +27,34 @@ fun Update.getContextUserId(): UserId? = this.getMentionedMessage()?.from?.id
 fun Update.getContextUserName(): String? = this.getMentionedMessage()?.from?.username
 
 @JsonIgnore
+fun Update.getContextInvolvedParties(): Map<String, String> {
+    val mentionedMessage = this.getMentionedMessage() ?: return mapOf()
+    val result = mutableMapOf<String, String>()
+    mentionedMessage.from?.let {
+        result["from.id"] = it.id.toString()
+        it.username?.let { username -> result["from.username"] = username }
+        result["from.fullName"] = listOfNotNull(it.firstName, it.lastName).joinToString(" ")
+    }
+    mentionedMessage.replyToMessage?.from?.let {
+        result["replyTo.id"] = it.id.toString()
+        it.username?.let { username -> result["replyTo.username"] = username }
+        result["replyTo.fullName"] = listOfNotNull(it.firstName, it.lastName).joinToString(" ")
+    }
+    mentionedMessage.replyToMessage?.let {
+        result["replyTo.messageId"] = it.messageId.toString()
+        result["replyTo.text"] = it.text ?: ""
+        result["replyTo.chatId"] = it.chat.id.toString()
+        result["replyTo.chatType"] = it.chat.type
+        result["replyTo.chatTitle"] = it.chat.title ?:
+        listOfNotNull(it.chat.firstName, it.chat.lastName).joinToString(" ")
+    }
+    mentionedMessage.text?.let {
+        result["message.text"] = it
+    }
+    return result
+}
+
+@JsonIgnore
 fun Update.getMentionedMessage(): Message? {
     return this.message
         ?: this.editedMessage
