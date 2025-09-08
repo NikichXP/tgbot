@@ -5,7 +5,7 @@ import java.util.Date
 
 val ktorVersion: String = "3.0.3"
 val kotlinVersion: String = "2.2.10"
-val coroutinesVersion: String = "1.10.1"
+val coroutinesVersion: String = "1.10.2"
 
 val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
 val versionName: String = if (project.hasProperty("version")) project.version.toString() else "unknown"
