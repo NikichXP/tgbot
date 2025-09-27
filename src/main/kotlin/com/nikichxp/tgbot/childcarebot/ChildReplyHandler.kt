@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Service
 import java.time.LocalTime
 
@@ -23,15 +24,30 @@ class ChildReplyHandler(
         val text = update.message?.text ?: return
         val time = try {
             getTimeFrom(text)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return
         }
 
+        val (chatId, messageId) = update.message.replyToMessage?.let { it.chat.id to it.messageId }
+            ?: return replyWithMessage("Debug - Cannot find replied message")
+
+        val activityEvent = childActivityRepo.getActivityByMessageId(chatId, messageId)
+            ?: return replyWithMessage("Debug - Cannot find activity for message $messageId in chat $chatId")
+
+        changeEventTime(activityEvent.id, time)
+
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            this.text = "Time set to $time"
+            this.text = "Time updated: $time"
         }
 
+    }
+
+    private suspend fun replyWithMessage(text: String) {
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            this.text = text
+        }
     }
 
     private fun changeEventTime(eventId: ChildEventId, newTime: LocalTime) {
