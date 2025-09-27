@@ -28,6 +28,8 @@ class ChildCareCommandHandler(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
+    private val requireStateTransferResponse = false
+
     override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 
     override suspend fun authenticate(update: Update): Boolean {
@@ -107,7 +109,7 @@ class ChildCareCommandHandler(
 
         if (resultState != null) {
             stateTransitionService.performStateTransition(childInfo, currentState, resultState, text)
-        } else {
+        } else if (requireStateTransferResponse) {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 this.text = "Result state is unreachable"
