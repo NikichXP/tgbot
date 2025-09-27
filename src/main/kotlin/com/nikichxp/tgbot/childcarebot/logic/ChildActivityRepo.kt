@@ -26,13 +26,24 @@ class ChildActivityRepo(
         return mongoTemplate.find(Query.query(Criteria.where(ChildActivityEvent::childId.name).`is`(childId)));
     }
 
+    fun getActivityByMessageId(chatId: Long, messageId: Long): ChildActivityEvent? {
+        return mongoTemplate.findOne(
+            Query.query(
+                Criteria.where(ChildActivityEvent::sentMessages.name).elemMatch(
+                    Criteria.where("chatId").`is`(chatId)
+                        .and("messageId").`is`(messageId)
+                )
+            )
+        )
+    }
+
     fun getActivitiesSince(childId: Long, startDate: LocalDateTime): List<ChildActivityEvent> {
         return mongoTemplate.find(
             Query.query(
                 Criteria.where(ChildActivityEvent::childId.name).`is`(childId)
                     .and(ChildActivityEvent::date.name).gte(startDate)
             )
-        );
+        )
     }
 
     fun getLastEvent(childId: Long): ChildActivityEvent? {
@@ -59,6 +70,12 @@ class ChildActivityRepo(
 
     fun getAllChildrenThatHasEvents(): Collection<Long> {
         return mongoTemplate.findDistinct<Long, ChildActivityEvent>(Query(), "childId")
+    }
+
+    fun updateEvent(eventId: ChildEventId, updateAction: (ChildActivityEvent) -> Unit) {
+        val event = mongoTemplate.findById<ChildActivityEvent>(eventId) ?: return
+        updateAction(event)
+        mongoTemplate.save(event)
     }
 
 }
