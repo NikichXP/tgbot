@@ -27,7 +27,7 @@ typealias ChildEventId = ObjectId
 data class ChildActivityEvent(
     val childId: Long,
     val activity: ChildActivity,
-    val date: LocalDateTime
+    var date: LocalDateTime
 ) {
     lateinit var id: ChildEventId
 
