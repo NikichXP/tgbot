@@ -52,7 +52,7 @@ class UpdateProcessor(
     }
 
     private suspend fun isHandlerSupportedForV2(context: UpdateContext, handler: UpdateHandler): Boolean {
-        val botInfo = context.tgBotV2 ?: return false
+        val botInfo = context.tgBotV2
         val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
         val botSupported = botInfo.supportedFeatures.containsAll(handler.requiredFeatures())
         val handlerAllows = handler.canHandle(context.update)
@@ -63,18 +63,6 @@ class UpdateProcessor(
         }
         return markerSupported && botSupported && handlerAllows && isAuthenticated
     }
-
-//    private suspend fun isHandlerSupportedFor(context: UpdateContext, handler: UpdateHandler): Boolean {
-//        val markerSupported = handler.getMarkers().all { context.update.getMarkers().contains(it) }
-//        val botSupported = handler.isBotSupported(context.tgBot)
-//        val handlerAllows = handler.canHandle(context.update)
-//        val isAuthenticated = if (handler is Authenticable) {
-//            handler.authenticate(context.update)
-//        } else {
-//            true
-//        }
-//        return markerSupported && botSupported && handlerAllows && isAuthenticated
-//    }
 
     data class UpdateProcessContext(
         val context: UpdateContext,
