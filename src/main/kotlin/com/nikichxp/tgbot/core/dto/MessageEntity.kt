@@ -43,6 +43,8 @@ data class MessageEntity(
         @JsonProperty("text_link")
         TEXT_LINK,
         @JsonProperty("text_mention")
-        TEXT_MENTION
+        TEXT_MENTION,
+        @JsonProperty("custom_emoji")
+        CUSTOM_EMOJI
     }
 }
