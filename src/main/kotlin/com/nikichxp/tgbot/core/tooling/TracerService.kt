@@ -7,10 +7,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.bson.Document
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
-import org.springframework.data.mongodb.core.index.Index
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.concurrent.TimeUnit
 
@@ -23,14 +22,17 @@ class TracerService(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
     private var storingEnabled = appConfig.tracer.store
-    private var indexTTL = appConfig.tracer.ttl
+    private var entriesTTL = appConfig.tracer.ttl
+    private var capacity = appConfig.tracer.capacity
 
     @PostConstruct
     fun createIndexes() {
-        logger.info("Logger status = $storingEnabled; TTL = $indexTTL")
-        mongoTemplate
-            .indexOps(EventTrace::class.java)
-            .ensureIndex(Index().on("time", Sort.Direction.ASC).expire(indexTTL, TimeUnit.HOURS))
+        logger.info("Logger status = $storingEnabled; TTL = $entriesTTL/capacity = $capacity")
+    }
+
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.HOURS)
+    fun removeOutdated() {
+        // nothing here so far
     }
 
     fun list() = mongoTemplate.findAll<EventTrace>().sortedByDescending { it.time }
