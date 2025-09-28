@@ -10,5 +10,6 @@ object Features {
     const val SUMMARY = "summary"
     const val STATS = "stats"
     const val WAREHOUSE = "warehouse"
+    const val SHITPOSTING = "shitposting"
 
 }
