@@ -1,21 +1,20 @@
 package com.nikichxp.tgbot.core.converters
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.wnameless.json.flattener.JsonFlattener
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.util.JsonFlattenerService
 import com.nikichxp.tgbot.core.util.diffWith
 import org.bson.Document
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 
 @Service
 class DocumentToUpdateConverter(
     private val objectMapper: ObjectMapper,
-    private val mongoTemplate: MongoTemplate,
+    private val jsonFlattenerService: JsonFlattenerService,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
@@ -39,8 +38,9 @@ class DocumentToUpdateConverter(
         val update = objectMapper.readValue(source, Update::class.java)
         val control = objectMapper.writeValueAsString(update)
 
-        val flatSrc = JsonFlattener.flattenAsMap(source)
-        val flatCtr = JsonFlattener.flattenAsMap(control)
+        val flatSrc = jsonFlattenerService.toJsonAndFlatten(update)
+        val flatCtr = jsonFlattenerService.parseJsonAndFlatten(control)
+
         return update to flatSrc.keys.diffWith(flatCtr.keys)
     }
 
