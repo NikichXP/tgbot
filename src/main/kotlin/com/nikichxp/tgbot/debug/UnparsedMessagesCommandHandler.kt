@@ -41,7 +41,7 @@ class UnparsedMessagesCommandHandler(
     }
 
     @HandleCommand("/unparsed")
-    suspend fun listUnparsedMessages() {
+    suspend fun listUnparsedMessages(): Boolean {
         val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
 
         if (unparsedMessages.isEmpty()) {
@@ -49,7 +49,7 @@ class UnparsedMessagesCommandHandler(
                 replyToCurrentMessage()
                 text = "No unparsed messages"
             }
-            return
+            return true
         }
 
         tgOperations.sendMessage {
@@ -64,10 +64,12 @@ class UnparsedMessagesCommandHandler(
                 text = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(unparsedMessage.content)
             }
         }
+
+        return true
     }
 
     @HandleCommand("/reparse")
-    suspend fun reparseUnparsedMessages() {
+    suspend fun reparseUnparsedMessages(): Boolean {
         val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
         log.info("Re-parsing started. Task queue: ${unparsedMessages.size}")
         tgOperations.sendMessage {
@@ -86,6 +88,8 @@ class UnparsedMessagesCommandHandler(
             replyToCurrentMessage()
             text = "Re-parsing finished. Unparsed messages left: $result/${unparsedMessages.size}"
         }
+
+        return true
     }
 
 }
