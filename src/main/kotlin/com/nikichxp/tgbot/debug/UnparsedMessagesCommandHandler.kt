@@ -70,6 +70,7 @@ class UnparsedMessagesCommandHandler(
 
     @HandleCommand("/reparse")
     suspend fun reparseUnparsedMessages(): Boolean {
+        log.info("Loading unparsed messages....")
         val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
         log.info("Re-parsing started. Task queue: ${unparsedMessages.size}")
         tgOperations.sendMessage {
