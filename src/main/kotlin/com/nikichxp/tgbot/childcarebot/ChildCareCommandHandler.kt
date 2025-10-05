@@ -28,7 +28,7 @@ class ChildCareCommandHandler(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val requireStateTransferResponse = false
+    private val logWrongStateResponse = true
 
     override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 
@@ -87,19 +87,15 @@ class ChildCareCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
 
     override suspend fun handleUpdate(update: Update) {
-
-        logger.info("Handle update in child care command handler")
         val text = update.message?.text
 
         if (text == null) {
-            logger.info("text is null")
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 this.text = "No command found"
             }
             return
         } else if (text.startsWith("/")) {
-            logger.info("command found - return")
             return
         }
 
@@ -107,21 +103,20 @@ class ChildCareCommandHandler(
     }
 
     private suspend fun doStateTransition(text: String, userId: Long) {
-        logger.info("State transition found")
         val childInfo = childInfoRepo.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
-        logger.info("Child info found")
         val currentState = childActivityRepo.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
-        logger.info("Current state: $currentState")
         val resultState = stateTransitionHelper.getResultState(currentState, text)
-        logger.info("Result state: $resultState")
-        
+
         if (resultState != null) {
             stateTransitionService.performStateTransition(childInfo, currentState, resultState, text)
-        } else if (requireStateTransferResponse) {
+        } else if (logWrongStateResponse) {
+            logger.warn("Result state is unreachable, sending message to user, text = $text")
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 this.text = "Result state is unreachable"
             }
+        } else {
+            logger.info("Result state is unreachable, logger disabled, text = $text")
         }
     }
 
