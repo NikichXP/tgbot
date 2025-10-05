@@ -87,6 +87,8 @@ class ChildCareCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
 
     override suspend fun handleUpdate(update: Update) {
+
+        logger.info("Handle update in child care command handler")
         val text = update.message?.text
 
         if (text == null) {
