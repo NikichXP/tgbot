@@ -92,12 +92,14 @@ class ChildCareCommandHandler(
         val text = update.message?.text
 
         if (text == null) {
+            logger.info("text is null")
             tgOperations.sendMessage {
                 replyToCurrentMessage()
                 this.text = "No command found"
             }
             return
         } else if (text.startsWith("/")) {
+            logger.info("command found - return")
             return
         }
 
@@ -105,10 +107,14 @@ class ChildCareCommandHandler(
     }
 
     private suspend fun doStateTransition(text: String, userId: Long) {
+        logger.info("State transition found")
         val childInfo = childInfoRepo.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
+        logger.info("Child info found")
         val currentState = childActivityRepo.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
+        logger.info("Current state: $currentState")
         val resultState = stateTransitionHelper.getResultState(currentState, text)
-
+        logger.info("Result state: $resultState")
+        
         if (resultState != null) {
             stateTransitionService.performStateTransition(childInfo, currentState, resultState, text)
         } else if (requireStateTransferResponse) {
