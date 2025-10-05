@@ -15,6 +15,7 @@ import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.getContextUserId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.format.DateTimeFormatter
 
 @Service
 class ChildCareCommandHandler(
@@ -81,6 +82,23 @@ class ChildCareCommandHandler(
                     listOf("5m >" to "plus-5-min")
                 )
             )
+        }
+    }
+
+    @HandleCommand("/debugevents")
+    suspend fun getLastEvents(update: Update) {
+        val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
+            ?: throw IllegalStateException("Child not found")
+
+        val lastEvents = childActivityRepo.getLastEvents(childInfo.id, 10)
+
+        val events = lastEvents.joinToString("\n") { 
+            "${it.date.format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))}: ${stateTransitionHelper.getStateText(it.state)}"
+        }
+
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = "Last events:\n$events"
         }
     }
 
