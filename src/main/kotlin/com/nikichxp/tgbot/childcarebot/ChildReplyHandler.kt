@@ -29,9 +29,11 @@ class ChildReplyHandler(
             text.matches(TIME_PATTERN.toRegex()) -> {
                 updateEventTimeByProvidedTime(text, update.message)
             }
+
             text.matches(TIME_DIFF_PATTERN.toRegex()) -> {
                 updateEventTimeByDiffShift(text, update.message)
             }
+
             else -> return
         }
 
@@ -61,7 +63,7 @@ class ChildReplyHandler(
     private suspend fun updateEventTimeByDiffShift(diff: String, message: Message) {
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "This pattern is not yet fixed"
+            text = "This pattern is not yet implemented"
         }
         TODO()
     }
@@ -87,7 +89,7 @@ class ChildReplyHandler(
     }
 
     companion object {
-        private const val TIME_PATTERN = "HH:mm"
-        private const val TIME_DIFF_PATTERN = "(-|[+])\\d+(min|h|m|hour|hours)"
+        const val TIME_PATTERN = "\\d{1,2}:\\d{2}"
+        const val TIME_DIFF_PATTERN = "(-|[+])\\d+(min|h|m|hour|hours)"
     }
 }
