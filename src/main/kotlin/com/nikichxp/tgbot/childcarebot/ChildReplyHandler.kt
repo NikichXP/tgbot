@@ -72,7 +72,7 @@ class ChildReplyHandler(
         val timeAmount: Long
         val timeUnit: ChronoUnit
 
-        val regex = """^([-+]?)(\d+)\s?(min|h|m|hour|hours)$""".toRegex()
+        val regex = TIME_DIFF_PATTERN.toRegex()
         val matchResult = regex.find(diff) ?: let {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
@@ -126,6 +126,6 @@ class ChildReplyHandler(
 
     companion object {
         const val TIME_PATTERN = "\\d{1,2}:\\d{2}"
-        const val TIME_DIFF_PATTERN = "(-|[+])\\d+(min|h|m|hour|hours)"
+        const val TIME_DIFF_PATTERN = """^([-+]?)(\d+)\s*(min|h|m|hour|hours)$"""
     }
 }
