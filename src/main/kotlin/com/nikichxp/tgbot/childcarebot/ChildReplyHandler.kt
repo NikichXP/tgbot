@@ -10,6 +10,7 @@ import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.springframework.stereotype.Service
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 
 @Service
 class ChildReplyHandler(
@@ -61,11 +62,44 @@ class ChildReplyHandler(
     }
 
     private suspend fun updateEventTimeByDiffShift(diff: String, message: Message) {
+        val (chatId, messageId) = message.replyToMessage?.let { it.chat.id to it.messageId }
+            ?: return replyWithMessage("Debug - Cannot find replied message")
+
+        val activityEvent = childActivityRepo.getActivityByMessageId(chatId, messageId)
+            ?: return replyWithMessage("Debug - Cannot find activity for message $messageId in chat $chatId")
+
+        val timeAmount: Long
+        val timeUnit: ChronoUnit
+
+        val regex = """^([-+]?)(\d+)(min|h|m|hour|hours)$""".toRegex()
+        val matchResult = regex.find(diff) ?: let {
+            tgOperations.sendMessage {
+                replyToCurrentMessage()
+                text = "Cannot find data in match result"
+            }
+            return
+        }
+        val sign = matchResult.groupValues[1].let { if (it == "-") -1 else 1 }
+        val amount = matchResult.groupValues[2].toLong()
+        val unit = when (matchResult.groupValues[3]) {
+            "min" -> ChronoUnit.MINUTES
+            "h" -> ChronoUnit.HOURS
+            "hour" -> ChronoUnit.HOURS
+            "hours" -> ChronoUnit.HOURS
+            else -> throw IllegalArgumentException("Unknown unit: ${matchResult.groupValues[3]}")
+        }
+        timeAmount = amount * sign
+        timeUnit = unit
+
+        childActivityRepo.updateEvent(activityEvent.id) {
+            it.date = it.date.plus(timeAmount, timeUnit)
+        }
+
+
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "This pattern is not yet implemented"
+            text = "Edited time: ${activityEvent.date}"
         }
-        TODO()
     }
 
     private suspend fun replyWithMessage(text: String) {
