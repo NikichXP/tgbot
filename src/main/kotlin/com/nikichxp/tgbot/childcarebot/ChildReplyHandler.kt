@@ -9,6 +9,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
@@ -71,7 +72,7 @@ class ChildReplyHandler(
         val timeAmount: Long
         val timeUnit: ChronoUnit
 
-        val regex = """^([-+]?)(\d+)(min|h|m|hour|hours)$""".toRegex()
+        val regex = """^([-+]?)(\d+)\s?(min|h|m|hour|hours)$""".toRegex()
         val matchResult = regex.find(diff) ?: let {
             tgOperations.sendMessage {
                 replyToCurrentMessage()
@@ -90,15 +91,16 @@ class ChildReplyHandler(
         }
         timeAmount = amount * sign
         timeUnit = unit
+        var resultDateTime: LocalDateTime? = null
 
         childActivityRepo.updateEvent(activityEvent.id) {
-            it.date = it.date.plus(timeAmount, timeUnit)
+            resultDateTime = it.date.plus(timeAmount, timeUnit)
+            it.date = resultDateTime
         }
-
 
         tgOperations.sendMessage {
             replyToCurrentMessage()
-            text = "Edited time: ${activityEvent.date}"
+            text = "Edited time: ${childTimezoneService.fromDBToUI(resultDateTime!!)}"
         }
     }
 
