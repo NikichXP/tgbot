@@ -44,6 +44,8 @@ class ChildCareCommandHandler(
         return true
     }
 
+    override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND, UpdateMarker.IS_NOT_REPLY)
+
     @HandleCommand("/status")
     suspend fun status(update: Update) {
         val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
@@ -92,7 +94,7 @@ class ChildCareCommandHandler(
 
         val lastEvents = childActivityRepo.getLastEvents(childInfo.id, 10)
 
-        val events = lastEvents.joinToString("\n") { 
+        val events = lastEvents.joinToString("\n") {
             "${it.date.format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))}: ${stateTransitionHelper.getStateText(it.state)}"
         }
 
@@ -101,8 +103,6 @@ class ChildCareCommandHandler(
             text = "Last events:\n$events"
         }
     }
-
-    override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND)
 
     override suspend fun handleUpdate(update: Update) {
         val text = update.message?.text

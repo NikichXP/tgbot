@@ -5,7 +5,7 @@ import java.util.function.Function
 
 enum class UpdateMarker(val predicate: Function<Update, Any?>) {
 
-    ALL({true}),
+    ALL({ true }),
     MESSAGE_IN_GROUP({ it.message?.chat?.id?.let { i -> i < 0 } }),
     MESSAGE_IN_CHAT({ it.message?.chat?.id?.let { i -> i > 0 } }),
     MESSAGE({ it.message }),
@@ -15,6 +15,7 @@ enum class UpdateMarker(val predicate: Function<Update, Any?>) {
     IS_NOT_COMMAND({ it.message?.text?.startsWith("/")?.not() }),
 
     REPLY({ it.message?.replyToMessage }),
+    IS_NOT_REPLY({ it.message?.replyToMessage == null }),
     HAS_TEXT({ it.message?.text }),
     HAS_STICKER({ it.message?.sticker }),
     HAS_CALLBACK({ it.callbackQuery }),
