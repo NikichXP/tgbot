@@ -35,6 +35,9 @@ class ChildReplyHandler(
             text.matches(TIME_DIFF_PATTERN.toRegex()) -> {
                 updateEventTimeByDiffShift(text, update.message)
             }
+            text.matches(ISO_DURATION_PATTERN.toRegex()) -> {
+                updateEventTimeByIsoDuration(text, update.message)
+            }
 
             else -> return
         }
@@ -123,9 +126,35 @@ class ChildReplyHandler(
     private fun getTimeFrom(text: String): LocalTime {
         return LocalTime.parse(text)
     }
+    
+    private suspend fun updateEventTimeByIsoDuration(durationStr: String, message: Message) {
+        val (chatId, messageId) = message.replyToMessage?.let { it.chat.id to it.messageId }
+            ?: return replyWithMessage("Debug - Cannot find replied message")
+
+        val activityEvent = childActivityRepo.getActivityByMessageId(chatId, messageId)
+            ?: return replyWithMessage("Debug - Cannot find activity for message $messageId in chat $chatId")
+
+        val duration = try {
+            java.time.Duration.parse(durationStr)
+        } catch (e: Exception) {
+            return replyWithMessage("Invalid duration format. Use ISO 8601 format like PT1H30M")
+        }
+
+        var resultDateTime: LocalDateTime? = null
+        childActivityRepo.updateEvent(activityEvent.id) {
+            resultDateTime = it.date.plus(duration)
+            it.date = resultDateTime!!
+        }
+
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = "Edited time: ${childTimezoneService.fromDBToUI(resultDateTime!!)}"
+        }
+    }
 
     companion object {
         const val TIME_PATTERN = "\\d{1,2}:\\d{2}"
         const val TIME_DIFF_PATTERN = """^([-+]?)(\d+)\s*(min|h|m|hour|hours)$"""
+        const val ISO_DURATION_PATTERN = """^[+-]?PT?(?:\d+H\d*M?|\d+M)$"""
     }
 }
