@@ -8,8 +8,6 @@ import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.AppStorage
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -18,19 +16,17 @@ class ChildReportHelper(
     private val tgOperations: TgOperations,
     private val childInfoRepo: ChildInfoRepo,
     private val childActivityRepo: ChildActivityRepo,
+    private val childTimezoneService: ChildTimezoneService,
     private val appStorage: AppStorage
 ) {
 
     suspend fun sleepReport(callbackContext: CallbackContext) {
-        val hostTimeZone = appStorage.getOrPut("timezone.child.host", "UTC+2")
-        val userTimeZone = appStorage.getOrPut("timezone.child.user", "UTC+1")
-
         val child = getChild(callbackContext)
         val startDate = LocalDateTime.now().minusDays(7)
         val activities = childActivityRepo.getActivitiesSince(child.id, startDate)
             .map {
                 it.copy(
-                    date = convertDate(it.date, hostTimeZone, userTimeZone)
+                    date = childTimezoneService.fromDBToUI(it.date)
                         .withSecond(0)
                         .withNano(0)
                 )
@@ -41,8 +37,9 @@ class ChildReportHelper(
 
         val sleeps = mutableListOf<Pair<LocalDateTime, LocalDateTime?>>()
 
-        val now = ZonedDateTime.now().withSecond(0).withNano(0)
-            .withZoneSameInstant(ZoneId.of(userTimeZone)).toLocalDateTime()
+        val now = childTimezoneService.nowInUI()
+            .withSecond(0)
+            .withNano(0)
 
         activities.forEachIndexed { index, activity ->
             if (activity.activity == ChildActivity.SLEEP) {
@@ -64,13 +61,6 @@ class ChildReportHelper(
             }
 
         tgOperations.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
-    }
-
-    private fun convertDate(date: LocalDateTime, from: String, to: String): LocalDateTime {
-        return date
-            .atZone(ZoneId.of(from))
-            .withZoneSameInstant(ZoneId.of(to))
-            .toLocalDateTime()
     }
 
     private fun formatSleep(from: LocalDateTime, to: LocalDateTime): String {
