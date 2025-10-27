@@ -2,9 +2,11 @@ package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
+import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.childcarebot.state.StateTransitionService
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
@@ -23,6 +25,7 @@ class ChildCareCommandHandler(
     private val childActivityRepo: ChildActivityRepo,
     private val stateTransitionHelper: ChildStateTransitionProvider,
     private val childInfoRepo: ChildInfoRepo,
+    private val childReportHelper: ChildReportHelper,
     private val stateTransitionService: StateTransitionService,
     private val childKeyboardProvider: ChildKeyboardProvider,
 ) : CommandHandler, UpdateHandler, Authenticable {
@@ -70,6 +73,15 @@ class ChildCareCommandHandler(
                     listOf("График сна" to "sleep-schedule")
                 )
             )
+        }
+    }
+
+    @HandleCommand("/sleep-report")
+    suspend fun sleepReport(updateContext: UpdateContext) {
+        val result = childReportHelper.generateSleepReport(updateContext)
+        tgOperations.sendMessage {
+            replyToCurrentMessage()
+            text = result.joinToString("\n")
         }
     }
 
