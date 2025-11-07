@@ -3,13 +3,16 @@ package com.nikichxp.tgbot.childcarebot.logic
 import com.nikichxp.tgbot.childcarebot.ChildActivity
 import com.nikichxp.tgbot.childcarebot.ChildInfo
 import com.nikichxp.tgbot.childcarebot.getDurationStringBetween
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import com.nikichxp.tgbot.core.util.AppStorage
+import com.nikichxp.tgbot.core.util.getContextUserId
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.collections.joinToString
 
 @Service
 class ChildReportHelper(
@@ -22,6 +25,16 @@ class ChildReportHelper(
 
     suspend fun sleepReport(callbackContext: CallbackContext) {
         val child = getChild(callbackContext)
+        val result = generateSleepReport(child)
+        tgOperations.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
+    }
+
+    suspend fun generateSleepReport(updateContext: UpdateContext): List<String> {
+        val child = getChild(updateContext)
+        return generateSleepReport(child)
+    }
+
+    suspend fun generateSleepReport(child: ChildInfo): List<String> {
         val startDate = LocalDateTime.now().minusDays(7)
         val activities = childActivityRepo.getActivitiesSince(child.id, startDate)
             .map {
@@ -60,7 +73,7 @@ class ChildReportHelper(
                 result.add(line)
             }
 
-        tgOperations.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
+        return result
     }
 
     private fun formatSleep(from: LocalDateTime, to: LocalDateTime): String {
@@ -72,6 +85,11 @@ class ChildReportHelper(
 
     suspend fun feedingReport(callbackContext: CallbackContext) {
         tgOperations.replyToCurrentMessage("not implemented yet")
+    }
+
+    private fun getChild(updateContext: UpdateContext): ChildInfo {
+        val userId = updateContext.update.getContextUserId() ?: throw IllegalStateException("Cannot find user in update!")
+        return childInfoRepo.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
     }
 
     private fun getChild(callbackContext: CallbackContext): ChildInfo {
