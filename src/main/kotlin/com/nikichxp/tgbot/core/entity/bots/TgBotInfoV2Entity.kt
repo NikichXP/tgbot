@@ -9,5 +9,4 @@ data class TgBotInfoV2Entity(@Id var name: String) {
     lateinit var token: String
 
     var supportedFeatures = setOf<String>()
-
 }

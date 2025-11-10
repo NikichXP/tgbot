@@ -3,7 +3,6 @@ package com.nikichxp.tgbot.core.service
 import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.tooling.TracerService
 import kotlinx.coroutines.coroutineScope
@@ -42,12 +41,6 @@ class MessageEntryPoint(
                 updateProcessor.proceedUpdate(updateContext)
             }
         }
-    }
-
-    @Deprecated("Remove that later")
-    private fun getBot(bot: TgBotInfoV2): TgBot {
-        return TgBot.entries.firstOrNull { it.botName == bot.name }
-            ?: throw IllegalArgumentException("Unknown bot: ${bot.name}")
     }
 
 }

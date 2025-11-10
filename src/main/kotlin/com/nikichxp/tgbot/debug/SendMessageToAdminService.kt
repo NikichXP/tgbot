@@ -1,7 +1,6 @@
 package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.TgOperations
 import org.slf4j.LoggerFactory
@@ -29,7 +28,7 @@ class SendMessageToAdminService(
                 text = message
             }
         } catch (e: Exception) {
-            log.warn("Failed to send version update message to bot ${TgBot.NIKICHBOT}", e)
+            log.warn("Failed to send version update message to admin", e)
         }
 
     }

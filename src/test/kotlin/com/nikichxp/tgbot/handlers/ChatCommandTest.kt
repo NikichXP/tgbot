@@ -1,17 +1,21 @@
 package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.handlers.ChatCommandsHandler
-import com.nikichxp.tgbot.core.handlers.commands.*
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
+import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerScanner
+import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
+import com.nikichxp.tgbot.core.handlers.commands.SingleCommandHandler
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mockito.*
+import org.mockito.Mockito.RETURNS_DEEP_STUBS
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean

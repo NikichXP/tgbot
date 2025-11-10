@@ -6,7 +6,6 @@ import com.nikichxp.tgbot.core.dto.payments.PreCheckoutQuery
 import com.nikichxp.tgbot.core.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.core.dto.polls.Poll
 import com.nikichxp.tgbot.core.dto.polls.PollAnswer
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import org.springframework.data.annotation.Id
 

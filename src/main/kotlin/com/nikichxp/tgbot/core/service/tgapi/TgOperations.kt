@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.entity.bots.TgBot
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.service.helper.ErrorService
