@@ -15,7 +15,6 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.data.mongodb.core.MongoTemplate
-import org.springframework.data.mongodb.core.findById
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
@@ -27,7 +26,8 @@ class TgUpdatePollService(
     private val tgBotV2Service: TgBotV2Service,
     @Lazy
     private val messageEntryPoint: MessageEntryPoint,
-    private val mongoTemplate: MongoTemplate
+    private val mongoTemplate: MongoTemplate,
+    private val tgLastKnownMessageService: TgLastKnownMessageService
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -37,8 +37,8 @@ class TgUpdatePollService(
     private val activePollingBots = ConcurrentSet<PollingInfo>()
 
     fun startPollingFor(botInfo: TgBotInfoV2) {
-        val lastKnownMessage = mongoTemplate.findById<BotLastKnownMessage>(botInfo.name)
-        activePollingBots.add(PollingInfo(botInfo, lastKnownMessage?.updateId ?: 0))
+        val lastKnownMessage = tgLastKnownMessageService.getLastKnownMessage(botInfo)
+        activePollingBots.add(PollingInfo(botInfo, lastKnownMessage.updateId))
         logger.info("Start update polling for bot ${botInfo.name}")
     }
 
@@ -54,10 +54,7 @@ class TgUpdatePollService(
                         val responseBody = response.body<TgResponse>()
                         for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
                             messageEntryPoint.proceedUpdate(update, info.bot)
-                            val hasUpdated = info.process(update.updateId)
-                            if (hasUpdated) {
-                                mongoTemplate.save(BotLastKnownMessage(info.bot.name, update.updateId))
-                            }
+                            info.process(update.updateId)
                         }
                     }
 
@@ -73,8 +70,6 @@ class TgUpdatePollService(
         }.map { runBlocking { it.join() } }
     }
 }
-
-data class BotLastKnownMessage(var id: String, var updateId: Long)
 
 data class TgResponse(
     val ok: Boolean,

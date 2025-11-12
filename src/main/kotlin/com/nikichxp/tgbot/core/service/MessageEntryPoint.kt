@@ -4,8 +4,10 @@ import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.service.tgapi.TgLastKnownMessageService
 import com.nikichxp.tgbot.core.tooling.TracerService
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.bson.Document
 import org.slf4j.LoggerFactory
@@ -15,7 +17,8 @@ import org.springframework.stereotype.Service
 class MessageEntryPoint(
     private val converter: DocumentToUpdateConverter,
     private val updateProcessor: UpdateProcessor,
-    private val tracerService: TracerService
+    private val tracerService: TracerService,
+    private val tgLastKnownMessageService: TgLastKnownMessageService
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -39,6 +42,9 @@ class MessageEntryPoint(
         coroutineScope {
             withContext(this.coroutineContext + updateContext) {
                 updateProcessor.proceedUpdate(updateContext)
+            }
+            launch {
+                tgLastKnownMessageService.updateLastKnownMessage(bot, update.updateId)
             }
         }
     }
