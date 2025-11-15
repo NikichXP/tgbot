@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.TgBotV2Service
@@ -17,7 +16,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.util.*
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 @Service
@@ -34,27 +33,27 @@ class TgUpdatePollService(
 
     private val dispatcher = Dispatchers.IO
     private val scope = CoroutineScope(dispatcher)
-    private val activePollingBots = ConcurrentSet<PollingInfo>()
+    private val activePollingInfo = ConcurrentSet<PollingInfo>()
 
     fun startPollingFor(botInfo: TgBotInfoV2) {
         val lastKnownMessage = tgLastKnownMessageService.getLastKnownMessage(botInfo)
-        activePollingBots.add(PollingInfo(botInfo, lastKnownMessage.updateId))
-        logger.info("Start update polling for bot ${botInfo.name}")
+        val pollingInfo = mapToPollingInfo(botInfo, lastKnownMessage)
+        activePollingInfo.add(pollingInfo)
+        logger.info("Start update polling: $pollingInfo")
     }
 
-    @Scheduled(fixedDelay = 1, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.SECONDS)
     fun pollData() {
-        activePollingBots.map { info ->
+        activePollingInfo.map { info ->
             scope.launch {
-                val token = tgBotV2Service.getTokenById(info.bot.name)
-                val response =
-                    client.get("https://api.telegram.org/bot$token/getUpdates?offset=${info.lastUpdate}")
+                val url = getUpdatesUrl(info)
+                val response = client.get(url)
                 when (response.status.value) {
                     in 200..299 -> {
                         val responseBody = response.body<TgResponse>()
                         for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
                             messageEntryPoint.proceedUpdate(update, info.bot)
-                            info.process(update.updateId)
+                            info.onProcess(update.updateId)
                         }
                     }
 
@@ -63,39 +62,27 @@ class TgUpdatePollService(
                     }
 
                     else -> {
-                        // todo logger of errors with limited rate
+                        logger.warn("Failed to fetch updates for ${info.bot.name}, unexpected error ${response.status.value}")
                     }
                 }
             }
         }.map { runBlocking { it.join() } }
     }
-}
 
-data class TgResponse(
-    val ok: Boolean,
-    val result: List<Update>
-)
 
-data class PollingInfo(
-    val bot: TgBotInfoV2,
-    var lastUpdate: Long = 0
-) {
-    // todo maybe consider using 2 structures?
-    private val processedUpdates = LinkedList<Long>()
-
-    fun shouldBeProcessed(updateId: Long): Boolean {
-        return !processedUpdates.contains(updateId)
+    private fun mapToPollingInfo(botInfo: TgBotInfoV2, lastKnownMessage: BotLastKnownMessage): PollingInfo {
+        val token = tgBotV2Service.getTokenById(botInfo.name)
+        return PollingInfo(botInfo, lastKnownMessage.updateId, lastKnownMessage.date)
+            .also { it.token = token }
     }
 
-    fun process(updateId: Long): Boolean {
-        processedUpdates.add(updateId)
-        while (processedUpdates.size > 1_000) {
-            processedUpdates.poll()
+    private fun getUpdatesUrl(pollingInfo: PollingInfo): String {
+        val updateSeq = if (LocalDateTime.now().isBefore(pollingInfo.lastUpdateExpiryDate)) {
+            "?offset=${pollingInfo.lastUpdate}"
+        } else {
+            ""
         }
-        if (updateId > lastUpdate) {
-            lastUpdate = updateId
-            return true
-        }
-        return false
+        return "https://api.telegram.org/bot${pollingInfo.token}/getUpdates$updateSeq"
     }
+
 }
