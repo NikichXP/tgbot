@@ -1,3 +1,5 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
-data class BotLastKnownMessage(var id: String, var updateId: Long)
+import java.time.LocalDateTime
+
+data class BotLastKnownMessage(var id: String, var updateId: Long, var date: LocalDateTime = LocalDateTime.now())
