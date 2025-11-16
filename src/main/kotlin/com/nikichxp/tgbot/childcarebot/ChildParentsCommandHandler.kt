@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.getContextUserId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 @Service
 class ChildParentsCommandHandler(
     private val childInfoRepo: ChildInfoRepo,
-    private val tgOperations: TgOperations
+    private val tgMessageService: TgMessageService
 ) : CommandHandler, Authenticable {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -35,7 +35,7 @@ class ChildParentsCommandHandler(
     @HandleCommand("/addparent")
     suspend fun addParent(args: List<String>) {
         if (args.size != 2) {
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /addparent <child_id> <parent_id>"
             }
@@ -48,7 +48,7 @@ class ChildParentsCommandHandler(
         childInfoRepo.updateById(childId) {
             it.parents += parentId
         }
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Parent added"
         }
@@ -57,7 +57,7 @@ class ChildParentsCommandHandler(
     @HandleCommand("/removeparent")
     suspend fun removeParent(args: List<String>) {
         if (args.size != 2) {
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /removeparent <child_id> <parent_id>"
             }
@@ -69,7 +69,7 @@ class ChildParentsCommandHandler(
         childInfoRepo.updateById(childId) {
             it.parents -= parentId
         }
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Parent removed"
         }
@@ -78,7 +78,7 @@ class ChildParentsCommandHandler(
     @HandleCommand("/listparents")
     suspend fun listParents(args: List<String>) {
         if (args.size != 1) {
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 text = "Usage: /listparents <child_id>, got: ${args.joinToString(", ")}"
             }
@@ -86,7 +86,7 @@ class ChildParentsCommandHandler(
         }
         val childId = args[0].toLong()
         val child = childInfoRepo.findChildById(childId) ?: notFound(childId)
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Parents: ${child.parents.joinToString()}"
         }
@@ -94,7 +94,7 @@ class ChildParentsCommandHandler(
 
     private suspend fun <T> notFound(message: Any? = null): T {
         val errorMessage = "Child not found" + (message?.let { ": $it." } ?: ".")
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = errorMessage
         }

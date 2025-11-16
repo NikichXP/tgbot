@@ -5,13 +5,13 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import org.springframework.stereotype.Service
 
 @Service
 class WarehouseBotCommandHandler(
     private val warehouseService: WarehouseService,
-    private val tgOperations: TgOperations
+    private val tgMessageService: TgMessageService
 ) : CommandHandler, UpdateHandler {
 
     private val commands = mapOf<String, suspend (Update, List<String>) -> Unit>(
@@ -48,7 +48,7 @@ class WarehouseBotCommandHandler(
 //    ).contains(command)
 
     private suspend fun renderText(update: Update, supplier: suspend () -> List<String>) {
-        tgOperations.replyToCurrentMessage(supplier().joinToString("\n"))
+        tgMessageService.replyToCurrentMessage(supplier().joinToString("\n"))
     }
 
 }

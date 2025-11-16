@@ -7,7 +7,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit
 class ChildReplyHandler(
     private val childActivityRepo: ChildActivityRepo,
     private val childTimezoneService: ChildTimezoneService,
-    private val tgOperations: TgOperations
+    private val tgMessageService: TgMessageService
 ) : UpdateHandler {
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY)
@@ -59,7 +59,7 @@ class ChildReplyHandler(
 
         changeEventTime(activityEvent.id, rawTime)
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             this.text = "Time updated: $rawTime"
         }
@@ -77,7 +77,7 @@ class ChildReplyHandler(
 
         val regex = TIME_DIFF_PATTERN.toRegex()
         val matchResult = regex.find(diff) ?: let {
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 text = "Cannot find data in match result"
             }
@@ -101,14 +101,14 @@ class ChildReplyHandler(
             it.date = resultDateTime
         }
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Edited time: ${childTimezoneService.fromDBToUI(resultDateTime!!)}"
         }
     }
 
     private suspend fun replyWithMessage(text: String) {
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             this.text = text
         }
@@ -146,7 +146,7 @@ class ChildReplyHandler(
             it.date = resultDateTime!!
         }
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Edited time: ${childTimezoneService.fromDBToUI(resultDateTime!!)}"
         }

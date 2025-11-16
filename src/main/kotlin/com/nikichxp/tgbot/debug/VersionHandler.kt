@@ -3,12 +3,12 @@ package com.nikichxp.tgbot.debug
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import org.springframework.stereotype.Component
 
 @Component
 class VersionHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val versionProvider: VersionProvider
 ) : CommandHandler {
 
@@ -17,7 +17,7 @@ class VersionHandler(
     // TODO add other commands, make it array
     @HandleCommand("/version")
     suspend fun processCommand(): Boolean {
-        tgOperations.replyToCurrentMessage("version: ${versionProvider.appVersion}")
+        tgMessageService.replyToCurrentMessage("version: ${versionProvider.appVersion}")
         return true
     }
 

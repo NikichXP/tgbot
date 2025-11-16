@@ -13,7 +13,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.getContextUserId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 
 @Service
 class ChildCareCommandHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val childActivityRepo: ChildActivityRepo,
     private val stateTransitionHelper: ChildStateTransitionProvider,
     private val childInfoRepo: ChildInfoRepo,
@@ -56,7 +56,7 @@ class ChildCareCommandHandler(
         val lastState = childActivityRepo.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
         val keyboard = childKeyboardProvider.getKeyboardForState(lastState)
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Active state: ${stateTransitionHelper.getStateText(lastState)}"
             withKeyboard(keyboard)
@@ -65,7 +65,7 @@ class ChildCareCommandHandler(
 
     @HandleCommand("/report")
     suspend fun report() {
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Выберите отчет"
             withInlineKeyboard(
@@ -79,7 +79,7 @@ class ChildCareCommandHandler(
     @HandleCommand("/sleep-report")
     suspend fun sleepReport(updateContext: UpdateContext) {
         val result = childReportHelper.generateSleepReport(updateContext)
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = result.joinToString("\n")
         }
@@ -87,7 +87,7 @@ class ChildCareCommandHandler(
 
     @HandleCommand("/ctest")
     suspend fun ctest() {
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "ctest"
             withInlineKeyboard(
@@ -110,7 +110,7 @@ class ChildCareCommandHandler(
             "${it.date.format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))}: ${stateTransitionHelper.getStateText(it.state)}"
         }
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Last events:\n$events"
         }
@@ -120,7 +120,7 @@ class ChildCareCommandHandler(
         val text = update.message?.text
 
         if (text == null) {
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 this.text = "No command found"
             }
@@ -141,7 +141,7 @@ class ChildCareCommandHandler(
             stateTransitionService.performStateTransition(childInfo, currentState, resultState, text)
         } else if (logWrongStateResponse) {
             logger.warn("Result state is unreachable, sending message to user, text = $text")
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 this.text = "Result state is unreachable"
             }

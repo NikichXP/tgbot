@@ -7,27 +7,27 @@ import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
 @Component
 class TestCommandHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
 ) : CommandHandler, CallbackHandler {
 
     override fun requiredFeatures() = setOf(Features.DEBUG)
 
     @HandleCommand("/ping")
     suspend fun processCommand(): Boolean {
-        tgOperations.replyToCurrentMessage("pong!")
+        tgMessageService.replyToCurrentMessage("pong!")
         return true
     }
 
     @HandleCommand("/myid")
     suspend fun myId(update: Update) {
-        tgOperations.replyToCurrentMessage("Your id is ${update.getContextChatId()}")
+        tgMessageService.replyToCurrentMessage("Your id is ${update.getContextChatId()}")
     }
 
     @HandleCommand("/removekeys")
@@ -38,7 +38,7 @@ class TestCommandHandler(
             removeKeyboard()
         }
 
-        tgOperations.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, update.bot)
         return true
     }
 
@@ -50,7 +50,7 @@ class TestCommandHandler(
             withInlineKeyboard(getKeys())
         }
 
-        tgOperations.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, update.bot)
         return true
     }
 
@@ -73,7 +73,7 @@ class TestCommandHandler(
             )
         }
 
-        tgOperations.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, update.bot)
         return true
     }
 
@@ -85,7 +85,7 @@ class TestCommandHandler(
         callbackContext: CallbackContext,
         update: Update,
     ): Boolean {
-        tgOperations.updateMessageText(
+        tgMessageService.updateMessageText(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,

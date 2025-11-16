@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getContextUserName
 import org.slf4j.LoggerFactory
@@ -16,7 +16,7 @@ import java.util.*
 @Service
 class SantaBotCommandHandler(
     private val mongoTemplate: MongoTemplate,
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
 ) : CommandHandler {
 
     private val rand = Random()
@@ -45,7 +45,7 @@ class SantaBotCommandHandler(
         val player = getSantaUserPlayerFromUpdate(update)
         game.players += player
         mongoTemplate.save(game)
-        tgOperations.replyToCurrentMessage("game created")
+        tgMessageService.replyToCurrentMessage("game created")
         return true
     }
 
@@ -55,7 +55,7 @@ class SantaBotCommandHandler(
         val game = getGame(gameId) ?: return noGameFound()
 
         if (game.isStarted) {
-            tgOperations.replyToCurrentMessage("Игра уже начата")
+            tgMessageService.replyToCurrentMessage("Игра уже начата")
             return true
         }
 
@@ -66,7 +66,7 @@ class SantaBotCommandHandler(
             status = true
         }
         mongoTemplate.save(game)
-        tgOperations.replyToCurrentMessage(
+        tgMessageService.replyToCurrentMessage(
             if (status) "Вы зарегистрировались в игре \"$gameId\"" else "Вы уже зарегистрированы в игре"
         )
         return true
@@ -75,7 +75,7 @@ class SantaBotCommandHandler(
     @HandleCommand("/players")
     private suspend fun commandPlayers(args: List<String>, update: Update): Boolean {
         if (args.size != 1) {
-            tgOperations.replyToCurrentMessage("Используйте /players gameId")
+            tgMessageService.replyToCurrentMessage("Используйте /players gameId")
             return true
         }
 
@@ -83,19 +83,19 @@ class SantaBotCommandHandler(
         val game = getGame(gameId) ?: return noGameFound()
 
         if (game.players.none { it.id == update.getContextUserId() }) {
-            tgOperations.replyToCurrentMessage("Вы не зарегистрированы в этой игре")
+            tgMessageService.replyToCurrentMessage("Вы не зарегистрированы в этой игре")
             return true
         }
 
         val players = game.players.joinToString("\n") { '@' + it.username }
-        tgOperations.replyToCurrentMessage("Игроки в игре \"$gameId\":\n$players")
+        tgMessageService.replyToCurrentMessage("Игроки в игре \"$gameId\":\n$players")
         return true
     }
 
     @HandleCommand("/ignore")
     private suspend fun commandIgnore(args: List<String>, update: Update): Boolean {
         if (args.size != 2) {
-            tgOperations.replyToCurrentMessage("Используйте /ignore gameId @username")
+            tgMessageService.replyToCurrentMessage("Используйте /ignore gameId @username")
             return true
         }
 
@@ -107,7 +107,7 @@ class SantaBotCommandHandler(
             ?: throw IllegalArgumentException("register in game first")
         player.ignores += ignored.replace("@", "").lowercase()
         mongoTemplate.save(game)
-        tgOperations.replyToCurrentMessage(
+        tgMessageService.replyToCurrentMessage(
             "Вы добавили @${ignored} как свою вторую половинку! " +
                     "Теперь вы не будете дарить ему подарок, а он не будет дарить подарок вам."
         )
@@ -120,12 +120,12 @@ class SantaBotCommandHandler(
         val game = getGame(gameId) ?: return noGameFound()
 
         if (game.createdBy != update.getContextUserId()) {
-            tgOperations.replyToCurrentMessage("Вы не создатель игры")
+            tgMessageService.replyToCurrentMessage("Вы не создатель игры")
             return true
         }
 
         val playerPairs = calculatePlayers(game)
-        tgOperations.replyToCurrentMessage(
+        tgMessageService.replyToCurrentMessage(
             playerPairs.joinToString("\n") { (user, target) -> "@${user.username} -> @$target" }
         )
         return true
@@ -137,9 +137,9 @@ class SantaBotCommandHandler(
         val game = getGame(gameId) ?: return noGameFound()
 
         when {
-            game.isStarted -> tgOperations.replyToCurrentMessage("Игра уже начата")
-            game.players.size < 3 -> tgOperations.replyToCurrentMessage("Недостаточно игроков")
-            game.createdBy != update.getContextUserId() -> tgOperations.replyToCurrentMessage("Вы не создатель игры")
+            game.isStarted -> tgMessageService.replyToCurrentMessage("Игра уже начата")
+            game.players.size < 3 -> tgMessageService.replyToCurrentMessage("Недостаточно игроков")
+            game.createdBy != update.getContextUserId() -> tgMessageService.replyToCurrentMessage("Вы не создатель игры")
             else -> {
                 val playerPairs = calculatePlayers(game)
                 startGame(playerPairs)
@@ -155,7 +155,7 @@ class SantaBotCommandHandler(
     }
 
     private suspend fun noGameFound(): Boolean {
-        tgOperations.replyToCurrentMessage("Игра не найдена")
+        tgMessageService.replyToCurrentMessage("Игра не найдена")
         return true
     }
 
@@ -177,7 +177,7 @@ class SantaBotCommandHandler(
         }
 
         if (iteration >= iterationLimit) {
-            tgOperations.replyToCurrentMessage("Не удалось найти подходящие пары. Попробуйте еще раз")
+            tgMessageService.replyToCurrentMessage("Не удалось найти подходящие пары. Попробуйте еще раз")
             return emptyList()
         } else {
             return users.zip(targets)
@@ -187,7 +187,7 @@ class SantaBotCommandHandler(
     private suspend fun startGame(playerPairs: List<Pair<SecretSantaPlayer, String>>) {
         playerPairs.forEach { (user, target) ->
             log.info("${user.username} дарит $target")
-            tgOperations.sendMessage(
+            tgMessageService.sendMessage(
                 user.id,
                 "Ваша цель: @$target"
             )

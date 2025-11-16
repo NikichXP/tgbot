@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.karmabot.commands
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.karmabot.service.UserInfo
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class TopKarmaHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val mongoTemplate: MongoTemplate
 ) : CommandHandler {
 
@@ -29,7 +29,7 @@ class TopKarmaHandler(
             "${it.username ?: ("id=" + it.id.toString())}: ${it.rating}"
         }
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             sendInCurrentChat()
             text = "Top users are:\n$ratingStr"
         }

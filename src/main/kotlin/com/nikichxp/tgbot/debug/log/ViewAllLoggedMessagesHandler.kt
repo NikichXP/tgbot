@@ -6,14 +6,14 @@ import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
 @Component
 class ViewAllLoggedMessagesHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val appConfig: AppConfig,
     private val loggingConfigBackend: LoggingConfigBackend
 ) : CommandHandler {
@@ -24,7 +24,7 @@ class ViewAllLoggedMessagesHandler(
     suspend fun configureLogging(args: List<String>, update: Update): Boolean {
         val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
 
-        suspend fun notify(text: String) = tgOperations.sendMessage(chatId, LogAllMessagesHandler.Companion.LOG_PREFIX + text)
+        suspend fun notify(text: String) = tgMessageService.sendMessage(chatId, LogAllMessagesHandler.Companion.LOG_PREFIX + text)
 
         return ChatCommandParser.Companion.analyze(args) {
             path("status") {

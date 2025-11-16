@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.debug.interaction
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextInvolvedParties
 import com.nikichxp.tgbot.debug.SendMessageToAdminService
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class NewUserInteractionHandler(
     private val userInteractionService: UserInteractionService,
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val sendMessageToAdminService: SendMessageToAdminService
 ) : UpdateHandler {
 

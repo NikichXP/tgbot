@@ -7,14 +7,14 @@ import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.getContextUserId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class ChildCareCallbackHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val childInfoRepo: ChildInfoRepo,
     private val childReportHelper: ChildReportHelper,
 ) : Authenticable, CallbackHandler {
@@ -47,21 +47,21 @@ class ChildCareCallbackHandler(
             data == "sleep-schedule" -> childReportHelper.sleepReport(callbackContext)
             data == "feeding-schedule" -> childReportHelper.feedingReport(callbackContext)
             data.startsWith("minus-") -> {
-                tgOperations.sendMessage {
+                tgMessageService.sendMessage {
                     replyToCurrentMessage()
                     text = "Minus minutes to sleep"
                 }
             }
 
             data.startsWith("plus-") -> {
-                tgOperations.sendMessage {
+                tgMessageService.sendMessage {
                     replyToCurrentMessage()
                     text = "Plus minutes to sleep"
                 }
             }
 
             else -> {
-                tgOperations.sendMessage {
+                tgMessageService.sendMessage {
                     replyToCurrentMessage()
                     text = "Unknown callback $data"
                 }

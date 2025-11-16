@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class TgOperations(
+class TgMessageService(
     private val tgMethodExecutor: TgMethodExecutor,
     private val errorService: ErrorService,
     private val objectMapper: ObjectMapper,

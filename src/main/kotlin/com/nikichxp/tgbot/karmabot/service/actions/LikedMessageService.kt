@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.karmabot.service.actions
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.UserFormatter.getUserPrintName
 import com.nikichxp.tgbot.karmabot.service.UserService
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ import kotlin.math.pow
 @Service
 class LikedMessageService(
     private val userService: UserService,
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val likedHistoryService: LikedHistoryService
 ) {
 
@@ -55,7 +55,7 @@ class LikedMessageService(
         diff: Double
     ) {
         val text = "$actor ($actorKarma) changed karma of $target ($targetKarma) Δ=$diff"
-        tgOperations.sendMessage(update.message?.chat?.id!!, text)
+        tgMessageService.sendMessage(update.message?.chat?.id!!, text)
     }
 
     companion object {

@@ -5,7 +5,7 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.UserFormatter
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
@@ -34,7 +34,7 @@ TODO
 @Component
 class MessageStatHandler(
     private val mongoTemplate: MongoTemplate,
-    private val tgOperations: TgOperations
+    private val tgMessageService: TgMessageService
 ) : UpdateHandler {
 
     private lateinit var userStat: UserStat

@@ -9,7 +9,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.getContextChatId
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service
 @Service
 class UnparsedMessagesCommandHandler(
     private val mongoTemplate: MongoTemplate,
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val appConfig: AppConfig,
     private val objectMapper: ObjectMapper,
     @Lazy private val messageEntryPoint: MessageEntryPoint
@@ -34,7 +34,7 @@ class UnparsedMessagesCommandHandler(
 
     override suspend fun authenticate(update: Update): Boolean {
         if (update.getContextChatId() != appConfig.adminId) {
-            tgOperations.replyToCurrentMessage("You are not allowed to use this bot ~_~")
+            tgMessageService.replyToCurrentMessage("You are not allowed to use this bot ~_~")
             return false
         }
         return true
@@ -45,21 +45,21 @@ class UnparsedMessagesCommandHandler(
         val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
 
         if (unparsedMessages.isEmpty()) {
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 text = "No unparsed messages"
             }
             return true
         }
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Unparsed messages: ${unparsedMessages.size}"
         }
 
         for (unparsedMessage in unparsedMessages.shuffled().take(10)) {
             delay(500)
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 replyToCurrentMessage()
                 text = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(unparsedMessage.content)
             }
@@ -73,7 +73,7 @@ class UnparsedMessagesCommandHandler(
         log.info("Loading unparsed messages....")
         val unparsedMessages = mongoTemplate.findAll<UnparsedMessage>()
         log.info("Re-parsing started. Task queue: ${unparsedMessages.size}")
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Re-parsing started. Task queue: ${unparsedMessages.size}"
         }
@@ -85,7 +85,7 @@ class UnparsedMessagesCommandHandler(
 
         val result = mongoTemplate.count<UnparsedMessage>()
         log.info("Re-parsing finished. Unparsed messages left: $result")
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Re-parsing finished. Unparsed messages left: $result/${unparsedMessages.size}"
         }

@@ -5,7 +5,7 @@ import com.nikichxp.tgbot.childcarebot.ChildActivityEventMessage
 import com.nikichxp.tgbot.childcarebot.ChildInfo
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class StateTransitionService(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val childActivityRepo: ChildActivityRepo,
     private val stateTransitionHelper: ChildStateTransitionProvider,
     private val transitionHandlers: List<StateTransitionHandler>,
@@ -33,7 +33,7 @@ class StateTransitionService(
         val resultKeyboard = stateTransitionHelper.getPossibleTransitions(destinationState).map { it.value }
 
         for (parentId in childInfo.parents) {
-            tgOperations.sendMessage {
+            tgMessageService.sendMessage {
                 chatId = parentId
                 this.text = "State changed to $text"
 

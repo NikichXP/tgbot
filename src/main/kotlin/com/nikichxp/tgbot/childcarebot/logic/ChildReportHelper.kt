@@ -5,7 +5,7 @@ import com.nikichxp.tgbot.childcarebot.ChildInfo
 import com.nikichxp.tgbot.childcarebot.getDurationStringBetween
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.AppStorage
 import com.nikichxp.tgbot.core.util.getContextUserId
 import org.springframework.stereotype.Service
@@ -15,7 +15,7 @@ import java.util.*
 
 @Service
 class ChildReportHelper(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val childInfoRepo: ChildInfoRepo,
     private val childActivityRepo: ChildActivityRepo,
     private val childTimezoneService: ChildTimezoneService,
@@ -25,7 +25,7 @@ class ChildReportHelper(
     suspend fun sleepReport(callbackContext: CallbackContext) {
         val child = getChild(callbackContext)
         val result = generateSleepReport(child)
-        tgOperations.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
+        tgMessageService.replyToCurrentMessage("Время сна:\n" + result.joinToString("\n"))
     }
 
     suspend fun generateSleepReport(updateContext: UpdateContext): List<String> {
@@ -83,7 +83,7 @@ class ChildReportHelper(
     }
 
     suspend fun feedingReport(callbackContext: CallbackContext) {
-        tgOperations.replyToCurrentMessage("not implemented yet")
+        tgMessageService.replyToCurrentMessage("not implemented yet")
     }
 
     private fun getChild(updateContext: UpdateContext): ChildInfo {

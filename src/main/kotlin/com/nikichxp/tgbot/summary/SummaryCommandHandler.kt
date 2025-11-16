@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getMarkers
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class SummaryCommandHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val summaryService: SummaryService
 ) : CommandHandler, UpdateHandler {
 
@@ -47,14 +47,14 @@ class SummaryCommandHandler(
             replyToCurrentMessage()
             text = "Summary command is not implemented yet"
         }
-        tgOperations.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, update.bot)
         return true
     }
 
     @HandleCommand("/summaryfeature")
     suspend fun toggleLogging(args: List<String>, update: Update): Boolean {
         if (!update.getMarkers().contains(UpdateMarker.MESSAGE_IN_GROUP)) {
-            tgOperations.replyToCurrentMessage("This command is available only in group chats")
+            tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }
         val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
 
@@ -64,12 +64,12 @@ class SummaryCommandHandler(
             true -> summaryService.setFeatureEnabledStatus(chatId, true)
             false -> summaryService.setFeatureEnabledStatus(chatId, false)
             null -> {
-                tgOperations.replyToCurrentMessage("Invalid argument. Use 'true' or 'false'")
+                tgMessageService.replyToCurrentMessage("Invalid argument. Use 'true' or 'false'")
                 return false
             }
         }
 
-        tgOperations.replyToCurrentMessage("Summary feature status is: ${summaryService.getFeatureEnabledStatus(chatId)}")
+        tgMessageService.replyToCurrentMessage("Summary feature status is: ${summaryService.getFeatureEnabledStatus(chatId)}")
         return true
     }
 }

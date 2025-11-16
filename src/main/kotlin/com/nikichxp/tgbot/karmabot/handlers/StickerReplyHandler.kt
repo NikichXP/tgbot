@@ -5,7 +5,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.convertToMessageIntResult
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
@@ -22,7 +22,7 @@ import java.util.*
 
 @Service
 class StickerReplyHandler(
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
     private val mongoTemplate: MongoTemplate,
     private val emojiService: EmojiService,
     private val likedMessageService: LikedMessageService,
@@ -78,7 +78,7 @@ class StickerReplyHandler(
             }
         }
 
-        tgOperations.sendMessage {
+        tgMessageService.sendMessage {
             sendInCurrentChat()
             text = "I CAN SEE THE STICKER REACTION! The reaction is: $emoji"
         }

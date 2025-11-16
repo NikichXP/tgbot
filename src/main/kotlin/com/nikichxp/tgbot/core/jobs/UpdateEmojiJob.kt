@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.jobs
 
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.karmabot.handlers.StickerReaction
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import com.nikichxp.tgbot.karmabot.service.UserService
@@ -17,7 +17,7 @@ class UpdateEmojiJob(
     private val mongoTemplate: MongoTemplate,
     private val emojiService: EmojiService,
     private val userService: UserService,
-    private val tgOperations: TgOperations
+    private val tgMessageService: TgMessageService
 ) {
 
 //    @PostConstruct

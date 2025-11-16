@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.childcarebot.ChildActivityEvent
 import com.nikichxp.tgbot.childcarebot.ChildActivityEventMessage
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
-import com.nikichxp.tgbot.core.service.tgapi.TgOperations
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationListener
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class UpdateSleepTimeService(
     private val childActivityRepo: ChildActivityRepo,
     private val childStateTransitionProvider: ChildStateTransitionProvider,
-    private val tgOperations: TgOperations,
+    private val tgMessageService: TgMessageService,
 ) : ApplicationListener<ChildActivityEventMessage> {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
