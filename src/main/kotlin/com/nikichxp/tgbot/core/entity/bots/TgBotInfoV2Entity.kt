@@ -8,5 +8,6 @@ data class TgBotInfoV2Entity(@Id var name: String) {
 
     lateinit var token: String
 
+    var updateFetchType: TgUpdateFetchType = TgUpdateFetchType.WEBHOOK
     var supportedFeatures = setOf<String>()
 }

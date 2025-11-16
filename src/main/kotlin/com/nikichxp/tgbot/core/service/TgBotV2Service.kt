@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.core.service
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
+import jakarta.annotation.PostConstruct
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
 import org.springframework.data.mongodb.core.findById
@@ -13,6 +14,12 @@ class TgBotV2Service(
     private val mongoTemplate: MongoTemplate,
     private val appConfig: AppConfig
 ) {
+
+    @PostConstruct
+    fun foo() {
+        listBots()
+            .forEach { mongoTemplate.save(it) }
+    }
 
     fun getAdminBot(): TgBotInfoV2 {
         return appConfig.adminBot?.let { getBotById(it) } ?: throw IllegalStateException("Admin bot is not configured")

@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.bots.UpdateFetchType
+import com.nikichxp.tgbot.core.entity.bots.TgUpdateFetchType
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking
@@ -27,12 +27,12 @@ class TgRegisterUpdateFetchService(
 
         tgBotV2Service.listBots().forEach { tgBotInfo ->
             when (tgBotInfo.updateFetchType) {
-                UpdateFetchType.POLLING -> {
+                TgUpdateFetchType.POLLING -> {
                     logger.info("Registering polling for bot: ${tgBotInfo.name}")
                     tgUpdatePollService.startPollingFor(tgBotInfo)
                 }
 
-                UpdateFetchType.WEBHOOK -> if (appConfig.localEnv || appConfig.suspendBotRegistering) {
+                TgUpdateFetchType.WEBHOOK -> if (appConfig.localEnv || appConfig.suspendBotRegistering) {
                     logger.info("Local env: skip webhook setting for bot: ${tgBotInfo.name}")
                 } else {
                     runBlocking { tgBotWebhookService.register(tgBotInfo) }
