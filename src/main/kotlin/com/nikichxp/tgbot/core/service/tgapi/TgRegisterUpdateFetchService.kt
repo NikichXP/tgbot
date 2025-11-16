@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class TgRegisterUpdateFetchService(
-    private val tgSetWebhookService: TgBotSetWebhookService,
+    private val tgBotWebhookService: TgBotWebhookService,
     private val tgUpdatePollService: TgUpdatePollService,
     private val tgBotV2Service: TgBotV2Service,
     private val appConfig: AppConfig,
@@ -35,7 +35,7 @@ class TgRegisterUpdateFetchService(
                 UpdateFetchType.WEBHOOK -> if (appConfig.localEnv || appConfig.suspendBotRegistering) {
                     logger.info("Local env: skip webhook setting for bot: ${tgBotInfo.name}")
                 } else {
-                    runBlocking { tgSetWebhookService.register(tgBotInfo) }
+                    runBlocking { tgBotWebhookService.register(tgBotInfo) }
                 }
             }
         }

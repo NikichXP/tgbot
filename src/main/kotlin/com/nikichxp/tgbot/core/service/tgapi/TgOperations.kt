@@ -35,10 +35,6 @@ class TgOperations(
 
     private suspend fun getCurrentUpdate(): Update = getCurrentUpdateContext().update
 
-//    suspend fun deleteWebhook(tgBot: TgBot) {
-//        tgMethodExecutor.execute(tgBot, "deleteWebhook", mapOf<String, Any>())
-//    }
-
     suspend fun sendMessage(
         chatId: Long,
         text: String,

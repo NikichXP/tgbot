@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit
 class TgUpdatePollService(
     private val client: HttpClient,
     private val tgBotV2Service: TgBotV2Service,
+    private val tgBotWebhookService: TgBotWebhookService,
     @Lazy
     private val messageEntryPoint: MessageEntryPoint,
     private val mongoTemplate: MongoTemplate,
@@ -58,7 +59,7 @@ class TgUpdatePollService(
                     }
 
                     409 -> {
-//                        tgOperations.deleteWebhook(info.bot.bot)
+                        tgBotWebhookService.unregister(info.bot)
                     }
 
                     else -> {
