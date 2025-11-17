@@ -17,11 +17,15 @@ data class PollingInfo(
     var lastUpdateFetched: LocalDateTime
 ) {
 
+    private val processedUpdates = LinkedList<Long>()
+
+    init {
+        processedUpdates.add(lastUpdate)
+    }
+
     lateinit var token: String
 
-    var lastUpdateExpiryDate = lastUpdateFetched.plusDays(1).plusHours(1)
-
-    private val processedUpdates = LinkedList<Long>()
+    var lastUpdateExpiryDate = updateExpiryDate(lastUpdateFetched)
 
     fun shouldBeProcessed(updateId: Long): Boolean {
         return !processedUpdates.contains(updateId)
@@ -34,9 +38,14 @@ data class PollingInfo(
         }
         if (updateId > lastUpdate) {
             lastUpdate = updateId
+            lastUpdateExpiryDate = updateExpiryDate(LocalDateTime.now())
             return true
         }
         return false
+    }
+
+    private fun updateExpiryDate(since: LocalDateTime): LocalDateTime? {
+        return since.plusDays(1).plusHours(1)
     }
 
     override fun toString(): String {

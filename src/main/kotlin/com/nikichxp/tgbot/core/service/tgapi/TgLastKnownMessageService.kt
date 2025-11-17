@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 @Service
@@ -27,7 +28,7 @@ class TgLastKnownMessageService(
                 synchronized(botInfo.name.intern()) {
                     if (lastKnownMessageCache[botInfo.name] == null || lastKnownMessageCache[botInfo.name]!! < updateId) {
                         lastKnownMessageCache[botInfo.name] = updateId
-                        mongoTemplate.save(BotLastKnownMessage(botInfo.name, updateId))
+                        mongoTemplate.save(BotLastKnownMessage(botInfo.name, updateId, LocalDateTime.now()))
                     }
                 }
             }
