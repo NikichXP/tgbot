@@ -85,36 +85,19 @@ class ChildCareCommandHandler(
         }
     }
 
-    @HandleCommand("/ctest")
-    suspend fun ctest() {
+    @HandleCommand("/parents")
+    suspend fun listParents(update: Update) {
+        val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
+            ?: throw IllegalStateException("Child not found")
         tgMessageService.sendMessage {
             replyToCurrentMessage()
-            text = "ctest"
+            text = "Parents: ${childInfo.parents.joinToString(", ")}"
             withInlineKeyboard(
-                listOf(
-                    listOf("< 5m" to "minus-5-min"),
-                    listOf("5m >" to "plus-5-min")
-                )
+                childInfo.parents.toList().map { listOf(it.toString() to "active-$it") }
             )
         }
     }
 
-    @HandleCommand("/debugevents")
-    suspend fun getLastEvents(update: Update) {
-        val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
-            ?: throw IllegalStateException("Child not found")
-
-        val lastEvents = childActivityRepo.getLastEvents(childInfo.id, 10)
-
-        val events = lastEvents.joinToString("\n") {
-            "${it.date.format(DateTimeFormatter.ofPattern("dd/MM HH:mm"))}: ${stateTransitionHelper.getStateText(it.state)}"
-        }
-
-        tgMessageService.sendMessage {
-            replyToCurrentMessage()
-            text = "Last events:\n$events"
-        }
-    }
 
     override suspend fun handleUpdate(update: Update) {
         val text = update.message?.text
