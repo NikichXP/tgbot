@@ -32,9 +32,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Rollout restart deployment
+      - name: Setup SSH keys
         run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
-          export KUBECONFIG=~/.kube/config
-          kubectl rollout restart deployment/tgbot -n tgbot
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Rollout deployment
+        run: ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'kubectl rollout restart deployment/tgbot -n tgbot'
+
