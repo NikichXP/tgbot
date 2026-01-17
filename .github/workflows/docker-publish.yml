@@ -37,9 +37,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
       - name: Rollout deployment
-        run: echo "hello world"
-          | ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'kubectl rollout restart deployment/tgbot -n tgbot'
-
+        run: ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'bash -l -c "kubectl rollout restart deployment/tgbot -n tgbot"'
