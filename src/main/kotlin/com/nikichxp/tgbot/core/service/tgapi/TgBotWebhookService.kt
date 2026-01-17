@@ -22,9 +22,15 @@ class TgBotWebhookService(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     suspend fun register(botInfo: TgBotInfoV2): Boolean {
-        val response = postCallWith(apiUrl(botInfo, Operation.SET_WEBHOOK), mapOf("url" to "$webHookUrl/${botInfo.name}"))
+        val webhookPath = "$webHookUrl/${botInfo.name}"
+        val response = postCallWith(apiUrl(botInfo, Operation.SET_WEBHOOK), mapOf("url" to webhookPath))
         val status = response.status.value in 200..299
-        logger.info(formatLog(botInfo, "Register webhook status $status with message: ${response.body<String>()}"))
+        logger.info(
+            formatLog(
+                botInfo,
+                "Register webhook status $status, path: $webhookPath, message: ${response.body<String>()}"
+            )
+        )
         return status
     }
 
