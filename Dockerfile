@@ -1,4 +1,4 @@
-FROM gradle:jdk21 as builder
+FROM gradle:8.4-jdk21 AS builder
 
 WORKDIR /app
 
@@ -7,7 +7,7 @@ COPY build.gradle.kts .
 COPY src ./src
 RUN gradle build --no-daemon
 
-FROM openjdk:21-slim
+FROM amazoncorretto:21-alpine
 
 WORKDIR /app
 

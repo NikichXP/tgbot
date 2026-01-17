@@ -3,7 +3,7 @@ name: Build and deploy (release) app to server
 on:
   push:
     branches:
-      - master
+      - legacy
 
 jobs:
   build:
