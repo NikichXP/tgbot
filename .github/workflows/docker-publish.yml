@@ -28,6 +28,15 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.REGISTRY_URL }}/tgbot:v3
+          tags: ${{ secrets.REGISTRY_URL }}/tgbot:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Rollout restart deployment
+        env:
+          K8S_CONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          mkdir -p ~/.kube
+          echo "$K8S_CONFIG" > ~/.kube/config
+          export KUBECONFIG=~/.kube/config
+          kubectl rollout restart deployment/tgbot -n tgbot
