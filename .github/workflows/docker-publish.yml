@@ -33,10 +33,8 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Rollout restart deployment
-        env:
-          K8S_CONFIG: ${{ secrets.KUBECONFIG }}
         run: |
           mkdir -p ~/.kube
-          echo "$K8S_CONFIG" > ~/.kube/config
+          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
           export KUBECONFIG=~/.kube/config
           kubectl rollout restart deployment/tgbot -n tgbot
