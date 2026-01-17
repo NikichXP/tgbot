@@ -40,4 +40,4 @@ jobs:
           ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
       - name: Rollout deployment
-        run: ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'bash -l -c "kubectl rollout restart deployment/tgbot -n tgbot"'
+        run: ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'KUBECONFIG=${{ secrets.KUBE_CONFIG_LOCATION }} kubectl rollout restart deployment/tgbot -n tgbot'
