@@ -27,7 +27,6 @@ class InputController(
         GET("/echo") {
             ServerResponse.ok().bodyValueAndAwait("ok")
         }
-        
         POST("/handle/{bot}") {
             val botId = it.pathVariable("bot")
             val botV2Entity = tgBotV2Service.getBotById(botId)
