@@ -1,9 +1,9 @@
-name: Release by 2-stage docker build
+name: CI/CD Build and Push
 
 on:
   push:
     branches:
-      - release
+      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,6 +16,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: "21"
+          distribution: "amazon-corretto"
+          cache: "gradle"
+
+      - name: Build with Gradle
+        run: ./gradlew bootJar
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -34,6 +44,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: Dockerfile_copy
           push: true
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.REGISTRY_URL }}/tgbot:latest
