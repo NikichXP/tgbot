@@ -50,13 +50,3 @@ jobs:
           tags: ${{ secrets.REGISTRY_URL }}/tgbot:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Setup SSH keys
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
-
-      - name: Rollout deployment
-        run: ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'KUBECONFIG=${{ secrets.KUBE_CONFIG_LOCATION }} kubectl rollout restart deployment/tgbot -n tgbot'
