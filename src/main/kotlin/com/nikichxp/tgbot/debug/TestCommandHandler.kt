@@ -11,11 +11,33 @@ import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
 import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
+import java.time.Duration
+import java.time.LocalDateTime
 
 @Component
 class TestCommandHandler(
     private val tgMessageService: TgMessageService,
 ) : CommandHandler, CallbackHandler {
+
+    private val startTime = LocalDateTime.now()
+
+    @HandleCommand("/uptime")
+    suspend fun uptime() {
+        val duration = Duration.between(startTime, LocalDateTime.now())
+        val days = duration.toDays()
+        val hours = duration.toHours() % 24
+        val minutes = duration.toMinutes() % 60
+        val seconds = duration.seconds % 60
+        
+        val formattedUptime = buildString {
+            if (days > 0) append("${days}d")
+            if (hours > 0 || days > 0) append("${hours}h")
+            if (minutes > 0 || hours > 0 || days > 0) append("${minutes}m")
+            append("${seconds}s")
+        }
+        
+        tgMessageService.replyToCurrentMessage("Uptime: $formattedUptime")
+    }
 
     override fun requiredFeatures() = setOf(Features.DEBUG)
 
