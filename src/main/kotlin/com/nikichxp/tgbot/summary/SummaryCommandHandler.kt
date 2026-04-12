@@ -29,11 +29,11 @@ class SummaryCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_GROUP)
 
     override suspend fun handleUpdate(update: Update) {
-        val chatId = update.getContextChatId()
-        if (chatId == null) {
+        val chatId = update.getContextChatId() ?: run {
             logger.warn("Cannot get chatId in update: $update")
             return
         }
+
         if (summaryService.getFeatureEnabledStatus(chatId)) {
             summaryService.saveUpdate(update)
         }
