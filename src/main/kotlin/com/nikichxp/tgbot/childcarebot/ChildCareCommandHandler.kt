@@ -34,13 +34,15 @@ class ChildCareCommandHandler(
 
     private val logWrongStateResponse = true
 
-    override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
+    override fun requiredFeatures(): Set<String> = setOf(Features.CHILD_TRACKER)
 
     override suspend fun authenticate(update: Update): Boolean {
-        val child = childInfoRepo.findChildByParent(update.getContextUserId()!!)
+        val userId = update.getContextUserId() ?: return false
+
+        val child = childInfoRepo.findChildByParent(userId)
 
         if (child == null) {
-            logger.warn("No user found for child: user id = ${update.getContextUserId()}")
+            logger.warn("No user found for child: user id = $userId")
             return false
         }
 
