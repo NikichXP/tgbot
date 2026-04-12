@@ -25,7 +25,7 @@ jobs:
           cache: "gradle"
 
       - name: Build with Gradle
-        run: ./gradlew bootJar
+        run: ./gradlew bootJar -PappVersion=${{ github.run_number }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3

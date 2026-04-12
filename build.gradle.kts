@@ -8,10 +8,10 @@ val kotlinVersion: String = "2.2.10"
 val coroutinesVersion: String = "1.10.1"
 
 val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
-val versionName: String = if (project.hasProperty("version")) project.version.toString() else "unknown"
+val versionName: String = if (project.hasProperty("appVersion")) project.property("appVersion").toString() else "unknown"
 
 group = "com.nikichxp"
-version = project.property("version") ?: "1.1.0"
+version = if (project.hasProperty("appVersion")) project.property("appVersion")!! else "1.1.0"
 description = "tgbot"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
@@ -78,4 +78,7 @@ tasks.register<PrintVersion>("printVersion")
 
 tasks.bootJar {
     archiveFileName.set("app.jar")
+    manifest {
+        attributes("Implementation-Version" to project.version)
+    }
 }
