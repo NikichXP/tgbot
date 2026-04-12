@@ -28,8 +28,17 @@ class ChatCommandsHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
     override suspend fun handleUpdate(update: Update) {
-        val query = update.message!!.text!!.split(" ")
+        val query = update.message?.text?.split(" ") ?: run {
+            logger.info("No text in update: $update") // todo this is for debug, remove later
+            return
+        }
         val command = query.first()
+
+        if (!command.startsWith("/")) {
+            logger.info("Command is not a command: $command, update: $update")
+            return
+        }
+
         val args = query.drop(1).filter(String::isNotEmpty)
 
         coroutineScope {
@@ -54,7 +63,7 @@ class ChatCommandsHandler(
     }
 
     private fun isRequiredFeatureSupported(handler: SingleCommandHandler, updateContext: UpdateContext): Boolean {
-        return updateContext.tgBotV2!!.supportedFeatures.containsAll(handler.handler.requiredFeatures())
+        return updateContext.tgBotV2.supportedFeatures.containsAll(handler.handler.requiredFeatures())
     }
 
 }
