@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.summary
 
+import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
@@ -9,6 +10,7 @@ import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
 import com.nikichxp.tgbot.core.util.getContextChatId
+import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getMarkers
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -16,7 +18,8 @@ import org.springframework.stereotype.Service
 @Service
 class SummaryCommandHandler(
     private val tgMessageService: TgMessageService,
-    private val summaryService: SummaryService
+    private val summaryService: SummaryService,
+    private val appConfig: AppConfig
 ) : CommandHandler, UpdateHandler {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -33,6 +36,26 @@ class SummaryCommandHandler(
         }
         if (summaryService.getFeatureEnabledStatus(chatId)) {
             summaryService.saveUpdate(update)
+        }
+    }
+
+    @HandleCommand("/enable_summary")
+    suspend fun enableSummary(update: Update) {
+        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
+        val callerId = update.getContextUserId() ?: throw IllegalArgumentException("Can't get userId")
+
+        if (callerId != appConfig.adminId) {
+            tgMessageService.sendMessage {
+                replyToCurrentMessage()
+                text = "You are not allowed to use this command"
+            }
+            return
+        }
+
+        summaryService.setFeatureEnabledStatus(chatId, true)
+        tgMessageService.sendMessage {
+            replyToCurrentMessage()
+            text = "Summary enabled"
         }
     }
 
