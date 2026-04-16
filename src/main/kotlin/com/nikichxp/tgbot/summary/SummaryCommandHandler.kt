@@ -68,7 +68,7 @@ class SummaryCommandHandler(
         }
         val message = TgSendMessage.create {
             replyToCurrentMessage()
-            text = "Summary command is not implemented yet"
+            text = "Эта фича ещё не готова!"
         }
         tgMessageService.sendMessage(message, update.bot)
         return true
