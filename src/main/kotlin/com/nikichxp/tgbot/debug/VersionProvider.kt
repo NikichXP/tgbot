@@ -22,9 +22,10 @@ class VersionProvider(
     @PostConstruct
     fun loadManifestData() {
         if (appVersion == NULL_VERSION) {
-            log.warn("Failed to load version from manifest")
+            val errorMessage = "Failed to load version from manifest"
+            log.warn(errorMessage)
             coroutineScope.launch {
-                sendMessageToAdminService.sendMessage("Failed to load version from manifest")
+                sendMessageToAdminService.sendMessage(errorMessage)
             }
         } else {
             val previousVersion = appStorage.getData(VERSION_KEY)
