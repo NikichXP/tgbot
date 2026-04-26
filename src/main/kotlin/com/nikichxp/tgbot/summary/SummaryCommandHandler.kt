@@ -95,6 +95,11 @@ class SummaryCommandHandler(
 
         if (args.size > 1) {
             ChatCommandParser.analyze(args) {
+                path("days") {
+                    asArg("days") {
+                        vars["days"]?.toLongOrNull()?.let { days = it }
+                    }
+                }
                 path("model") {
                     asArg("modelName") {
                         if (!trustedUserService.isTrusted(update)) {
@@ -104,17 +109,18 @@ class SummaryCommandHandler(
                         }
                     }
                 }
-                path("days") {
-                    asArg("days") {
-                        vars["days"]?.toLongOrNull()?.let { days = it }
-                    }
-                }
             }
+        }
+
+        val sb = StringBuilder()
+        modelName?.also { modelName -> sb.append("\nМодель: $modelName") }
+        if (days > 1) {
+            sb.append("\nДней: $days")
         }
 
         tgMessageService.sendMessage {
             replyToCurrentMessage()
-            text = "Вы почти у цели!"
+            text = "Генерирую сводку... " + if (sb.isNotBlank()) "\n$sb" else ""
         }
 
         val options = RecapOptions(
@@ -123,11 +129,18 @@ class SummaryCommandHandler(
             model = modelName
         )
 
-        val recap = summaryService.getRecap(options)
+        try {
+            val recap = summaryService.getRecap(options)
 
-        tgMessageService.sendMessage {
-            replyToCurrentMessage()
-            text = recap
+            tgMessageService.sendMessage {
+                replyToCurrentMessage()
+                text = recap
+            }
+        } catch (e: Exception) {
+            tgMessageService.sendMessage {
+                replyToCurrentMessage()
+                text = "Произошла ошибка при генерации сводки (${e.javaClass.simpleName})"
+            }
         }
 
         return true
