@@ -4,14 +4,12 @@ import com.nikichxp.tgbot.core.util.AppStorage
 import com.nikichxp.tgbot.summary.ai.LLMProvider
 import com.nikichxp.tgbot.summary.ai.LLMRequest
 import com.nikichxp.tgbot.summary.entity.LoggedMessage
-import jakarta.annotation.PostConstruct
-import kotlinx.coroutines.runBlocking
+import com.nikichxp.tgbot.summary.entity.RecapOptions
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 @Service
 class SummaryService(
@@ -33,11 +31,8 @@ class SummaryService(
         appStorage.saveData("summary_feature_$chatId", enabled.toString())
     }
 
-    suspend fun getRecapForToday(chatId: Long, model: String? = null): String =
-        getRecapSince(chatId, getStartingPointOfToday(), model)
-
-    suspend fun getRecapSince(chatId: Long, since: LocalDateTime, model: String? = null): String {
-        val updates = getUpdatesForChatAfter(chatId, since)
+    suspend fun getRecap(options: RecapOptions): String {
+        val updates = getUpdatesForChatAfter(options.chatId, options.since)
         if (updates.isEmpty()) {
             return "Сегодня сообщений не было — пересказывать пока нечего."
         }
@@ -46,15 +41,15 @@ class SummaryService(
 
         val response = llmProvider.complete(
             LLMRequest.of(
-                model = model,
+                model = options.model,
                 systemPrompt = RECAP_SYSTEM_PROMPT,
                 userPrompt = buildRecapUserPrompt(chatHistory),
-                maxTokens = 2000
+                maxTokens = 8000
             )
         )
         logger.info(
             "Recap generated: chatId={}, messages={}, model={}, promptTokens={}, completionTokens={}",
-            chatId, updates.size, response.model,
+            options.chatId, updates.size, response.model,
             response.usage?.promptTokens, response.usage?.completionTokens
         )
         return response.content.trim().ifBlank { "LLM вернул пустой ответ. Попробуй позже." }
@@ -80,17 +75,7 @@ class SummaryService(
         return summaryMessageStorageService.getMessagesAfter(chatId, after)
     }
 
-    private fun getStartingPointOfToday(): LocalDateTime {
-        val now = LocalDateTime.now()
-        return if (now.toLocalTime().isBefore(NIGHT_SEPARATOR)) {
-            now.minusDays(1).with(NIGHT_SEPARATOR)
-        } else {
-            now.with(NIGHT_SEPARATOR)
-        }
-    }
-
     companion object {
-        private val NIGHT_SEPARATOR = LocalTime.of(4, 0)
 
         private val RECAP_SYSTEM_PROMPT = """
             Ты помощник, который делает краткий пересказ переписки в групповом Telegram-чате.

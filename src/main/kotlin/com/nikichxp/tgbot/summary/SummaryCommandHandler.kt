@@ -14,6 +14,7 @@ import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getMarkers
+import com.nikichxp.tgbot.summary.entity.RecapOptions
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -90,6 +91,7 @@ class SummaryCommandHandler(
         }
 
         var modelName: String? = defaultModel
+        var days: Long = 1
 
         if (args.size > 1) {
             ChatCommandParser.analyze(args) {
@@ -102,6 +104,11 @@ class SummaryCommandHandler(
                         }
                     }
                 }
+                path("days") {
+                    asArg("days") {
+                        vars["days"]?.toLongOrNull()?.let { days = it }
+                    }
+                }
             }
         }
 
@@ -110,7 +117,13 @@ class SummaryCommandHandler(
             text = "Вы почти у цели!"
         }
 
-        val recap = summaryService.getRecapForToday(chatId, modelName)
+        val options = RecapOptions(
+            chatId = chatId,
+            days = days,
+            model = modelName
+        )
+
+        val recap = summaryService.getRecap(options)
 
         tgMessageService.sendMessage {
             replyToCurrentMessage()
