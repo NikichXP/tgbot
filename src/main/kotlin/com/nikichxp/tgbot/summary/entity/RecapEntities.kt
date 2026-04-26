@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.summary.entity
 
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 data class RecapOptions(
     val chatId: Long,
@@ -11,6 +12,13 @@ data class RecapOptions(
 
     constructor(chatId: Long, days: Long, model: String? = null) :
             this(chatId, getStartingPointOfDay(LocalDateTime.now().minusDays(days)), model)
+
+    fun getExtraOptionsString(): String {
+        val sb = StringBuilder()
+        model?.also { modelName -> sb.append("\nМодель: $modelName") }
+        sb.append("\nНачиная от: ${since.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))}")
+        return sb.toString()
+    }
 
     companion object {
         private val NIGHT_SEPARATOR = LocalTime.of(4, 0)

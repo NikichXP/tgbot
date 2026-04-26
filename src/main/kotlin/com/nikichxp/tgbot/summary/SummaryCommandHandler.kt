@@ -46,41 +46,6 @@ class SummaryCommandHandler(
         }
     }
 
-    @HandleCommand("/enable_summary")
-    suspend fun enableSummary(update: Update) {
-        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
-        val callerId = update.getContextUserId() ?: throw IllegalArgumentException("Can't get userId")
-
-        if (callerId != appConfig.adminId) {
-            tgMessageService.sendMessage {
-                replyToCurrentMessage()
-                text = "You are not allowed to use this command"
-            }
-            return
-        }
-
-        summaryService.setFeatureEnabledStatus(chatId, true)
-        tgMessageService.sendMessage {
-            replyToCurrentMessage()
-            text = "Summary enabled"
-        }
-    }
-
-    @HandleCommand("/summary")
-    suspend fun processCommand(update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
-        if (!summaryService.getFeatureEnabledStatus(chatId)) {
-            // ignore, don't let people know this feature exists so far
-            return true
-        }
-        val message = TgSendMessage.create {
-            replyToCurrentMessage()
-            text = "Эта фича ещё не готова!"
-        }
-        tgMessageService.sendMessage(message, update.bot)
-        return true
-    }
-
     @HandleCommand("/whatsup")
     suspend fun whatsup(args: List<String>, update: Update): Boolean {
         val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
@@ -90,44 +55,11 @@ class SummaryCommandHandler(
             return true
         }
 
-        var modelName: String? = defaultModel
-        var days: Long = 1
-
-        if (args.size > 1) {
-            ChatCommandParser.analyze(args) {
-                path("days") {
-                    asArg("days") {
-                        vars["days"]?.toLongOrNull()?.let { days = it }
-                    }
-                }
-                path("model") {
-                    asArg("modelName") {
-                        if (!trustedUserService.isTrusted(update)) {
-                            tgMessageService.replyToCurrentMessage("Выбор модели вам недоступен")
-                        } else {
-                            modelName = vars["modelName"]
-                        }
-                    }
-                }
-            }
-        }
-
-        val sb = StringBuilder()
-        modelName?.also { modelName -> sb.append("\nМодель: $modelName") }
-        if (days > 1) {
-            sb.append("\nДней: $days")
-        }
-
+        val options = getRecapOptions(args, chatId, update)
         tgMessageService.sendMessage {
             replyToCurrentMessage()
-            text = "Генерирую сводку... " + if (sb.isNotBlank()) "\n$sb" else ""
+            text = "Генерирую сводку... ${options.getExtraOptionsString()}"
         }
-
-        val options = RecapOptions(
-            chatId = chatId,
-            days = days,
-            model = modelName
-        )
 
         try {
             val recap = summaryService.getRecap(options)
@@ -151,8 +83,17 @@ class SummaryCommandHandler(
         if (!update.getMarkers().contains(UpdateMarker.MESSAGE_IN_GROUP)) {
             tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }
-        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
 
+        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
+        val callerId = update.getContextUserId() ?: throw IllegalArgumentException("Can't get userId")
+
+        if (callerId != appConfig.adminId) {
+            tgMessageService.sendMessage {
+                replyToCurrentMessage()
+                text = "You are not allowed to use this command"
+            }
+            return true
+        }
         val toggleStatus = args.first().toBooleanStrictOrNull()
 
         when (toggleStatus) {
@@ -165,12 +106,38 @@ class SummaryCommandHandler(
         }
 
         tgMessageService.replyToCurrentMessage(
-            "Summary feature status is: ${
-                summaryService.getFeatureEnabledStatus(
-                    chatId
-                )
-            }"
+            "Summary feature status is: ${summaryService.getFeatureEnabledStatus(chatId)}"
         )
         return true
+    }
+
+    private suspend fun getRecapOptions(args: List<String>, chatId: Long, update: Update): RecapOptions {
+        var modelName: String? = defaultModel
+        var days: Long = 1
+
+        if (args.size > 1) {
+            ChatCommandParser.analyze(args) {
+                path("days") {
+                    asArg("days") {
+                        vars["days"]?.toLongOrNull()?.let { days = it }
+                    }
+                }
+                path("model") {
+                    asArg("modelName") {
+                        if (!trustedUserService.isTrusted(update)) {
+                            tgMessageService.replyToCurrentMessage("Выбор модели вам недоступен")
+                        } else {
+                            modelName = vars["modelName"]
+                        }
+                    }
+                }
+            }
+        }
+
+        return RecapOptions(
+            chatId = chatId,
+            days = days,
+            model = modelName
+        )
     }
 }
