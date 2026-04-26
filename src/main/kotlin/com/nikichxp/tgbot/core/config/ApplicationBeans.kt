@@ -57,7 +57,7 @@ class ApplicationBeans {
         }
         engine {
             maxConnectionsCount = 1000
-            requestTimeout = 60_000
+            requestTimeout = 120_000
             endpoint {
                 maxConnectionsPerRoute = 100
                 pipelineMaxSize = 20

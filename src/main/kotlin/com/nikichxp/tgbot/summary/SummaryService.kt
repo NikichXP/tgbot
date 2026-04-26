@@ -5,6 +5,8 @@ import com.nikichxp.tgbot.summary.ai.LLMProvider
 import com.nikichxp.tgbot.summary.ai.LLMRequest
 import com.nikichxp.tgbot.summary.entity.LoggedMessage
 import com.nikichxp.tgbot.summary.entity.RecapOptions
+import jakarta.annotation.PostConstruct
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
@@ -18,6 +20,17 @@ class SummaryService(
     private val chatUpdatesToPromptSerializerService: ChatUpdatesToPromptSerializerService,
     private val llmProvider: LLMProvider
 ) {
+
+    val chatId = -1003030324726
+
+    @PostConstruct
+    fun test() {
+        runBlocking {
+            println("doing recap")
+            val recap = getRecap(RecapOptions(chatId, 3, model = "nvidia/nemotron-3-super-120b-a12b:free"))
+            println(recap)
+        }
+    }
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
