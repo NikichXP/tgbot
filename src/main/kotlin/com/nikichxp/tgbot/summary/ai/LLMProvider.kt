@@ -23,12 +23,23 @@ data class LLMRequest(
     val maxTokens: Int? = null
 ) {
     companion object {
-        fun of(systemPrompt: String?, userPrompt: String, model: String? = null): LLMRequest {
+        fun of(
+            systemPrompt: String?,
+            userPrompt: String,
+            model: String? = null,
+            temperature: Double? = null,
+            maxTokens: Int? = null
+        ): LLMRequest {
             val messages = buildList {
                 if (!systemPrompt.isNullOrBlank()) add(LLMMessage(LLMRole.SYSTEM, systemPrompt))
                 add(LLMMessage(LLMRole.USER, userPrompt))
             }
-            return LLMRequest(messages = messages, model = model)
+            return LLMRequest(
+                messages = messages,
+                model = model,
+                temperature = temperature,
+                maxTokens = maxTokens
+            )
         }
     }
 }
