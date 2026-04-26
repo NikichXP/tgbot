@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.summary
 
+import com.nikichxp.tgbot.core.auth.TrustedUserService
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -9,6 +10,7 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
+import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getMarkers
@@ -19,8 +21,12 @@ import org.springframework.stereotype.Service
 class SummaryCommandHandler(
     private val tgMessageService: TgMessageService,
     private val summaryService: SummaryService,
-    private val appConfig: AppConfig
+    private val summaryMessageStorageService: SummaryMessageStorageService,
+    private val appConfig: AppConfig,
+    private val trustedUserService: TrustedUserService
 ) : CommandHandler, UpdateHandler {
+
+    private val defaultModel = "google/gemma-4-31b-it"
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -35,7 +41,7 @@ class SummaryCommandHandler(
         }
 
         if (summaryService.getFeatureEnabledStatus(chatId)) {
-            summaryService.saveUpdate(update)
+            summaryMessageStorageService.storeMessage(update)
         }
     }
 
@@ -74,6 +80,46 @@ class SummaryCommandHandler(
         return true
     }
 
+    @HandleCommand("/whatsup")
+    suspend fun whatsup(args: List<String>, update: Update): Boolean {
+        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
+
+        if (!summaryService.getFeatureEnabledStatus(chatId)) {
+            // ignore, don't let people know this feature exists so far
+            return true
+        }
+
+        var modelName: String? = defaultModel
+
+        if (args.size > 1) {
+            ChatCommandParser.analyze(args) {
+                path("model") {
+                    asArg("modelName") {
+                        if (!trustedUserService.isTrusted(update)) {
+                            tgMessageService.replyToCurrentMessage("Выбор модели вам недоступен")
+                        } else {
+                            modelName = vars["modelName"]
+                        }
+                    }
+                }
+            }
+        }
+
+        tgMessageService.sendMessage {
+            replyToCurrentMessage()
+            text = "Вы почти у цели!"
+        }
+
+        val recap = summaryService.getRecapForToday(chatId, modelName)
+
+        tgMessageService.sendMessage {
+            replyToCurrentMessage()
+            text = recap
+        }
+
+        return true
+    }
+
     @HandleCommand("/summaryfeature")
     suspend fun toggleLogging(args: List<String>, update: Update): Boolean {
         if (!update.getMarkers().contains(UpdateMarker.MESSAGE_IN_GROUP)) {
@@ -92,7 +138,13 @@ class SummaryCommandHandler(
             }
         }
 
-        tgMessageService.replyToCurrentMessage("Summary feature status is: ${summaryService.getFeatureEnabledStatus(chatId)}")
+        tgMessageService.replyToCurrentMessage(
+            "Summary feature status is: ${
+                summaryService.getFeatureEnabledStatus(
+                    chatId
+                )
+            }"
+        )
         return true
     }
 }

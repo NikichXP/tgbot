@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.summary
 
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.summary.entity.LoggedMessage
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeFormatter
 

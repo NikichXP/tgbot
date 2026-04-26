@@ -8,8 +8,10 @@ open class AppConfig(
     var adminBot: String?,
     var webhook: String,
     var localEnv: Boolean,
-    var tokens: Tokens,
-    var tracer: Tracer
+    var tokens: Tokens, // TODO verify that I can delete this
+    var tracer: Tracer,
+    var openRouter: OpenRouter,
+    var trustedUsers: List<String> = emptyList()
 ) {
 
     var suspendBotRegistering: Boolean = false
@@ -29,6 +31,14 @@ open class AppConfig(
             var ttl: Long = 1,
             var capacity: Int = 100,
             var token: String? = null // leave null to disable viewing of traces
+        )
+
+        class OpenRouter(
+            var apiKey: String,
+            var defaultModel: String,
+            var baseUrl: String,
+            var referer: String,
+            var title: String
         )
     }
 }
