@@ -3,8 +3,13 @@ package com.nikichxp.tgbot.summary
 import com.nikichxp.tgbot.core.auth.TrustedUserService
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -61,17 +66,20 @@ class SummaryCommandHandler(
             text = "Генерирую сводку... ${options.getExtraOptionsString()}"
         }
 
-        try {
-            val recap = summaryService.getRecap(options)
+        val updateContext = coroutineContext[UpdateContext] ?: throw IllegalStateException("No update context")
+        CoroutineScope(Dispatchers.IO + updateContext).launch {
+            try {
+                val recap = summaryService.getRecap(options)
 
-            tgMessageService.sendMessage {
-                replyToCurrentMessage()
-                text = recap
-            }
-        } catch (e: Exception) {
-            tgMessageService.sendMessage {
-                replyToCurrentMessage()
-                text = "Произошла ошибка при генерации сводки (${e.javaClass.simpleName})"
+                tgMessageService.sendMessage {
+                    replyToCurrentMessage()
+                    text = recap
+                }
+            } catch (e: Exception) {
+                tgMessageService.sendMessage {
+                    replyToCurrentMessage()
+                    text = "Произошла ошибка при генерации сводки (${e.javaClass.simpleName})"
+                }
             }
         }
 
