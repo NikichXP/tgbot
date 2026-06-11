@@ -71,11 +71,14 @@ class SummaryCommandHandler(
             try {
                 val recap = summaryService.getRecap(options)
 
+                logger.info("Recap generated: $recap")
+
                 tgMessageService.sendMessage {
                     replyToCurrentMessage()
                     text = recap
                 }
             } catch (e: Exception) {
+                e.printStackTrace()
                 tgMessageService.sendMessage {
                     replyToCurrentMessage()
                     text = "Произошла ошибка при генерации сводки (${e.javaClass.simpleName})"
