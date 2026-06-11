@@ -46,7 +46,7 @@ jobs:
           context: .
           file: Dockerfile_copy
           push: true
-          platforms: linux/arm64
+          platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.REGISTRY_URL }}/tgbot:latest
           provenance: false
           no-cache: true
