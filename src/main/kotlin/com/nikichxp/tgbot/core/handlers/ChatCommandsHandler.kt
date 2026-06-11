@@ -35,7 +35,7 @@ class ChatCommandsHandler(
         val command = query.first()
 
         if (!command.startsWith("/")) {
-            logger.info("Command is not a command: $command, update: $update")
+//            logger.info("Command is not a command: $command, update: $update") // todo create debug config for that 
             return
         }
 
