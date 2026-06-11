@@ -49,5 +49,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ secrets.REGISTRY_URL }}/tgbot:latest
           provenance: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          no-cache: true
