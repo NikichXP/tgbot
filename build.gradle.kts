@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.text.SimpleDateFormat
 import java.util.Date
 
-val ktorVersion: String = "3.0.3"
-val kotlinVersion: String = "2.2.10"
-val coroutinesVersion: String = "1.10.1"
+val ktorVersion: String = "3.5.0"
+val kotlinVersion: String = "2.4.0"
+val coroutinesVersion: String = "1.11.0"
 
 val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
 val versionName: String = if (project.hasProperty("appVersion")) project.property("appVersion").toString() else "unknown"
@@ -16,17 +16,17 @@ description = "tgbot"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 plugins {
-    id("org.springframework.boot") version "3.5.3"
+    id("org.springframework.boot") version "3.5.15"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.2.10"
-    kotlin("plugin.spring") version "2.2.10"
+    kotlin("jvm") version "2.4.0"
+    kotlin("plugin.spring") version "2.4.0"
 }
 
 repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2025.0.0"
+extra["springCloudVersion"] = "2025.0.2"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
