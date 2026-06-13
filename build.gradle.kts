@@ -59,6 +59,10 @@ dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
     }
+    dependencies {
+        dependency("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+        dependency("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutinesVersion")
+    }
 }
 
 tasks.withType<KotlinCompile> {
