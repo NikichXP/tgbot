@@ -21,6 +21,7 @@ enum class UpdateMarker(val predicate: Function<Update, Any?>) {
     HAS_CALLBACK({ it.callbackQuery }),
     FORWARDED_MESSAGE({ if (it.message?.forwardFrom != null || it.message?.forwardFromChat != null) true else null }),
     SINGLE_ATTACHMENT({ it.message?.document }),
-    PHOTOS({ it.message?.photo })
+    PHOTOS({ it.message?.photo }),
+    HAS_VOICE({ it.message?.voice })
 
 }

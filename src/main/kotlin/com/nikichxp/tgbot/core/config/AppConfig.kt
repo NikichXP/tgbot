@@ -38,7 +38,8 @@ open class AppConfig(
             var defaultModel: String,
             var baseUrl: String,
             var referer: String,
-            var title: String
+            var title: String,
+            var transcriptionModel: String = "openai/whisper-1"
         )
     }
 }
