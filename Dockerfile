@@ -7,7 +7,7 @@ COPY build.gradle.kts .
 COPY src ./src
 RUN gradle build --no-daemon
 
-FROM amazoncorretto:21-alpine
+FROM amazoncorretto:25.0.3-alpine
 
 WORKDIR /app
 
