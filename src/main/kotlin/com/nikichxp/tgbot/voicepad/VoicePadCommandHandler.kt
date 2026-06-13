@@ -1,8 +1,10 @@
 package com.nikichxp.tgbot.voicepad
 
+import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
+import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -13,14 +15,17 @@ import com.nikichxp.tgbot.core.util.getContextMessageId
 import com.nikichxp.tgbot.core.util.getContextUserId
 import kotlinx.coroutines.currentCoroutineContext
 import org.springframework.stereotype.Service
-import kotlin.coroutines.coroutineContext
 
 @Service
 class VoicePadCommandHandler(
     private val sessionService: VoicePadSessionService,
     private val executionService: VoicePadExecutionService,
-    private val tgMessageService: TgMessageService
-) : CommandHandler, UpdateHandler {
+    private val tgMessageService: TgMessageService,
+    private val appConfig: AppConfig
+) : CommandHandler, UpdateHandler, Authenticable {
+
+    override suspend fun authenticate(update: Update): Boolean =
+        update.getContextUserId() == appConfig.adminId
 
     override fun requiredFeatures() = setOf(Features.TOOLBOX)
 
