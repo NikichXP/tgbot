@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * requested by calling getFile.
  * https://core.telegram.org/bots/api#file
  */
-data class File(
+data class TgFile(
     @JsonProperty(FilesFields.fileId) val fileId: String,
     @JsonProperty(FilesFields.fileUniqueId) val fileUniqueId: String,
     @JsonProperty(FilesFields.fileSize) val fileSize: Int? = null,
