@@ -26,7 +26,7 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2025.0.2"
+extra["springCloudVersion"] = "2025.1.2"
 extra["kotlin-coroutines.version"] = coroutinesVersion
 
 dependencies {
