@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.tooling.TracerService
 import com.nikichxp.tgbot.discord.DiscordService
-import com.nikichxp.tgbot.discord.InputJsonStorage
+import com.nikichxp.tgbot.discord.InteractionResponse
 import org.bson.Document
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,7 +19,6 @@ import org.springframework.web.reactive.function.server.coRouter
 @Configuration
 class InputController(
     private val tgBotV2Service: TgBotV2Service,
-    private val inputJsonStorage: InputJsonStorage,
     private val messageEntryPoint: MessageEntryPoint,
     private val appConfig: AppConfig,
     private val tracerService: TracerService,
@@ -47,16 +46,10 @@ class InputController(
             val timestamp = it.headers().firstHeader("X-Signature-Timestamp")
             val bodyString = it.awaitBody<String>()
 
-            if (!discordService.verifySignature(signature, timestamp, bodyString)) {
-                ServerResponse.status(401).bodyValueAndAwait("Invalid signature")
-            } else {
-                val body = Document.parse(bodyString)
-                inputJsonStorage.saveJson(body.toJson(), token)
-                if (body["type"] == 1) {
-                    ServerResponse.ok().bodyValueAndAwait(Document("type", 1))
-                } else {
-                    ServerResponse.ok().bodyValueAndAwait("ok")
-                }
+            when (val response = discordService.handleInteraction(signature, timestamp, bodyString, token)) {
+                is InteractionResponse.Unauthenticated -> ServerResponse.status(401).bodyValueAndAwait("Invalid signature")
+                is InteractionResponse.Pong -> ServerResponse.ok().bodyValueAndAwait(Document("type", 1))
+                is InteractionResponse.Ok -> ServerResponse.ok().bodyValueAndAwait("ok")
             }
         }
 

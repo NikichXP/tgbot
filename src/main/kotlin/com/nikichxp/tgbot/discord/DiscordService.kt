@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.discord
 
 import com.nikichxp.tgbot.core.config.AppConfig
+import org.bson.Document
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.security.KeyFactory
@@ -9,9 +10,30 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
 @Service
-class DiscordService(private val appConfig: AppConfig) {
+class DiscordService(
+    private val appConfig: AppConfig,
+    private val inputJsonStorage: InputJsonStorage
+) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
+
+    suspend fun handleInteraction(
+        signature: String?,
+        timestamp: String?,
+        bodyString: String,
+        token: String
+    ): InteractionResponse {
+        if (!verifySignature(signature, timestamp, bodyString)) {
+            return InteractionResponse.Unauthenticated
+        }
+        val body = Document.parse(bodyString)
+        inputJsonStorage.saveJson(body.toJson(), token)
+        return if (body["type"] == 1) {
+            InteractionResponse.Pong
+        } else {
+            InteractionResponse.Ok
+        }
+    }
 
     fun verifySignature(signature: String?, timestamp: String?, body: String): Boolean {
         val publicKeyHex = appConfig.discord.publicKey ?: return true
@@ -38,4 +60,10 @@ class DiscordService(private val appConfig: AppConfig) {
             false
         }
     }
+}
+
+sealed class InteractionResponse {
+    object Unauthenticated : InteractionResponse()
+    object Pong : InteractionResponse()
+    object Ok : InteractionResponse()
 }
