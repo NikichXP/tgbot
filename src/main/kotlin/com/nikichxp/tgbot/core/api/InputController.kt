@@ -5,6 +5,7 @@ import com.nikichxp.tgbot.core.error.NotAuthorizedException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.tooling.TracerService
+import com.nikichxp.tgbot.discord.InputJsonStorage
 import org.bson.Document
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,6 +18,7 @@ import org.springframework.web.reactive.function.server.coRouter
 @Configuration
 class InputController(
     private val tgBotV2Service: TgBotV2Service,
+    private val inputJsonStorage: InputJsonStorage,
     private val messageEntryPoint: MessageEntryPoint,
     private val appConfig: AppConfig,
     private val tracerService: TracerService
@@ -27,12 +29,20 @@ class InputController(
         GET("/echo") {
             ServerResponse.ok().bodyValueAndAwait("ok")
         }
+
         POST("/handle/{bot}") {
             val botId = it.pathVariable("bot")
             val botV2Entity = tgBotV2Service.getBotById(botId)
             val body = it.awaitBody<Document>()
             messageEntryPoint.proceedRawData(body, botV2Entity)
             // TODO return ok only if one of handlers/all supported handlers processed the message
+            ServerResponse.ok().bodyValueAndAwait("ok")
+        }
+
+        POST("/discord/{token}") {
+            val token = it.pathVariable("token")
+            val body = it.awaitBody<Document>()
+            inputJsonStorage.saveJson(body.toJson(), token)
             ServerResponse.ok().bodyValueAndAwait("ok")
         }
 
