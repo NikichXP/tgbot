@@ -11,6 +11,7 @@ open class AppConfig(
     var tokens: Tokens, // TODO verify that I can delete this
     var tracer: Tracer,
     var openRouter: OpenRouter,
+    var discord: Discord = Discord(),
     var trustedUsers: List<String> = emptyList()
 ) {
 
@@ -18,6 +19,10 @@ open class AppConfig(
 
     // TODO change registration of the bots to be dynamic | store in DB?
     companion object {
+        class Discord(
+            var publicKey: String? = null
+        )
+
         class Tokens(
             var nikichBot: String?,
             var allMyStuffBot: String?,

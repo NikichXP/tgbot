@@ -5,6 +5,7 @@ import com.nikichxp.tgbot.core.error.NotAuthorizedException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.tooling.TracerService
+import com.nikichxp.tgbot.discord.DiscordService
 import com.nikichxp.tgbot.discord.InputJsonStorage
 import org.bson.Document
 import org.springframework.context.annotation.Bean
@@ -21,7 +22,8 @@ class InputController(
     private val inputJsonStorage: InputJsonStorage,
     private val messageEntryPoint: MessageEntryPoint,
     private val appConfig: AppConfig,
-    private val tracerService: TracerService
+    private val tracerService: TracerService,
+    private val discordService: DiscordService
 ) {
 
     @Bean
@@ -41,9 +43,21 @@ class InputController(
 
         POST("/discord/{token}") {
             val token = it.pathVariable("token")
-            val body = it.awaitBody<Document>()
-            inputJsonStorage.saveJson(body.toJson(), token)
-            ServerResponse.ok().bodyValueAndAwait("ok")
+            val signature = it.headers().firstHeader("X-Signature-Ed25519")
+            val timestamp = it.headers().firstHeader("X-Signature-Timestamp")
+            val bodyString = it.awaitBody<String>()
+
+            if (!discordService.verifySignature(signature, timestamp, bodyString)) {
+                ServerResponse.status(401).bodyValueAndAwait("Invalid signature")
+            } else {
+                val body = Document.parse(bodyString)
+                inputJsonStorage.saveJson(body.toJson(), token)
+                if (body["type"] == 1) {
+                    ServerResponse.ok().bodyValueAndAwait(Document("type", 1))
+                } else {
+                    ServerResponse.ok().bodyValueAndAwait("ok")
+                }
+            }
         }
 
         path("/tracer").nest {
