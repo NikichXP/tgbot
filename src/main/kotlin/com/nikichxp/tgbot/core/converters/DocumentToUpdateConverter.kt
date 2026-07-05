@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.util.JsonFlattenerService
 import com.nikichxp.tgbot.core.util.diffWith
 import org.bson.Document
@@ -18,7 +18,7 @@ class DocumentToUpdateConverter(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
-    fun convert(body: Document, tgBot: TgBotInfoV2): Update? {
+    fun convert(body: Document, tgBot: TgBotInfo): Update? {
         val source = body.toJson()
         try {
             val (update, diff) = parseUpdateAndGetDiff(source)

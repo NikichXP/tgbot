@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -21,7 +21,7 @@ class TgBotWebhookService(
     private var webHookUrl = appConfig.webhook
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun register(botInfo: TgBotInfoV2): Boolean {
+    suspend fun register(botInfo: TgBotInfo): Boolean {
         val webhookPath = "$webHookUrl/${botInfo.name}"
         val response = postCallWith(apiUrl(botInfo, Operation.SET_WEBHOOK), mapOf("url" to webhookPath))
         val status = response.status.value in 200..299
@@ -34,16 +34,16 @@ class TgBotWebhookService(
         return status
     }
 
-    suspend fun unregister(botInfo: TgBotInfoV2): Boolean {
+    suspend fun unregister(botInfo: TgBotInfo): Boolean {
         val response = postCallWith(apiUrl(botInfo, Operation.DELETE_WEBHOOK), mapOf("drop_pending_updates" to false.toString()))
         val status = response.status.value in 200..299
         logger.info(formatLog(botInfo, "Unregister webhook status $status with message: ${response.body<String>()}"))
         return status
     }
 
-    private fun formatLog(botInfo: TgBotInfoV2, message: String): String = "Bot = ${botInfo.name}, message = $message"
+    private fun formatLog(botInfo: TgBotInfo, message: String): String = "Bot = ${botInfo.name}, message = $message"
 
-    private fun apiUrl(botInfo: TgBotInfoV2, operation: Operation): String {
+    private fun apiUrl(botInfo: TgBotInfo, operation: Operation): String {
         val token = tgBotV2Service.getTokenById(botInfo.name)
         return "https://api.telegram.org/bot$token/${operation.endpoint}"
     }

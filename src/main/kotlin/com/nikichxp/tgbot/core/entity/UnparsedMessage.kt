@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.entity
 
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import org.bson.Document
 import org.springframework.data.mongodb.core.index.Indexed
 import java.time.LocalDateTime
@@ -13,7 +13,7 @@ data class UnparsedMessage(
     @Indexed(name = "time_limited_index", expireAfter = "7d")
     var created: LocalDateTime = LocalDateTime.now(),
     var missedKeys: Set<String> = setOf(),
-    var bot: TgBotInfoV2
+    var bot: TgBotInfo
 ) {
 
     var id = random.nextLong()

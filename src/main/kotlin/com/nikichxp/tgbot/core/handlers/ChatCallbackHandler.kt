@@ -22,7 +22,7 @@ class ChatCallbackHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_CALLBACK)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.update
+        val update = updateContext.getUpdate()
         val callbackContext = CallbackContext(update)
         val result = callbackHandlers
 //            .filter { it.isBotSupported(update.bot) }

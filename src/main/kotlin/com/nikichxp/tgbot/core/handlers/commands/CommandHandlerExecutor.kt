@@ -12,7 +12,7 @@ import kotlin.reflect.full.isSubtypeOf
 class CommandHandlerExecutor {
 
     suspend fun execute(handler: SingleCommandHandler, args: List<String>, updateContext: UpdateContext): Boolean {
-        val update = updateContext.update
+        val update = updateContext.getUpdate()
         val executionArgs = mutableListOf<Any>()
 
         for (parameter in handler.function.parameters) {

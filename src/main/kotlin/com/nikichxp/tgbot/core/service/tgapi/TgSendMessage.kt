@@ -18,12 +18,12 @@ class TgSendMessage {
     val callbacks = mutableListOf<(TgSentMessageResponse) -> Unit>()
 
     suspend fun sendInCurrentChat() {
-        val update = getCurrentUpdateContext().update
+        val update = getCurrentUpdateContext().getUpdate()
         this.chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
     }
 
     suspend fun replyToCurrentMessage() {
-        val update = getCurrentUpdateContext().update
+        val update = getCurrentUpdateContext().getUpdate()
         this.chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
         this.replyParameters = TgReplyParameters(chatId, update.getContextMessageId() ?: throw IllegalArgumentException("Can't get message id"))
     }

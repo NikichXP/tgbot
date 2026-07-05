@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.handlers.callbacks
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.util.getContextChatId
 
 data class CallbackContext(
@@ -9,7 +9,7 @@ data class CallbackContext(
     var data: String,
     var messageText: String,
     var buttonText: String,
-    var botInfo: TgBotInfoV2,
+    var botInfo: TgBotInfo,
     var chatId: Long,
     var messageId: Long
 ) {

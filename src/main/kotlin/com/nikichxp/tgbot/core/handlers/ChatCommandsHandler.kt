@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.core.handlers
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
@@ -28,7 +27,7 @@ class ChatCommandsHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.update
+        val update = updateContext.getUpdate()
         val query = update.message?.text?.split(" ") ?: run {
             logger.info("No text in update: $update") // todo this is for debug, remove later
             return
@@ -63,7 +62,7 @@ class ChatCommandsHandler(
     }
 
     private fun isRequiredFeatureSupported(handler: SingleCommandHandler, updateContext: UpdateContext): Boolean {
-        return updateContext.tgBotV2.supportedFeatures.containsAll(handler.handler.requiredFeatures())
+        return updateContext.getBotInfo().getSupportedFeatures().containsAll(handler.handler.requiredFeatures())
     }
 
 }

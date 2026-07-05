@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.summary
 import com.nikichxp.tgbot.core.auth.TrustedUserService
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
@@ -39,7 +40,7 @@ class SummaryCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_GROUP)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.update
+        val update = updateContext.getUpdate()
         val chatId = update.getContextChatId() ?: run {
             logger.warn("Cannot get chatId in update: $update")
             return
@@ -52,7 +53,7 @@ class SummaryCommandHandler(
 
     @HandleCommand("/whatsup")
     suspend fun whatsup(args: List<String>, updateContext: UpdateContext): Boolean {
-        val update = updateContext.update
+        val update = updateContext.getUpdate()
         val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
 
         if (!summaryService.getFeatureEnabledStatus(chatId)) {
@@ -66,7 +67,7 @@ class SummaryCommandHandler(
             text = "Генерирую сводку... ${options.getExtraOptionsString()}"
         }
 
-        CoroutineScope(Dispatchers.IO + updateContext).launch {
+        CoroutineScope(Dispatchers.IO + updateContext as TgUpdateContext).launch {
             try {
                 val recap = summaryService.getRecap(options)
 
@@ -90,7 +91,7 @@ class SummaryCommandHandler(
 
     @HandleCommand("/summaryfeature")
     suspend fun toggleLogging(args: List<String>, updateContext: UpdateContext): Boolean {
-        val update = updateContext.update
+        val update = updateContext.getUpdate()
         if (!update.getMarkers().contains(UpdateMarker.MESSAGE_IN_GROUP)) {
             tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }

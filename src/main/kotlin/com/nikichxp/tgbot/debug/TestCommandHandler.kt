@@ -50,7 +50,7 @@ class TestCommandHandler(
 
     @HandleCommand("/myid")
     suspend fun myId(updateContext: UpdateContext) {
-        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.update.getContextChatId()}")
+        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.getUpdate().getContextChatId()}")
     }
 
     @HandleCommand("/removekeys")

@@ -2,7 +2,8 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.BotInfo
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
@@ -21,11 +22,12 @@ class TgMethodExecutor(
 
     private val logger = LoggerFactory.getLogger(TgMethodExecutor::class.java)
 
-    suspend fun execute(tgBot: TgBotInfoV2, method: String, parameters: Any): ResponseEntity<JsonNode> {
+    suspend fun execute(tgBot: BotInfo, method: String, parameters: Any): ResponseEntity<JsonNode> {
+        require(tgBot is TgBotInfo) {"TgMethodExecutor can only execute methods for TgBotInfo"}
         return execute(tgBot, method, parameters, 0)
     }
 
-    private suspend fun execute(tgBot: TgBotInfoV2, method: String, parameters: Any, retryNumber: Int): ResponseEntity<JsonNode> {
+    private suspend fun execute(tgBot: TgBotInfo, method: String, parameters: Any, retryNumber: Int): ResponseEntity<JsonNode> {
         try {
             val body = objectMapper.valueToTree<JsonNode>(parameters)
             return restTemplate.postForEntity<JsonNode>(

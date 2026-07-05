@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import io.ktor.client.*
@@ -36,7 +36,7 @@ class TgUpdatePollService(
     private val scope = CoroutineScope(dispatcher)
     private val activePollingInfo = ConcurrentSet<PollingInfo>()
 
-    fun startPollingFor(botInfo: TgBotInfoV2) {
+    fun startPollingFor(botInfo: TgBotInfo) {
         val lastKnownMessage = tgLastKnownMessageService.getLastKnownMessage(botInfo)
         val pollingInfo = mapToPollingInfo(botInfo, lastKnownMessage)
         activePollingInfo.add(pollingInfo)
@@ -71,7 +71,7 @@ class TgUpdatePollService(
     }
 
 
-    private fun mapToPollingInfo(botInfo: TgBotInfoV2, lastKnownMessage: BotLastKnownMessage): PollingInfo {
+    private fun mapToPollingInfo(botInfo: TgBotInfo, lastKnownMessage: BotLastKnownMessage): PollingInfo {
         val token = tgBotV2Service.getTokenById(botInfo.name)
         return PollingInfo(botInfo, lastKnownMessage.updateId, lastKnownMessage.date)
             .also { it.token = token }

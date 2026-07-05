@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.voicepad
 
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
@@ -74,8 +75,8 @@ class VoicePadCommandHandler(
     }
 
     @HandleCommand("/execute")
-    suspend fun execute(update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: return false
+    suspend fun execute(updateContext: UpdateContext): Boolean {
+        val chatId = updateContext.getChatId()
         val session = sessionService.getActiveSession(chatId)
 
         if (session == null) {
@@ -88,8 +89,8 @@ class VoicePadCommandHandler(
             return false
         }
 
-        val updateContext = currentCoroutineContext()[UpdateContext] ?: throw IllegalStateException("No update context")
-        executionService.execute(session, chatId, update.bot, updateContext)
+        val updateContext = currentCoroutineContext()[TgUpdateContext] ?: throw IllegalStateException("No update context")
+        executionService.execute(session, chatId, updateContext.tgBotV2, updateContext)
         return true
     }
 

@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.core.dto.payments.PreCheckoutQuery
 import com.nikichxp.tgbot.core.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.core.dto.polls.Poll
 import com.nikichxp.tgbot.core.dto.polls.PollAnswer
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import org.springframework.data.annotation.Id
 
 data class Update(
@@ -27,6 +27,6 @@ data class Update(
 
     // TODO think about: maybe move this to updateContext, TBD
     @JsonIgnore
-    lateinit var bot: TgBotInfoV2
+    lateinit var bot: TgBotInfo
 
 }

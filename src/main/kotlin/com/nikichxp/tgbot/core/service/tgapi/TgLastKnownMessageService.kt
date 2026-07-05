@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.springframework.data.mongodb.core.MongoTemplate
@@ -16,13 +16,13 @@ class TgLastKnownMessageService(
 
     private val lastKnownMessageCache = ConcurrentHashMap<String, Long>()
 
-    fun getLastKnownMessage(botInfo: TgBotInfoV2): BotLastKnownMessage {
+    fun getLastKnownMessage(botInfo: TgBotInfo): BotLastKnownMessage {
         return mongoTemplate.findById<BotLastKnownMessage>(botInfo.name)
             ?: BotLastKnownMessage(botInfo.name, 0)
     }
 
 
-    suspend fun updateLastKnownMessage(botInfo: TgBotInfoV2, updateId: Long) {
+    suspend fun updateLastKnownMessage(botInfo: TgBotInfo, updateId: Long) {
         coroutineScope {
             launch {
                 synchronized(botInfo.name.intern()) {

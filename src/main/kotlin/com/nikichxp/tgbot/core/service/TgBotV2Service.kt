@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findAll
@@ -14,16 +14,16 @@ class TgBotV2Service(
     private val appConfig: AppConfig
 ) {
 
-    fun getAdminBot(): TgBotInfoV2 {
+    fun getAdminBot(): TgBotInfo {
         return appConfig.adminBot?.let { getBotById(it) } ?: throw IllegalStateException("Admin bot is not configured")
     }
 
-    fun getBotById(botId: String): TgBotInfoV2 {
-        return TgBotInfoV2(getBotEntityById(botId))
+    fun getBotById(botId: String): TgBotInfo {
+        return TgBotInfo(getBotEntityById(botId))
     }
 
-    fun listBots(): List<TgBotInfoV2> {
-        return mongoTemplate.findAll<TgBotInfoV2Entity>().map { TgBotInfoV2(it) }
+    fun listBots(): List<TgBotInfo> {
+        return mongoTemplate.findAll<TgBotInfoV2Entity>().map { TgBotInfo(it) }
     }
 
     fun getTokenById(botId: String): String {

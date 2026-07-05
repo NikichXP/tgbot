@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import java.time.LocalDateTime
 import java.util.LinkedList
 
@@ -12,7 +12,7 @@ data class TgResponse(
 )
 
 data class PollingInfo(
-    val bot: TgBotInfoV2,
+    val bot: TgBotInfo,
     var lastUpdate: Long,
     var lastUpdateFetched: LocalDateTime
 ) {

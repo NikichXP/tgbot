@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.voicepad
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.TgGetFileResponse
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -23,7 +23,7 @@ class TgFileDownloadService(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun downloadVoice(fileId: String, bot: TgBotInfoV2): ByteArray {
+    suspend fun downloadVoice(fileId: String, bot: TgBotInfo): ByteArray {
         val token = tgBotV2Service.getTokenById(bot.name)
         val apiBase = "$TG_API_BASE$token"
 

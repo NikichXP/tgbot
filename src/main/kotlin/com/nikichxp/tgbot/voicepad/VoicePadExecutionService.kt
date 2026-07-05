@@ -1,7 +1,8 @@
 package com.nikichxp.tgbot.voicepad
 
+import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,7 @@ class VoicePadExecutionService(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun execute(session: VoicePadSession, chatId: Long, bot: TgBotInfoV2, updateContext: UpdateContext) {
+    suspend fun execute(session: VoicePadSession, chatId: Long, bot: TgBotInfo, updateContext: UpdateContext) {
         val processor = processors.find { it.command == session.command }
         if (processor == null) {
             logger.error("No processor found for command: {}", session.command)
@@ -35,7 +36,8 @@ class VoicePadExecutionService(
         val triggerMessageId = session.triggerMessageId
         sessionService.completeSession(session)
 
-        CoroutineScope(Dispatchers.IO + updateContext).launch {
+        // TODO this is probably should be redesigned
+        CoroutineScope(Dispatchers.IO + updateContext as TgUpdateContext).launch {
             try {
                 val transcriptions = session.voiceEntries.map { entry ->
                     val bytes = fileDownloadService.downloadVoice(entry.fileId, bot)

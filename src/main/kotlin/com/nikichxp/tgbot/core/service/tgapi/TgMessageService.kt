@@ -3,8 +3,8 @@ package com.nikichxp.tgbot.core.service.tgapi
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.BotInfo
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.service.helper.ErrorService
 import com.nikichxp.tgbot.core.util.getContextChatId
@@ -25,6 +25,8 @@ import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
+// TODO make message service non-bound to telegram, it should create a message-to-send entity and route it
+//  to correct method executor
 @Service
 class TgMessageService(
     private val tgMethodExecutor: TgMethodExecutor,
@@ -36,7 +38,7 @@ class TgMessageService(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private suspend fun getCurrentUpdate(): Update = getCurrentUpdateContext().update
+    private suspend fun getCurrentUpdate(): Update = getCurrentUpdateContext().getUpdate()
 
     suspend fun sendMessage(
         chatId: Long,
@@ -51,17 +53,17 @@ class TgMessageService(
     }
 
     suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
-        sendMessage(getCurrentUpdateContext().tgBotV2, messageDSL)
+        sendMessage(getCurrentUpdateContext().getBotInfo(), messageDSL)
     }
 
-    suspend fun sendMessage(tgBot: TgBotInfoV2, messageDSL: suspend TgSendMessage.() -> Unit) {
+    suspend fun sendMessage(tgBot: BotInfo, messageDSL: suspend TgSendMessage.() -> Unit) {
         val message = TgSendMessage.create(messageDSL)
         sendMessage(message, tgBot)
     }
 
     suspend fun sendMessage(
         message: TgSendMessage,
-        tgBot: TgBotInfoV2,
+        tgBot: BotInfo,
     ) {
         val rawResponse = tgMethodExecutor.execute(tgBot, "sendMessage", message)
         val response = objectMapper.treeToValue(rawResponse.body, TgSentMessageResponse::class.java)
@@ -90,7 +92,7 @@ class TgMessageService(
         chatId: Long,
         messageId: Long,
         text: String,
-        bot: TgBotInfoV2,
+        bot: TgBotInfo,
         replyMarkup: TgReplyMarkup? = null,
     ) {
 
@@ -111,7 +113,7 @@ class TgMessageService(
 
     suspend fun sendDocument(
         chatId: Long,
-        bot: TgBotInfoV2,
+        bot: TgBotInfo,
         fileName: String,
         fileContent: ByteArray,
         caption: String? = null,

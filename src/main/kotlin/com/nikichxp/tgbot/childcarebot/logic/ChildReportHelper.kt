@@ -87,7 +87,7 @@ class ChildReportHelper(
     }
 
     private fun getChild(updateContext: UpdateContext): ChildInfo {
-        val userId = updateContext.update.getContextUserId() ?: throw IllegalStateException("Cannot find user in update!")
+        val userId = updateContext.getUpdate().getContextUserId() ?: throw IllegalStateException("Cannot find user in update!")
         return childInfoRepo.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
     }
 

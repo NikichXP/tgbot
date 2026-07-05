@@ -2,8 +2,9 @@ package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.tgapi.TgLastKnownMessageService
 import com.nikichxp.tgbot.core.tooling.TracerService
 import kotlinx.coroutines.coroutineScope
@@ -23,7 +24,7 @@ class MessageEntryPoint(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    suspend fun proceedRawData(body: Document, bot: TgBotInfoV2) {
+    suspend fun proceedRawData(body: Document, bot: TgBotInfo) {
         logger.info("Received message: $body")
         tracerService.logEvent(body)
         try {
@@ -36,9 +37,9 @@ class MessageEntryPoint(
         }
     }
 
-    suspend fun proceedUpdate(update: Update, bot: TgBotInfoV2) {
+    suspend fun proceedUpdate(update: Update, bot: TgBotInfo) {
         update.bot = bot
-        val updateContext = UpdateContext(update, bot)
+        val updateContext = TgUpdateContext(update, bot)
         coroutineScope {
             withContext(updateContext) {
                 updateProcessor.proceedUpdate(updateContext)
