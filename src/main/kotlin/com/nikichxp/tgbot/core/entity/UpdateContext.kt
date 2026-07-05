@@ -4,6 +4,10 @@ import com.nikichxp.tgbot.core.dto.Message
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.BotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
+import com.nikichxp.tgbot.core.entity.common.CallbackModel
+import com.nikichxp.tgbot.core.entity.common.MessageModel
+import com.nikichxp.tgbot.core.entity.common.ReplyModel
+import com.nikichxp.tgbot.core.entity.common.UserModel
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 
@@ -15,17 +19,34 @@ interface UpdateContext {
 
     fun getChatId(): Long
 
+    val from: UserModel?
+    val reply: ReplyModel?
+    val message: MessageModel?
+    val callback: CallbackModel?
+
 }
 
-data class TgUpdateContext(private val update: Update, var tgBotV2: TgBotInfo) :
+data class TgUpdateContext(
+    private val update: Update,
+    var tgBotV2: TgBotInfo
+) :
     AbstractCoroutineContextElement(TgUpdateContext),
     UpdateContext {
 
+    var id: Long = update.updateId
+
+    override var from: UserModel? = null
+    override var reply: ReplyModel? = null
+    override var message: MessageModel? = null
+    override var callback: CallbackModel? = null
+
     companion object Key : CoroutineContext.Key<TgUpdateContext>
 
+    // TODO do everything needed to remove this method
     override fun getUpdate(): Update = update
     override fun getBotInfo(): BotInfo = tgBotV2
     override fun getChatId(): Long = getContextChatId() ?: throw IllegalStateException("No chat id found")
+
 
     fun getContextChatId(): Long? = getMentionedMessage()?.chat?.id
     fun getContextUserId(): Long? = getMentionedMessage()?.from?.id

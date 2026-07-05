@@ -19,7 +19,8 @@ class MessageEntryPoint(
     private val converter: DocumentToUpdateConverter,
     private val updateProcessor: UpdateProcessor,
     private val tracerService: TracerService,
-    private val tgLastKnownMessageService: TgLastKnownMessageService
+    private val tgLastKnownMessageService: TgLastKnownMessageService,
+    private val tgUpdateContextMapper: TgUpdateContextMapper
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -38,8 +39,7 @@ class MessageEntryPoint(
     }
 
     suspend fun proceedUpdate(update: Update, bot: TgBotInfo) {
-        update.bot = bot
-        val updateContext = TgUpdateContext(update, bot)
+        val updateContext = tgUpdateContextMapper.mapToUpdateContext(update, bot)
         coroutineScope {
             withContext(updateContext) {
                 updateProcessor.proceedUpdate(updateContext)
