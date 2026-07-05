@@ -6,20 +6,18 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getMarkers
 import com.nikichxp.tgbot.summary.entity.RecapOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -40,7 +38,8 @@ class SummaryCommandHandler(
 
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_GROUP)
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.update
         val chatId = update.getContextChatId() ?: run {
             logger.warn("Cannot get chatId in update: $update")
             return
@@ -52,7 +51,8 @@ class SummaryCommandHandler(
     }
 
     @HandleCommand("/whatsup")
-    suspend fun whatsup(args: List<String>, update: Update): Boolean {
+    suspend fun whatsup(args: List<String>, updateContext: UpdateContext): Boolean {
+        val update = updateContext.update
         val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
 
         if (!summaryService.getFeatureEnabledStatus(chatId)) {
@@ -66,7 +66,6 @@ class SummaryCommandHandler(
             text = "Генерирую сводку... ${options.getExtraOptionsString()}"
         }
 
-        val updateContext = coroutineContext[UpdateContext] ?: throw IllegalStateException("No update context")
         CoroutineScope(Dispatchers.IO + updateContext).launch {
             try {
                 val recap = summaryService.getRecap(options)
@@ -90,7 +89,8 @@ class SummaryCommandHandler(
     }
 
     @HandleCommand("/summaryfeature")
-    suspend fun toggleLogging(args: List<String>, update: Update): Boolean {
+    suspend fun toggleLogging(args: List<String>, updateContext: UpdateContext): Boolean {
+        val update = updateContext.update
         if (!update.getMarkers().contains(UpdateMarker.MESSAGE_IN_GROUP)) {
             tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }

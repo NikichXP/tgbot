@@ -9,6 +9,7 @@ import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.service.helper.ErrorService
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
+import com.nikichxp.tgbot.core.util.getCurrentUpdateContext
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
@@ -35,22 +36,12 @@ class TgMessageService(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private suspend fun getCurrentUpdateContext(): UpdateContext = coroutineScope {
-        this.coroutineContext[UpdateContext] ?: try {
-            throw IllegalStateException("No update context found")
-        } catch (e: Exception) {
-            errorService.logAndReportError(logger, "No update context found", e)
-            throw e
-        }
-    }
-
     private suspend fun getCurrentUpdate(): Update = getCurrentUpdateContext().update
 
     suspend fun sendMessage(
         chatId: Long,
         text: String,
-        replyToMessageId: Long? = null,
-        retryNumber: Int = 0,
+        replyToMessageId: Long? = null
     ) {
         sendMessage {
             this.chatId = chatId

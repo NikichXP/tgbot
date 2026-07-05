@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.core.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
@@ -20,7 +21,8 @@ class ChatCallbackHandler(
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_CALLBACK)
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.update
         val callbackContext = CallbackContext(update)
         val result = callbackHandlers
 //            .filter { it.isBotSupported(update.bot) }

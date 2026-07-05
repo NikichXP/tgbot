@@ -27,7 +27,8 @@ class ChatCommandsHandler(
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.update
         val query = update.message?.text?.split(" ") ?: run {
             logger.info("No text in update: $update") // todo this is for debug, remove later
             return
@@ -42,11 +43,10 @@ class ChatCommandsHandler(
         val args = query.drop(1).filter(String::isNotEmpty)
 
         coroutineScope {
-            val updateContext = this.coroutineContext[UpdateContext] ?: throw IllegalStateException("No update context found")
             val result = commandHandlerExecutorMap[command]?.let {
                 it.filter { handler -> isRequiredFeatureSupported(handler, updateContext) }
                     .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(update) else true }
-                    .map { handler -> commandHandlerExecutor.execute(handler, args, update) }
+                    .map { handler -> commandHandlerExecutor.execute(handler, args, updateContext) }
             }
 
             val log = when {

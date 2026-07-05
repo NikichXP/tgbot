@@ -40,7 +40,7 @@ class MessageEntryPoint(
         update.bot = bot
         val updateContext = UpdateContext(update, bot)
         coroutineScope {
-            withContext(this.coroutineContext + updateContext) {
+            withContext(updateContext) {
                 updateProcessor.proceedUpdate(updateContext)
             }
             launch {

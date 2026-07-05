@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
@@ -48,8 +49,8 @@ class TestCommandHandler(
     }
 
     @HandleCommand("/myid")
-    suspend fun myId(update: Update) {
-        tgMessageService.replyToCurrentMessage("Your id is ${update.getContextChatId()}")
+    suspend fun myId(updateContext: UpdateContext) {
+        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.update.getContextChatId()}")
     }
 
     @HandleCommand("/removekeys")

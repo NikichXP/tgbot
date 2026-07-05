@@ -29,7 +29,7 @@ class UpdateProcessor(
         coroutineScope {
             val updateJobs = supportedHandlers.map { handler ->
                 launch {
-                    handler.handleUpdate(updateContext.update)
+                    handler.handleUpdate(updateContext)
                 }.let { job -> UpdateProcessContext(updateContext, handler, job) }
             }
             updateJobs.forEach { waitForJobCompletion(it) }
