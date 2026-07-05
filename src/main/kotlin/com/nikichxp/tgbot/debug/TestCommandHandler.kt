@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
@@ -112,7 +113,8 @@ class TestCommandHandler(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,
-            bot = callbackContext.botInfo,
+            // TODO remove this cast
+            bot = callbackContext.botInfo as? TgBotInfo ?: throw IllegalArgumentException("Bot info is not TgBotInfo"),
             replyMarkup = TgInlineKeyboard.of(getKeys())
         )
         return true
