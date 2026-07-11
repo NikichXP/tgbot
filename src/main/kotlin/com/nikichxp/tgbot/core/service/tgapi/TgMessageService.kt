@@ -71,7 +71,7 @@ class TgMessageService(
         )
     }
 
-    suspend fun editMessageText(
+    suspend fun updateMessageText(
         chatId: Long,
         messageId: Long,
         text: String,
@@ -125,6 +125,7 @@ class TgMessageService(
         }
     }
 
+    // TODO this has multiple parameters, use class as parameter
     suspend fun sendDocument(
         chatId: Long,
         bot: TgBotInfo,
