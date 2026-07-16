@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.text.SimpleDateFormat
 import java.util.Date
 
-val ktorVersion: String = "3.5.0"
+val ktorVersion: String = "3.5.1"
 val kotlinVersion: String = "2.4.0"
 val coroutinesVersion: String = "1.11.0"
 
