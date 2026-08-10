@@ -40,7 +40,8 @@ class VoicePadCommandHandler(
         return session.triggerMessageId == replyToId
     }
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val chatId = update.getContextChatId() ?: return
         val voice = update.message?.voice ?: return
         val messageId = update.getContextMessageId() ?: return
