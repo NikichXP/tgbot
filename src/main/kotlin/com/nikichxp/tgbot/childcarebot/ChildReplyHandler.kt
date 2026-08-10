@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildTimezoneService
 import com.nikichxp.tgbot.core.dto.Message
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -24,7 +25,8 @@ class ChildReplyHandler(
 
     override fun requiredFeatures(): Set<String> = setOf(Features.CHILD_TRACKER)
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val text = update.message?.text ?: return
 
         when {
