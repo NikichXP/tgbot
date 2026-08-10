@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.dto.User
 import com.nikichxp.tgbot.core.entity.InteractionRole
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.UpdateMarker.HAS_TEXT
 import com.nikichxp.tgbot.core.entity.UpdateMarker.MESSAGE_IN_GROUP
@@ -25,7 +26,8 @@ class GroupChatKarmaHandler(
 
     override fun requiredFeatures() = setOf(Features.KARMA)
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val messageAuthor = getMessageAuthorId(update)
         val replyTarget = getMessageReplyTarget(update) ?: return
         val reaction = textClassifier.classify(update.message!!.text!!)

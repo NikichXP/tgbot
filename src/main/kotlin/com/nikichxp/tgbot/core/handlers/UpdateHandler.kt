@@ -6,8 +6,6 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 
 interface UpdateHandler : BotSupportFeature {
     fun getMarkers(): Set<UpdateMarker>
-    suspend fun handleUpdate(updateContext: UpdateContext) = handleUpdate(updateContext.getUpdate())
-    @Deprecated("Use handleUpdate(updateContext) instead")
-    suspend fun handleUpdate(update: Update) { throw UnsupportedOperationException("Not implemented") }
+    suspend fun handleUpdate(updateContext: UpdateContext)
     fun canHandle(update: Update): Boolean = true
 }

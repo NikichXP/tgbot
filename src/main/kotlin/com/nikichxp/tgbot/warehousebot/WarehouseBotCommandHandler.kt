@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.warehousebot
 
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -29,7 +30,7 @@ class WarehouseBotCommandHandler(
         return update.message?.text?.startsWith("/") ?: false
     }
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
         // TODO implement this
     }
 

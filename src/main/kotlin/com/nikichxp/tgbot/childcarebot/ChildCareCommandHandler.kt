@@ -101,7 +101,8 @@ class ChildCareCommandHandler(
     }
 
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val text = update.message?.text
 
         if (text == null) {
