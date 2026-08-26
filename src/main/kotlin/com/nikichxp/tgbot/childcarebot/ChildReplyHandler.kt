@@ -27,18 +27,18 @@ class ChildReplyHandler(
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
         val update = updateContext.getUpdate()
-        val text = update.message?.text ?: return
+        val text = updateContext.message?.text ?: return
 
         when {
             text.matches(TIME_PATTERN.toRegex()) -> {
-                updateEventTimeByProvidedTime(text, update.message)
+                updateEventTimeByProvidedTime(text, update.message!!)
             }
 
             text.matches(TIME_DIFF_PATTERN.toRegex()) -> {
-                updateEventTimeByDiffShift(text, update.message)
+                updateEventTimeByDiffShift(text, update.message!!)
             }
             text.matches(ISO_DURATION_PATTERN.toRegex()) -> {
-                updateEventTimeByIsoDuration(text, update.message)
+                updateEventTimeByIsoDuration(text, update.message!!)
             }
 
             else -> return
