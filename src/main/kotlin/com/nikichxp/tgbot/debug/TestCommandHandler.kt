@@ -11,7 +11,6 @@ import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
-import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
@@ -51,7 +50,7 @@ class TestCommandHandler(
 
     @HandleCommand("/myid")
     suspend fun myId(updateContext: UpdateContext) {
-        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.getUpdate().getContextChatId()}")
+        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.getChatId()}")
     }
 
     @HandleCommand("/removekeys")
