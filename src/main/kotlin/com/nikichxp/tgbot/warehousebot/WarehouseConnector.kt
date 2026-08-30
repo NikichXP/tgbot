@@ -11,7 +11,7 @@ class WarehouseConnector(
     private val client: HttpClient
 ) {
 
-    @Value("\${app.warehouse.url}")
+    @Value("\${app.warehouse.url:https://warehouse.nikichxp.xyz/storage}")
     private lateinit var serviceUrl: String
 
     suspend fun listWarehouseEntities(userId: String): List<SKU> {

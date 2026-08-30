@@ -26,7 +26,6 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2025.0.2"
 extra["kotlin-coroutines.version"] = coroutinesVersion
 
 dependencies {
@@ -36,8 +35,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutinesVersion")
     implementation(platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutinesVersion"))
@@ -57,9 +54,6 @@ dependencies {
 }
 
 dependencyManagement {
-    imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-    }
     dependencies {
         dependency("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
         dependency("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutinesVersion")

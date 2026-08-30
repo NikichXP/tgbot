@@ -1,5 +1,58 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState
+
 spring:
   application:
     name: tgbot
   config:
-    import: configserver:${CONFIG_SERVER}
+    import: "optional:file:.env[.properties]"
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/tg-bot}
+      database: ${MONGODB_DATABASE:tg-bot}
+      auto-index-creation: true
+
+app:
+  adminId: ${APP_ADMIN_ID:0}
+  adminBot: ${APP_ADMIN_BOT:}
+  webhook: ${APP_WEBHOOK:https://bot.nikichxp.xyz/handle}
+  localEnv: ${APP_LOCAL_ENV:false}
+  suspendBotRegistering: ${APP_SUSPEND_BOT_REGISTERING:false}
+  tokens:
+    nikichBot: ${APP_TOKENS_NIKICHBOT:}
+    allMyStuffBot: ${APP_TOKENS_ALLMYSTUFFBOT:}
+    santaBot: ${APP_TOKENS_SANTABOT:}
+    demoBot: ${APP_TOKENS_DEMOBOT:}
+    childTrackerBot: ${APP_TOKENS_CHILDTRACKERBOT:}
+  warehouse:
+    url: ${APP_WAREHOUSE_URL:https://warehouse.nikichxp.xyz/storage}
+  tracer:
+    store: ${APP_TRACER_STORE:true}
+    ttl: ${APP_TRACER_TTL:24}
+    capacity: ${APP_TRACER_CAPACITY:100}
+    token: ${APP_TRACER_TOKEN:}
+  openRouter:
+    apiKey: ${OPENROUTER_API_KEY:}
+    defaultModel: ${OPENROUTER_DEFAULT_MODEL:openai/gpt-4o-mini}
+    baseUrl: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+    referer: ${OPENROUTER_REFERER:https://bot.nikichxp.xyz}
+    title: ${OPENROUTER_TITLE:TGBot}
+    transcriptionModel: ${OPENROUTER_TRANSCRIPTION_MODEL:openai/whisper-1}
+  discord:
+    publicKey: ${DISCORD_PUBLIC_KEY:}
+  trustedUsers: ${APP_TRUSTED_USERS:}
