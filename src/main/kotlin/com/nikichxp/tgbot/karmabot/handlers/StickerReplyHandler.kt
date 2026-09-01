@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.karmabot.handlers
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -34,7 +35,8 @@ class StickerReplyHandler(
     override fun requiredFeatures() = setOf(Features.KARMA)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY, UpdateMarker.HAS_STICKER)
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val members = update.getMembers() ?: return
         val (fromId, toId) = members.let {
             it.author?.id to it.target?.id

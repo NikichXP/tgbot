@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.karmabot.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
 import com.nikichxp.tgbot.core.handlers.Features
@@ -90,7 +91,8 @@ class MessageStatHandler(
 
 
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val (userId, userName) = getIdAndName(update)
         val chatId = update.message?.chat?.id ?: throw NotHandledSituationError()
         userStat.processNewMessage(chatId, userId, userName)

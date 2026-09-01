@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.debug.interaction
 
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
@@ -22,7 +23,8 @@ class NewUserInteractionHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.ALL)
     override fun requiredFeatures(): Set<String> = setOf()
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val userId = update.getContextChatId() ?: return
         val botName = update.bot.name
         val key = "$userId:$botName"

@@ -19,74 +19,93 @@ enum class MentionedPartyKey(val value: String) {
     REPLY_TO_CHAT_ID("replyTo.chatId"),
     REPLY_TO_CHAT_TYPE("replyTo.chatType"),
     REPLY_TO_CHAT_TITLE("replyTo.chatTitle"),
+    MESSAGE_ID("message.id"),
     MESSAGE_TEXT("message.text")
 }
 
 data class InvolvedParties(
-    val parties: Map<MentionedPartyKey, String>
+    val from: UserModel?,
+    val reply: ReplyModel?,
+    val message: MessageModel?
 ) {
-    fun get(key: MentionedPartyKey): String? = parties[key]
-
-    fun getFrom(): UserModel? {
-        val id = parties[MentionedPartyKey.FROM_ID] ?: return null
-        val username = parties[MentionedPartyKey.FROM_USERNAME]
-        val fullName = parties[MentionedPartyKey.FROM_FULL_NAME] ?: return null
-        return UserModel(id, username, fullName)
-    }
-
-    fun getReply(): ReplyModel? {
-        val id = parties[MentionedPartyKey.REPLY_TO_ID] ?: return null
-        val username = parties[MentionedPartyKey.REPLY_TO_USERNAME]
-        val fullName = parties[MentionedPartyKey.REPLY_TO_FULL_NAME] ?: return null
-        val messageId = parties[MentionedPartyKey.REPLY_TO_MESSAGE_ID] ?: return null
-        val text = parties[MentionedPartyKey.REPLY_TO_TEXT] ?: return null
-        val chatId = parties[MentionedPartyKey.REPLY_TO_CHAT_ID] ?: return null
-        val chatType = parties[MentionedPartyKey.REPLY_TO_CHAT_TYPE] ?: return null
-        val chatTitle = parties[MentionedPartyKey.REPLY_TO_CHAT_TITLE] ?: return null
-        return ReplyModel(id, username, fullName, messageId, text, chatId, chatType, chatTitle)
-    }
-
-    fun getMessage(): MessageModel? {
-        val text = parties[MentionedPartyKey.MESSAGE_TEXT] ?: return null
-        return MessageModel(text)
+    fun toFlattenedMap(): Map<MentionedPartyKey, String> {
+        val result = mutableMapOf<MentionedPartyKey, String>()
+        
+        from?.let {
+            result[MentionedPartyKey.FROM_ID] = it.id
+            it.username?.let { username -> result[MentionedPartyKey.FROM_USERNAME] = username }
+            result[MentionedPartyKey.FROM_FULL_NAME] = it.fullName
+        }
+        
+        reply?.let {
+            result[MentionedPartyKey.REPLY_TO_ID] = it.id
+            it.username?.let { username -> result[MentionedPartyKey.REPLY_TO_USERNAME] = username }
+            result[MentionedPartyKey.REPLY_TO_FULL_NAME] = it.fullName
+            result[MentionedPartyKey.REPLY_TO_MESSAGE_ID] = it.messageId
+            result[MentionedPartyKey.REPLY_TO_TEXT] = it.text
+            result[MentionedPartyKey.REPLY_TO_CHAT_ID] = it.chatId
+            result[MentionedPartyKey.REPLY_TO_CHAT_TYPE] = it.chatType
+            result[MentionedPartyKey.REPLY_TO_CHAT_TITLE] = it.chatTitle
+        }
+        
+        message?.let {
+            result[MentionedPartyKey.MESSAGE_ID] = it.id
+            result[MentionedPartyKey.MESSAGE_TEXT] = it.text
+        }
+        
+        return result
     }
 }
 
 @Component
 class InvolvedPartiesFactory {
 
-    fun createInvolvedParties(update: Update): InvolvedParties {
-        val mentionedMessage = update.getMentionedMessage() ?: return InvolvedParties(mapOf())
-        val result = mutableMapOf<MentionedPartyKey, String>()
-        
-        mentionedMessage.from?.let {
-            result[MentionedPartyKey.FROM_ID] = it.id.toString()
-            it.username?.let { username -> result[MentionedPartyKey.FROM_USERNAME] = username }
-            result[MentionedPartyKey.FROM_FULL_NAME] = listOfNotNull(it.firstName, it.lastName).joinToString(" ")
-        }
-        
-        mentionedMessage.replyToMessage?.from?.let {
-            result[MentionedPartyKey.REPLY_TO_ID] = it.id.toString()
-            it.username?.let { username -> result[MentionedPartyKey.REPLY_TO_USERNAME] = username }
-            result[MentionedPartyKey.REPLY_TO_FULL_NAME] = listOfNotNull(it.firstName, it.lastName).joinToString(" ")
-        }
-        
-        mentionedMessage.replyToMessage?.let {
-            result[MentionedPartyKey.REPLY_TO_MESSAGE_ID] = it.messageId.toString()
-            result[MentionedPartyKey.REPLY_TO_TEXT] = it.text ?: ""
-            result[MentionedPartyKey.REPLY_TO_CHAT_ID] = it.chat.id.toString()
-            result[MentionedPartyKey.REPLY_TO_CHAT_TYPE] = it.chat.type
-            result[MentionedPartyKey.REPLY_TO_CHAT_TITLE] = it.chat.title ?:
-                listOfNotNull(it.chat.firstName, it.chat.lastName).joinToString(" ")
-        }
-        
-        mentionedMessage.text?.let {
-            result[MentionedPartyKey.MESSAGE_TEXT] = it
-        }
-        
-        return InvolvedParties(result)
+    fun createInvolvedParties(from: UserModel?, reply: ReplyModel?, message: MessageModel?): InvolvedParties {
+        return InvolvedParties(from, reply, message)
     }
 
+    @Deprecated("Use createInvolvedParties with entities directly")
+    fun createInvolvedParties(update: Update): InvolvedParties {
+        val mentionedMessage = update.getMentionedMessage() ?: return InvolvedParties(null, null, null)
+        
+        val from = mentionedMessage.from?.let {
+            UserModel(
+                id = it.id.toString(),
+                username = it.username,
+                fullName = listOfNotNull(it.firstName, it.lastName).joinToString(" ")
+            )
+        }
+        
+        val reply = mentionedMessage.replyToMessage?.let { replyMessage ->
+            val replyFrom = replyMessage.from
+            if (replyFrom != null) {
+                ReplyModel(
+                    id = replyFrom.id.toString(),
+                    username = replyFrom.username,
+                    fullName = listOfNotNull(replyFrom.firstName, replyFrom.lastName).joinToString(" "),
+                    messageId = replyMessage.messageId.toString(),
+                    text = replyMessage.text ?: "",
+                    chatId = replyMessage.chat.id.toString(),
+                    chatType = replyMessage.chat.type,
+                    chatTitle = replyMessage.chat.title ?: 
+                        listOfNotNull(replyMessage.chat.firstName, replyMessage.chat.lastName).joinToString(" ")
+                )
+            } else null
+        }
+        
+        val message = mentionedMessage.messageId?.let { messageId ->
+            mentionedMessage.text?.let { text ->
+                MessageModel(
+                    id = messageId.toString(),
+                    text = text
+                )
+            }
+        }
+        
+        return InvolvedParties(from, reply, message)
+    }
+
+    @Deprecated("Use createInvolvedParties with entities directly")
     fun createInvolvedParties(updateContext: UpdateContext): InvolvedParties {
         return createInvolvedParties(updateContext.getUpdate())
     }

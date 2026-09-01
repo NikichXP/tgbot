@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
@@ -10,7 +11,6 @@ import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
-import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
@@ -50,7 +50,7 @@ class TestCommandHandler(
 
     @HandleCommand("/myid")
     suspend fun myId(updateContext: UpdateContext) {
-        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.getUpdate().getContextChatId()}")
+        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.getChatId()}")
     }
 
     @HandleCommand("/removekeys")
@@ -112,7 +112,8 @@ class TestCommandHandler(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,
-            bot = callbackContext.botInfo,
+            // TODO remove this cast
+            bot = callbackContext.botInfo as? TgBotInfo ?: throw IllegalArgumentException("Bot info is not TgBotInfo"),
             replyMarkup = TgInlineKeyboard.of(getKeys())
         )
         return true

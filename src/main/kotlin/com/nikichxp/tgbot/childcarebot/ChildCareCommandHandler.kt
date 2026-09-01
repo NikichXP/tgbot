@@ -101,8 +101,9 @@ class ChildCareCommandHandler(
     }
 
 
-    override suspend fun handleUpdate(update: Update) {
-        val text = update.message?.text
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
+        val text = updateContext.message?.text
 
         if (text == null) {
             tgMessageService.sendMessage {

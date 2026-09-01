@@ -88,6 +88,8 @@ class TgMessageService(
         )
     }
 
+    // TODO this has multiple parameters, use class as parameter - the one that represents message in a chat
+    //  with messageId, chatId and tgBot
     suspend fun updateMessageText(
         chatId: Long,
         messageId: Long,
@@ -111,6 +113,7 @@ class TgMessageService(
         logger.info("Update message text: ${response.body}")
     }
 
+    // TODO this has multiple parameters, use class as parameter
     suspend fun sendDocument(
         chatId: Long,
         bot: TgBotInfo,

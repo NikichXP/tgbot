@@ -63,6 +63,8 @@ class VoicePadExecutionService(
         }
     }
 
+    // TODO this has multiple parameters, use class as parameter
+    //  e.g. VoicePadStartSessionRequest with chatId, userId, messageId, command and modeName
     suspend fun startSession(chatId: Long, userId: Long, messageId: Long, command: String, modeName: String): Boolean {
         var triggerMessageId: Long = messageId
 
