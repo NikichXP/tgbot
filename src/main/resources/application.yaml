@@ -26,6 +26,11 @@ spring:
       uri: ${MONGODB_URI:mongodb://localhost:27017/tg-bot}
       database: ${MONGODB_DATABASE:tg-bot}
       auto-index-creation: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
 
 app:
   adminId: ${APP_ADMIN_ID:0}

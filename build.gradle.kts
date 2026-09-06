@@ -30,6 +30,7 @@ extra["kotlin-coroutines.version"] = coroutinesVersion
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")

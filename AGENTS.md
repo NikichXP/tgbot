@@ -29,6 +29,10 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 |---|---|---|
 | `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/tg-bot` |
 | `MONGODB_DATABASE` | MongoDB database name | `tg-bot` |
+| `RABBITMQ_HOST` | RabbitMQ host | `localhost` |
+| `RABBITMQ_PORT` | RabbitMQ port | `5672` |
+| `RABBITMQ_USERNAME` | RabbitMQ username | `guest` |
+| `RABBITMQ_PASSWORD` | RabbitMQ password | `guest` |
 | `APP_ADMIN_ID` | Telegram User ID of the bot admin/owner | `0` (loaded from `.env` / secret) |
 | `APP_ADMIN_BOT` | Name of the primary admin bot | `null` |
 | `APP_WEBHOOK` | Base webhook URL registered with Telegram API | `https://bot.nikichxp.xyz/handle` |
