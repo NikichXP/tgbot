@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service
 //  to correct method executor
 @Service
 class TgMessageService(
-    private val tgMethodExecutor: TgMethodExecutor,
+    private val tgApiCallExecutor: TgApiCallExecutor,
     private val errorService: ErrorService,
     private val objectMapper: ObjectMapper,
     private val tgBotService: TgBotV2Service,
@@ -53,20 +53,22 @@ class TgMessageService(
     }
 
     suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
-        sendMessage(getCurrentUpdateContext().getBotInfo(), messageDSL)
+        val tgBotInfo = getCurrentUpdateContext().getBotInfo() as? TgBotInfo
+            ?: throw IllegalArgumentException("TgBotInfo is not an instance of TgBotInfo")
+        sendMessage(tgBotInfo, messageDSL)
     }
 
-    suspend fun sendMessage(tgBot: BotInfo, messageDSL: suspend TgSendMessage.() -> Unit) {
+    suspend fun sendMessage(tgBot: TgBotInfo, messageDSL: suspend TgSendMessage.() -> Unit) {
         val message = TgSendMessage.create(messageDSL)
         sendMessage(message, tgBot)
     }
 
     suspend fun sendMessage(
         message: TgSendMessage,
-        tgBot: BotInfo,
+        tgBot: TgBotInfo,
     ) {
-        val rawResponse = tgMethodExecutor.execute(tgBot, "sendMessage", message)
-        val response = objectMapper.treeToValue(rawResponse.body, TgSentMessageResponse::class.java)
+        val rawResponse = tgApiCallExecutor.callEndpoint(tgBot, "sendMessage", message)
+        val response = objectMapper.treeToValue(rawResponse.content, TgSentMessageResponse::class.java)
         message.callbacks.forEach {
             coroutineScope {
                 launch {
@@ -106,9 +108,9 @@ class TgMessageService(
 
         val body = objectMapper.valueToTree<JsonNode>(args)
 
-        val response = tgMethodExecutor.execute(bot, "editMessageText", body)
+        val response = tgApiCallExecutor.callEndpoint(bot, "editMessageText", body)
 
-        logger.info("Update message text: ${response.body}")
+        logger.info("Update message text: ${response.content}")
     }
 
     suspend fun sendDocument(
