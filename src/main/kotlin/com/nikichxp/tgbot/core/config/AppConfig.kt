@@ -8,7 +8,6 @@ open class AppConfig(
     var adminBot: String? = null,
     var webhook: String = "",
     var localEnv: Boolean = false,
-    var tokens: Tokens = Tokens(), // TODO verify that I can delete this
     var tracer: Tracer = Tracer(),
     var openRouter: OpenRouter = OpenRouter(),
     var discord: Discord = Discord(),
@@ -17,18 +16,9 @@ open class AppConfig(
 
     var suspendBotRegistering: Boolean = false
 
-    // TODO change registration of the bots to be dynamic | store in DB?
     companion object {
         class Discord(
             var publicKey: String? = null
-        )
-
-        class Tokens(
-            var nikichBot: String? = null,
-            var allMyStuffBot: String? = null,
-            var santaBot: String? = null,
-            var demoBot: String? = null,
-            var childTrackerBot: String? = null
         )
 
         class Tracer(
@@ -40,10 +30,10 @@ open class AppConfig(
 
         class OpenRouter(
             var apiKey: String = "",
-            var defaultModel: String = "openai/gpt-4o-mini",
+            var defaultModel: String = "openrouter/auto",
             var baseUrl: String = "https://openrouter.ai/api/v1",
-            var referer: String = "https://bot.nikichxp.xyz",
-            var title: String = "TGBot",
+            var referer: String = "https://github.com/NikichXP/tgbot",
+            var title: String = "NikichXP TG Bot",
             var transcriptionModel: String = "openai/whisper-1"
         )
     }

@@ -34,14 +34,13 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 | `RABBITMQ_USERNAME` | RabbitMQ username | `guest` |
 | `RABBITMQ_PASSWORD` | RabbitMQ password | `guest` |
 | `APP_ADMIN_ID` | Telegram User ID of the bot admin/owner | `0` (loaded from `.env` / secret) |
-| `APP_ADMIN_BOT` | Name of the primary admin bot | `null` |
+| `APP_ADMIN_BOT` | Name of the primary admin bot (bot entities/tokens are loaded from MongoDB) | `null` |
 | `APP_WEBHOOK` | Base webhook URL registered with Telegram API | `https://bot.nikichxp.xyz/handle` |
 | `APP_LOCAL_ENV` | When true, skips webhook registration | `false` |
 | `APP_SUSPEND_BOT_REGISTERING` | When true, suspends bot webhook registration | `false` |
-| `APP_TOKENS_*` | Tokens for various bots (`NIKICHBOT`, `ALLMYSTUFFBOT`, `SANTABOT`, `DEMOBOT`, `CHILDTRACKERBOT`) | `null` |
 | `APP_WAREHOUSE_URL` | Warehouse service URL | `https://warehouse.nikichxp.xyz/storage` |
 | `APP_TRACER_*` | Tracer configs (`STORE`, `TTL`, `CAPACITY`, `TOKEN`) | `true`, `24`, `100`, `null` |
-| `OPENROUTER_*` | OpenRouter AI configs (`API_KEY`, `DEFAULT_MODEL`, `BASE_URL`, `TRANSCRIPTION_MODEL`) | `openai/gpt-4o-mini`, `openai/whisper-1` |
+| `OPENROUTER_*` | OpenRouter AI configs (`API_KEY`, `DEFAULT_MODEL`, `BASE_URL`, `REFERER`, `TITLE`, `TRANSCRIPTION_MODEL`) | `openrouter/auto`, `openai/whisper-1` |
 | `DISCORD_PUBLIC_KEY` | Public key for Discord interaction signature verification | `null` |
 
 ## Deployment & Infrastructure

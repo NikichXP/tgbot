@@ -36,7 +36,7 @@ class DiscordService(
     }
 
     fun verifySignature(signature: String?, timestamp: String?, body: String): Boolean {
-        val publicKeyHex = appConfig.discord.publicKey ?: return true
+        val publicKeyHex = appConfig.discord.publicKey?.takeIf { it.isNotBlank() } ?: return true
         if (signature == null || timestamp == null) return false
 
         return try {
