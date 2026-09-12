@@ -22,6 +22,10 @@ class TgBotV2Service(
         return TgBotInfo(getBotEntityById(botId))
     }
 
+    fun getBaseApiFor(botInfo: TgBotInfo): String {
+        return "https://api.telegram.org/bot${getTokenById(botInfo.name)}"
+    }
+
     fun listBots(): List<TgBotInfo> {
         return mongoTemplate.findAll<TgBotInfoV2Entity>().map { TgBotInfo(it) }
     }

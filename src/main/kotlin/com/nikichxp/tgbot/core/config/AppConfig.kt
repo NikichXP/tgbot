@@ -11,7 +11,8 @@ open class AppConfig(
     var tracer: Tracer = Tracer(),
     var openRouter: OpenRouter = OpenRouter(),
     var discord: Discord = Discord(),
-    var trustedUsers: List<String> = emptyList()
+    var trustedUsers: List<String> = emptyList(),
+    var maxRetryCount: Int = 5
 ) {
 
     var suspendBotRegistering: Boolean = false

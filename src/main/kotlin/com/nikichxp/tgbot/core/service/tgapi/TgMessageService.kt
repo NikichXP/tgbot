@@ -3,10 +3,10 @@ package com.nikichxp.tgbot.core.service.tgapi
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.bots.BotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import com.nikichxp.tgbot.core.service.helper.ErrorService
+import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
 import com.nikichxp.tgbot.core.util.getCurrentUpdateContext
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service
 //  to correct method executor
 @Service
 class TgMessageService(
-    private val tgApiCallExecutor: TgApiCallExecutor,
+    private val tgApiCallExecutor: ITgApiCallExecutor,
     private val errorService: ErrorService,
     private val objectMapper: ObjectMapper,
     private val tgBotService: TgBotV2Service,

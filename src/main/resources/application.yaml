@@ -55,3 +55,4 @@ app:
   discord:
     publicKey: ${DISCORD_PUBLIC_KEY:}
   trustedUsers: ${APP_TRUSTED_USERS:}
+  maxRetryCount: ${APP_MAX_RETRY_COUNT:5}
