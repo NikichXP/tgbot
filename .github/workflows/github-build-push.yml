@@ -9,6 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  NAMESPACE: tgbot
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -51,3 +54,30 @@ jobs:
           provenance: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Write kubeconfig
+        shell: bash
+        env:
+          KUBECONFIG_FILE: ${{ github.workspace }}/.kube/config
+        run: |
+          mkdir -p "$(dirname "$KUBECONFIG_FILE")"
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d -i > "$KUBECONFIG_FILE"
+          chmod 600 "$KUBECONFIG_FILE"
+          echo "KUBECONFIG=$KUBECONFIG_FILE" >> "$GITHUB_ENV"
+
+      - name: Roll out new image
+        shell: bash
+        run: |
+          set -euo pipefail
+          kubectl -n "$NAMESPACE" rollout restart deployment/tgbot
+          kubectl -n "$NAMESPACE" rollout status deployment/tgbot --timeout=300s
+
+      - name: Cleanup kubeconfig
+        if: always()
+        shell: bash
+        run: rm -f "${{ github.workspace }}/.kube/config"
