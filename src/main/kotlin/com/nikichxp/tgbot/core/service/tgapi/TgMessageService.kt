@@ -71,7 +71,7 @@ class TgMessageService(
         )
     }
 
-    suspend fun updateMessageText(
+    suspend fun editMessageText(
         chatId: Long,
         messageId: Long,
         text: String,
@@ -91,7 +91,38 @@ class TgMessageService(
 
         val response = tgApiCallExecutor.callEndpoint(bot, "editMessageText", body)
 
-        logger.info("Update message text: ${response.content}")
+        logger.info("Edit message text: ${response.content}")
+    }
+
+    suspend fun editMessageText(
+        chatId: Long,
+        messageId: Long,
+        text: String,
+        replyMarkup: TgReplyMarkup? = null,
+    ) {
+        val tgBotInfo = getCurrentUpdateContext().getBotInfo() as? TgBotInfo
+            ?: throw IllegalArgumentException("TgBotInfo is not an instance of TgBotInfo")
+        editMessageText(chatId, messageId, text, tgBotInfo, replyMarkup)
+    }
+
+    suspend fun editMessageText(
+        text: String,
+        replyMarkup: TgReplyMarkup? = null,
+    ) {
+        val update = getCurrentUpdate()
+        val chatId = update.getContextChatId()
+        val messageId = update.getContextMessageId()
+        if (chatId != null && messageId != null) {
+            val tgBotInfo = getCurrentUpdateContext().getBotInfo() as? TgBotInfo
+                ?: throw IllegalArgumentException("TgBotInfo is not an instance of TgBotInfo")
+            editMessageText(chatId, messageId, text, tgBotInfo, replyMarkup)
+        } else {
+            errorService.logAndReportError(
+                logger,
+                "Cannot edit message text in current context: $text",
+                update
+            )
+        }
     }
 
     suspend fun sendDocument(

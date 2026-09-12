@@ -108,7 +108,7 @@ class TestCommandHandler(
         callbackContext: CallbackContext,
         update: Update,
     ): Boolean {
-        tgMessageService.updateMessageText(
+        tgMessageService.editMessageText(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
             text = callbackContext.buttonText,
