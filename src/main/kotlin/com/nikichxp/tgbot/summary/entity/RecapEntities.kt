@@ -1,7 +1,9 @@
 package com.nikichxp.tgbot.summary.entity
 
+import com.nikichxp.tgbot.summary.SummaryDateUtil
+import com.nikichxp.tgbot.summary.SummaryDateUtil.getStartingPointOfDay
+import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 data class RecapOptions(
@@ -21,18 +23,25 @@ data class RecapOptions(
     }
 
     companion object {
-        private val NIGHT_SEPARATOR = LocalTime.of(4, 0)
-
         fun ofToday(chatId: Long, model: String? = null): RecapOptions {
-            return RecapOptions(chatId, since = getStartingPointOfDay(LocalDateTime.now()), model = model)
+            return RecapOptions(chatId, since = SummaryDateUtil.atSpecificDay(LocalDate.now()), model = model)
         }
+    }
+}
 
-        private fun getStartingPointOfDay(dateTime: LocalDateTime): LocalDateTime {
-            return if (dateTime.toLocalTime().isBefore(NIGHT_SEPARATOR)) {
-                dateTime.minusDays(1).with(NIGHT_SEPARATOR)
-            } else {
-                dateTime.with(NIGHT_SEPARATOR)
-            }
+class RecapOptionsBuilder {
+
+    lateinit var since: LocalDateTime
+    var days: Int = -1
+    var model: String? = null
+
+    fun hasSince() = ::since.isInitialized
+
+    fun build(chatId: Long): RecapOptions {
+        return when {
+            hasSince() -> RecapOptions(chatId = chatId, since = since, model = model)
+            days > 0 -> RecapOptions(chatId = chatId, days = days.toLong(), model = model)
+            else -> RecapOptions.ofToday(chatId, model)
         }
     }
 

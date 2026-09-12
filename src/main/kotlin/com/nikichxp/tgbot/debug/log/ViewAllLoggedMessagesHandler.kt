@@ -26,7 +26,7 @@ class ViewAllLoggedMessagesHandler(
 
         suspend fun notify(text: String) = tgMessageService.sendMessage(chatId, LogAllMessagesHandler.Companion.LOG_PREFIX + text)
 
-        return ChatCommandParser.Companion.analyze(args) {
+        return ChatCommandParser.analyze(args) {
             path("status") {
                 notify("Logging status is: " + loggingConfigBackend.shouldLog(chatId))
             }

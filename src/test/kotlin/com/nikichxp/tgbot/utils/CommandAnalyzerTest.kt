@@ -41,4 +41,55 @@ class CommandAnalyzerTest {
         assertFalse(result)
         assertNull(test)
     }
+
+    @Test
+    fun `test independent segments are both matched regardless of noise and order`() = runBlocking {
+        val map = mutableMapOf<String, String>()
+
+        suspend fun parse(tokens: List<String>) = ChatCommandParser.analyze(tokens) {
+            path("foo") {
+                asArg("foo") {
+                    vars["foo"]?.let { map["foo"] = it }
+                }
+            }
+            path("bar") {
+                asArg("bar") {
+                    vars["bar"]?.let { map["bar"] = it }
+                }
+            }
+        }
+
+        val result = parse("something foo 123 kek 456 bar 789".split(" "))
+        assertTrue(result)
+        assertEquals("123", map["foo"])
+        assertEquals("789", map["bar"])
+
+        map.clear()
+        val resultReversed = parse("bar 789 foo 123".split(" "))
+        assertTrue(resultReversed)
+        assertEquals("123", map["foo"])
+        assertEquals("789", map["bar"])
+    }
+
+    @Test
+    fun `test only one of independent segments present still succeeds`() = runBlocking {
+        val map = mutableMapOf<String, String>()
+
+        val result = ChatCommandParser.analyze("foo 123".split(" ")) {
+            path("foo") {
+                asArg("foo") {
+                    vars["foo"]?.let { map["foo"] = it }
+                }
+            }
+            path("bar") {
+                asArg("bar") {
+                    vars["bar"]?.let { map["bar"] = it }
+                }
+            }
+        }
+
+        assertTrue(result)
+        assertEquals("123", map["foo"])
+        assertNull(map["bar"])
+    }
 }

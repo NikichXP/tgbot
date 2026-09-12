@@ -16,6 +16,7 @@ import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextUserId
 import com.nikichxp.tgbot.core.util.getMarkers
 import com.nikichxp.tgbot.summary.entity.RecapOptions
+import com.nikichxp.tgbot.summary.entity.RecapOptionsBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -124,14 +125,14 @@ class SummaryCommandHandler(
     }
 
     private suspend fun getRecapOptions(args: List<String>, chatId: Long, update: Update): RecapOptions {
-        var modelName: String? = defaultModel
-        var days: Long = 1
+
+        val recapOptionsBuilder = RecapOptionsBuilder()
 
         if (args.size > 1) {
             ChatCommandParser.analyze(args) {
                 path("days") {
                     asArg("days") {
-                        vars["days"]?.toLongOrNull()?.let { days = it }
+                        vars["days"]?.toIntOrNull()?.let { recapOptionsBuilder.days = it }
                     }
                 }
                 path("model") {
@@ -139,17 +140,20 @@ class SummaryCommandHandler(
                         if (!trustedUserService.isTrusted(update)) {
                             tgMessageService.replyToCurrentMessage("Выбор модели вам недоступен")
                         } else {
-                            modelName = vars["modelName"]
+                            recapOptionsBuilder.model = vars["modelName"] ?: throw ConfigMapViolationException()
                         }
+                    }
+                }
+                path("since") {
+                    asArg("since") {
+                        vars["since"]?.let { recapOptionsBuilder.since = SummaryDateUtil.parseSince(it) }
                     }
                 }
             }
         }
 
-        return RecapOptions(
-            chatId = chatId,
-            days = days,
-            model = modelName
-        )
+        return recapOptionsBuilder.build(chatId)
     }
 }
+
+class ConfigMapViolationException : IllegalStateException("Config map doesn't have expected entity")

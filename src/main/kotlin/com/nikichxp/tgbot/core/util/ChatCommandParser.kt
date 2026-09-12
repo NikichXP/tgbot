@@ -31,24 +31,40 @@ class ChatCommandParser private constructor() {
         layerState = LayerState.PARAM
     }
 
-    private suspend fun proceed(tokens: List<String>): Boolean {
-        val whatNext: suspend ChatCommandParser.() -> Unit = when (layerState) {
-            LayerState.END -> {
-                return true
-            }
-            LayerState.PATH -> {
-                val token = tokens.first()
-                paths[token] ?: return false
-            }
+    private suspend fun proceed(tokens: List<String>): List<String>? {
+        return when (layerState) {
+            LayerState.END -> tokens
+            LayerState.PATH -> proceedPaths(tokens)
             LayerState.PARAM -> {
+                if (tokens.isEmpty()) return null
                 vars[argName!!] = tokens.first()
-                nextStage ?: return false
+                val whatNext = nextStage ?: return null
+                val layer = ChatCommandParser()
+                layer.vars = this.vars
+                whatNext(layer)
+                layer.proceed(tokens.drop(1))
             }
         }
-        val layer = ChatCommandParser()
-        layer.vars = this.vars
-        whatNext(layer)
-        return layer.proceed(tokens.drop(1))
+    }
+
+    private suspend fun proceedPaths(tokens: List<String>): List<String>? {
+        val remainingPaths = paths.toMutableMap()
+        var current = tokens
+        var matchedAny = false
+        while (true) {
+            val idx = current.indexOfFirst { remainingPaths.containsKey(it) }
+            if (idx == -1) break
+            val function = remainingPaths.remove(current[idx])!!
+            val before = current.subList(0, idx)
+            val after = current.subList(idx + 1, current.size)
+            val layer = ChatCommandParser()
+            layer.vars = this.vars
+            function(layer)
+            val remainderAfter = layer.proceed(after) ?: return null
+            matchedAny = true
+            current = before + remainderAfter
+        }
+        return if (matchedAny) current else null
     }
 
     private enum class LayerState {
@@ -60,7 +76,7 @@ class ChatCommandParser private constructor() {
         suspend fun analyze(tokens: List<String>, function: suspend ChatCommandParser.() -> Unit): Boolean {
             val layer = ChatCommandParser()
             function(layer)
-            return layer.proceed(tokens)
+            return layer.proceed(tokens) != null
         }
     }
 }
