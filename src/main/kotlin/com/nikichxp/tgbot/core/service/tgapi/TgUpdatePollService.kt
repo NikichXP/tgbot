@@ -1,19 +1,18 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
-import com.nikichxp.tgbot.core.service.TgBotV2Service
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
-import io.ktor.util.collections.*
+import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor
+import com.nikichxp.tgbot.core.service.tgapi.executor.TgResponseStatus
+import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
-import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -21,12 +20,11 @@ import java.util.concurrent.TimeUnit
 
 @Service
 class TgUpdatePollService(
-    private val client: HttpClient,
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgApiCallExecutor: ITgApiCallExecutor,
+    private val objectMapper: ObjectMapper,
     private val tgBotWebhookService: TgBotWebhookService,
     @Lazy
     private val messageEntryPoint: MessageEntryPoint,
-    private val mongoTemplate: MongoTemplate,
     private val tgLastKnownMessageService: TgLastKnownMessageService
 ) {
 
@@ -45,45 +43,44 @@ class TgUpdatePollService(
 
     @Scheduled(fixedRate = 1, timeUnit = TimeUnit.SECONDS)
     fun pollData() {
-        activePollingInfo.map { info ->
+        val jobs = activePollingInfo.map { info ->
             scope.launch {
-                val url = getUpdatesUrl(info)
-                val response = client.get(url)
-                when (response.status.value) {
-                    in 200..299 -> {
-                        val responseBody = response.body<TgResponse>()
+                val params = buildGetUpdatesParams(info)
+                val rawResponse = tgApiCallExecutor.callEndpoint(info.bot, "getUpdates", params)
+                when {
+                    rawResponse.success -> {
+                        val responseBody = objectMapper.treeToValue(rawResponse.content, TgResponse::class.java)
                         for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
                             messageEntryPoint.proceedUpdate(update, info.bot)
                             info.onProcess(update.updateId)
                         }
                     }
 
-                    409 -> {
+                    rawResponse.responseStatus == TgResponseStatus.CONFLICT -> {
                         tgBotWebhookService.unregister(info.bot)
                     }
 
                     else -> {
-                        logger.warn("Failed to fetch updates for ${info.bot.name}, unexpected error ${response.status.value}")
+                        logger.warn("Failed to fetch updates for ${info.bot.name}, error: ${rawResponse.content}")
                     }
                 }
             }
-        }.map { runBlocking { it.join() } }
+        }
+        runBlocking { jobs.joinAll() }
     }
 
 
     private fun mapToPollingInfo(botInfo: TgBotInfo, lastKnownMessage: BotLastKnownMessage): PollingInfo {
-        val token = tgBotV2Service.getTokenById(botInfo.name)
         return PollingInfo(botInfo, lastKnownMessage.updateId, lastKnownMessage.date)
-            .also { it.token = token }
     }
 
-    private fun getUpdatesUrl(pollingInfo: PollingInfo): String {
-        val updateSeq = if (LocalDateTime.now().isBefore(pollingInfo.lastUpdateExpiryDate)) {
-            "?offset=${pollingInfo.lastUpdate}"
+    private fun buildGetUpdatesParams(pollingInfo: PollingInfo): TgGetUpdatesParams {
+        val offset = if (LocalDateTime.now().isBefore(pollingInfo.lastUpdateExpiryDate)) {
+            pollingInfo.lastUpdate
         } else {
-            ""
+            null
         }
-        return "https://api.telegram.org/bot${pollingInfo.token}/getUpdates$updateSeq"
+        return TgGetUpdatesParams(offset)
     }
 
 }

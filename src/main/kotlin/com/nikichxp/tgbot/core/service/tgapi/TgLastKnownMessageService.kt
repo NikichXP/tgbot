@@ -1,8 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service
@@ -15,22 +13,19 @@ class TgLastKnownMessageService(
 ) {
 
     private val lastKnownMessageCache = ConcurrentHashMap<String, Long>()
+    private val locks = ConcurrentHashMap<String, Any>()
 
     fun getLastKnownMessage(botInfo: TgBotInfo): BotLastKnownMessage {
         return mongoTemplate.findById<BotLastKnownMessage>(botInfo.name)
             ?: BotLastKnownMessage(botInfo.name, 0)
     }
 
-
-    suspend fun updateLastKnownMessage(botInfo: TgBotInfo, updateId: Long) {
-        coroutineScope {
-            launch {
-                synchronized(botInfo.name.intern()) {
-                    if (lastKnownMessageCache[botInfo.name] == null || lastKnownMessageCache[botInfo.name]!! < updateId) {
-                        lastKnownMessageCache[botInfo.name] = updateId
-                        mongoTemplate.save(BotLastKnownMessage(botInfo.name, updateId, LocalDateTime.now()))
-                    }
-                }
+    fun updateLastKnownMessage(botInfo: TgBotInfo, updateId: Long) {
+        val lock = locks.computeIfAbsent(botInfo.name) { Any() }
+        synchronized(lock) {
+            if (lastKnownMessageCache[botInfo.name] == null || lastKnownMessageCache[botInfo.name]!! < updateId) {
+                lastKnownMessageCache[botInfo.name] = updateId
+                mongoTemplate.save(BotLastKnownMessage(botInfo.name, updateId, LocalDateTime.now()))
             }
         }
     }

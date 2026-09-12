@@ -7,10 +7,14 @@ import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import kotlinx.coroutines.delay
@@ -38,6 +42,14 @@ class KtorTgApiCallExecutorImpl(
         return execute(tgBot, method, parameters, retryNumber = 0)
     }
 
+    override suspend fun callEndpointMultipart(
+        tgBot: TgBotInfo,
+        method: String,
+        parts: List<TgMultipartPart>
+    ): TgApiResponse {
+        return executeMultipart(tgBot, method, parts, retryNumber = 0)
+    }
+
     private suspend fun execute(tgBot: TgBotInfo, method: String, parameters: Any, retryNumber: Int): TgApiResponse {
         val body = objectMapper.valueToTree<JsonNode>(parameters)
         val response = httpClient.post("${tgBotV2Service.getBaseApiFor(tgBot)}/$method") {
@@ -45,21 +57,60 @@ class KtorTgApiCallExecutorImpl(
             setBody(body)
         }
 
+        return classifyResponse(response, method, retryNumber) { execute(tgBot, method, parameters, retryNumber + 1) }
+    }
+
+    private suspend fun executeMultipart(
+        tgBot: TgBotInfo,
+        method: String,
+        parts: List<TgMultipartPart>,
+        retryNumber: Int
+    ): TgApiResponse {
+        val response = httpClient.post("${tgBotV2Service.getBaseApiFor(tgBot)}/$method") {
+            setBody(MultiPartFormDataContent(formData {
+                parts.forEach { part ->
+                    when (part) {
+                        is TgMultipartPart.Text -> append(part.name, part.value)
+                        is TgMultipartPart.FilePart -> append(
+                            key = part.name,
+                            value = part.content,
+                            headers = Headers.build {
+                                append(HttpHeaders.ContentType, part.contentType)
+                                append(HttpHeaders.ContentDisposition, "filename=\"${part.fileName}\"")
+                            }
+                        )
+                    }
+                }
+            }))
+        }
+
+        return classifyResponse(response, method, retryNumber) { executeMultipart(tgBot, method, parts, retryNumber + 1) }
+    }
+
+    private suspend fun classifyResponse(
+        response: HttpResponse,
+        method: String,
+        retryNumber: Int,
+        retry: suspend () -> TgApiResponse
+    ): TgApiResponse {
         return when (response.status.value) {
             HttpStatusCode.TooManyRequests.value -> {
                 if (retryNumber < appConfig.maxRetryCount) {
                     delay(1.seconds)
-                    return execute(tgBot, method, parameters, retryNumber + 1)
+                    return retry()
                 }
-                handleError(response, method, TgResponseType.TOO_MANY_REQUESTS, response.body<JsonNode>())
+                handleError(response, method, TgResponseStatus.TOO_MANY_REQUESTS, response.body<JsonNode>())
+            }
+            HttpStatusCode.Conflict.value -> {
+                handleError(response, method, TgResponseStatus.CONFLICT, response.body<JsonNode>())
             }
             in 400..599 -> {
                 val errorBody = response.body<JsonNode>()
                 val description = errorBody.get("description")?.asText().orEmpty()
                 if (description.contains("message is too long", ignoreCase = true)) {
-                    handleError(response, method, TgResponseType.MESSAGE_TOO_LONG, errorBody)
+                    handleError(response, method, TgResponseStatus.MESSAGE_TOO_LONG, errorBody)
                 } else {
-                    handleError(response, method, TgResponseType.UNKNOWN_ERROR, errorBody)
+                    handleError(response, method, TgResponseStatus.UNKNOWN_ERROR, errorBody)
                 }
             }
             in 200..299 -> TgApiResponse(response.body<JsonNode>())
@@ -70,12 +121,12 @@ class KtorTgApiCallExecutorImpl(
     private fun handleError(
         response: HttpResponse,
         method: String,
-        responseType: TgResponseType,
+        responseStatus: TgResponseStatus,
         errorBody: JsonNode
     ): TgApiResponse {
         logger.error("Tg API error: status={}, method={}, body={}", response.status, method, errorBody)
 
-        return TgApiResponse(errorBody, success = false, responseType = responseType)
+        return TgApiResponse(errorBody, success = false, responseStatus = responseStatus)
     }
 
 }

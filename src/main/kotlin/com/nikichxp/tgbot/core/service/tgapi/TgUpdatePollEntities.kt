@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import java.time.LocalDateTime
@@ -9,6 +10,10 @@ import java.util.LinkedList
 data class TgResponse(
     val ok: Boolean,
     val result: List<Update>
+)
+
+data class TgGetUpdatesParams(
+    @JsonProperty("offset") val offset: Long? = null
 )
 
 data class PollingInfo(
@@ -22,8 +27,6 @@ data class PollingInfo(
     init {
         processedUpdates.add(lastUpdate)
     }
-
-    lateinit var token: String
 
     var lastUpdateExpiryDate = updateExpiryDate(lastUpdateFetched)
 

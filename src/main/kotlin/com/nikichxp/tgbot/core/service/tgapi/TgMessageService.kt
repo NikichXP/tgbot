@@ -4,24 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.error.TgApiCallException
 import com.nikichxp.tgbot.core.service.helper.ErrorService
 import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor
+import com.nikichxp.tgbot.core.service.tgapi.executor.TgMultipartPart
 import com.nikichxp.tgbot.core.util.getContextChatId
 import com.nikichxp.tgbot.core.util.getContextMessageId
 import com.nikichxp.tgbot.core.util.getCurrentUpdateContext
-import io.ktor.client.HttpClient
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
-import io.ktor.http.isSuccess
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -31,9 +20,7 @@ import org.springframework.stereotype.Service
 class TgMessageService(
     private val tgApiCallExecutor: ITgApiCallExecutor,
     private val errorService: ErrorService,
-    private val objectMapper: ObjectMapper,
-    private val tgBotService: TgBotV2Service,
-    private val httpClient: HttpClient
+    private val objectMapper: ObjectMapper
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -69,13 +56,7 @@ class TgMessageService(
     ) {
         val rawResponse = tgApiCallExecutor.callEndpoint(tgBot, "sendMessage", message)
         val response = objectMapper.treeToValue(rawResponse.content, TgSentMessageResponse::class.java)
-        message.callbacks.forEach {
-            coroutineScope {
-                launch {
-                    it(response)
-                }
-            }
-        }
+        message.callbacks.forEach { it(response) }
     }
 
     suspend fun replyToCurrentMessage(text: String, replyMarkup: TgReplyMarkup? = null) {
@@ -121,36 +102,20 @@ class TgMessageService(
         caption: String? = null,
         replyToMessageId: Long? = null
     ) {
-        val token = tgBotService.getTokenById(bot.name)
-        val url = "https://api.telegram.org/bot$token/sendDocument"
-
-        val response = httpClient.post(url) {
-            header(HttpHeaders.Accept, "application/json")
-            setBody(
-                MultiPartFormDataContent(
-                    formData {
-                        append("chat_id", chatId.toString())
-                        if (caption != null) append("caption", caption)
-                        if (replyToMessageId != null) {
-                            append("reply_parameters", """{"message_id":$replyToMessageId,"chat_id":$chatId}""")
-                        }
-                        append(
-                            key = "document",
-                            value = fileContent,
-                            headers = Headers.build {
-                                append(HttpHeaders.ContentType, "text/markdown")
-                                append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
-                            }
-                        )
-                    }
-                )
-            )
+        val parts = mutableListOf<TgMultipartPart>(
+            TgMultipartPart.Text("chat_id", chatId.toString())
+        )
+        caption?.let { parts.add(TgMultipartPart.Text("caption", it)) }
+        replyToMessageId?.let {
+            parts.add(TgMultipartPart.Text("reply_parameters", """{"message_id":$it,"chat_id":$chatId}"""))
         }
+        parts.add(TgMultipartPart.FilePart("document", fileName, "text/markdown", fileContent))
 
-        if (!response.status.isSuccess()) {
-            val body = runCatching { response.bodyAsText() }.getOrDefault("")
-            logger.warn("sendDocument failed: chatId={}, status={}, body={}", chatId, response.status, body)
-            error("sendDocument failed with status ${response.status}: $body")
+        val response = tgApiCallExecutor.callEndpointMultipart(bot, "sendDocument", parts)
+
+        if (!response.success) {
+            logger.warn("sendDocument failed: chatId={}, body={}", chatId, response.content)
+            throw TgApiCallException("sendDocument failed: ${response.content}")
         }
 
         logger.info("Sent document {} to chatId={}", fileName, chatId)
