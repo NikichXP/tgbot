@@ -30,7 +30,8 @@ class GroupChatKarmaHandler(
         val update = updateContext.getUpdate()
         val messageAuthor = getMessageAuthorId(update)
         val replyTarget = getMessageReplyTarget(update) ?: return
-        val reaction = textClassifier.classify(updateContext.message!!.text)
+        val text = updateContext.message?.text ?: return
+        val reaction = textClassifier.classify(text)
         val interactionResult = MessageInteractionResult(
             mutableMapOf(
                 messageAuthor to InteractionRole.ACTOR, replyTarget to InteractionRole.TARGET

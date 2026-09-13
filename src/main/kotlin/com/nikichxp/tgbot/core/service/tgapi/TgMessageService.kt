@@ -71,7 +71,7 @@ class TgMessageService(
         )
     }
 
-    suspend fun updateMessageText(
+    suspend fun editMessageText(
         chatId: Long,
         messageId: Long,
         text: String,

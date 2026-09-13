@@ -111,7 +111,7 @@ class TestCommandHandler(
         tgMessageService.editMessageText(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
-            text = callbackContext.buttonText,
+            text = callbackContext.buttonText ?: callbackContext.data,
             // TODO remove this cast
             bot = callbackContext.botInfo as? TgBotInfo ?: throw IllegalArgumentException("Bot info is not TgBotInfo"),
             replyMarkup = TgInlineKeyboard.of(getKeys())
