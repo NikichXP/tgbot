@@ -67,7 +67,7 @@ class UpdateProcessor(
 
     private suspend fun isHandlerSupportedForV2(context: UpdateContext, handler: UpdateHandler): Boolean {
         val botInfo = context.getBotInfo()
-        val markerSupported = handler.getMarkers().all { context.getUpdate().getMarkers().contains(it) }
+        val markerSupported = context.markers.containsAll(handler.getMarkers())
         val botSupported = botInfo.getSupportedFeatures().containsAll(handler.requiredFeatures())
         val handlerAllows = handler.canHandle(context.getUpdate())
         val isAuthenticated = if (handler is Authenticable) {

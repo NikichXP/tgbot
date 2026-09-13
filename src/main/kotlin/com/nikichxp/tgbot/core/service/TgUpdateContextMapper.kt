@@ -1,14 +1,19 @@
 package com.nikichxp.tgbot.core.service
 
+import com.nikichxp.tgbot.core.dto.Chat
 import com.nikichxp.tgbot.core.dto.Message
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.dto.User
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.common.CallbackModel
+import com.nikichxp.tgbot.core.entity.common.ChatModel
 import com.nikichxp.tgbot.core.entity.common.MessageModel
 import com.nikichxp.tgbot.core.entity.common.ReplyModel
+import com.nikichxp.tgbot.core.entity.common.StickerModel
 import com.nikichxp.tgbot.core.entity.common.UserModel
-import com.nikichxp.tgbot.core.util.getContextChatId
+import com.nikichxp.tgbot.core.entity.common.VoiceModel
+import com.nikichxp.tgbot.core.util.getMarkers
 import com.nikichxp.tgbot.core.util.getMentionedMessage
 import org.springframework.stereotype.Component
 
@@ -18,69 +23,80 @@ class TgUpdateContextMapper {
     fun mapToUpdateContext(update: Update, bot: TgBotInfo): TgUpdateContext {
         update.bot = bot
         val updateContext = TgUpdateContext(update, bot)
-        
+
         val mentionedMessage = update.getMentionedMessage()
 
         updateContext.id = update.updateId
-        updateContext.from = mapFromEntity(mentionedMessage)
-        updateContext.reply = mapReplyEntity(mentionedMessage)
-        updateContext.message = mapMessageEntity(mentionedMessage)
-        updateContext.callback = mapCallbackEntity(update)
-        
+        updateContext.chat = mentionedMessage?.chat?.let(::mapChat)
+        updateContext.from = mapUser(mentionedMessage?.from)
+        updateContext.reply = mapReply(mentionedMessage?.replyToMessage)
+        updateContext.message = mapMessage(mentionedMessage)
+        updateContext.callback = mapCallback(update)
+        updateContext.markers = update.getMarkers()
+
         return updateContext
     }
 
-    private fun mapFromEntity(mentionedMessage: Message?): UserModel? {
-        return mentionedMessage?.from?.let {
+    private fun mapChat(chat: Chat): ChatModel {
+        return ChatModel(
+            id = chat.id,
+            type = chat.type,
+            title = chat.title ?: listOfNotNull(chat.firstName, chat.lastName).joinToString(" ")
+        )
+    }
+
+    private fun mapUser(user: User?): UserModel? {
+        return user?.let {
             UserModel(
-                id = it.id.toString(),
+                id = it.id,
                 username = it.username,
                 fullName = listOfNotNull(it.firstName, it.lastName).joinToString(" ")
             )
         }
     }
 
-    private fun mapReplyEntity(mentionedMessage: Message?): ReplyModel? {
-        return mentionedMessage?.replyToMessage?.let { replyMessage ->
-            val replyFrom = replyMessage.from
-            if (replyFrom != null) {
-                ReplyModel(
-                    id = replyFrom.id.toString(),
-                    username = replyFrom.username,
-                    fullName = listOfNotNull(replyFrom.firstName, replyFrom.lastName).joinToString(" "),
-                    messageId = replyMessage.messageId.toString(),
-                    text = replyMessage.text ?: "",
-                    chatId = replyMessage.chat.id.toString(),
-                    chatType = replyMessage.chat.type,
-                    chatTitle = replyMessage.chat.title ?: 
-                        listOfNotNull(replyMessage.chat.firstName, replyMessage.chat.lastName).joinToString(" ")
-                )
-            } else null
-        }
-    }
-
-    private fun mapMessageEntity(mentionedMessage: Message?): MessageModel? {
-        return mentionedMessage?.messageId?.let { messageId ->
-            mentionedMessage.text?.let { text ->
-                MessageModel(
-                    id = messageId.toString(),
-                    text = text
-                )
-            }
-        }
-    }
-
-    private fun mapCallbackEntity(update: Update): CallbackModel? {
-        return update.callbackQuery?.let { callbackQuery ->
-            CallbackModel(
-                userId = callbackQuery.from.id,
-                data = callbackQuery.data,
-                messageText = callbackQuery.message?.text,
-                buttonText = callbackQuery.message!!.replyMarkup?.inlineKeyboard?.flatten()
-                    ?.find { it.callbackData == callbackQuery.data }?.text!!,
-                chatId = update.getContextChatId()!!,
-                messageId = callbackQuery.message.messageId
+    private fun mapReply(replyMessage: Message?): ReplyModel? {
+        return replyMessage?.let {
+            ReplyModel(
+                messageId = it.messageId,
+                text = it.text,
+                from = mapUser(it.from),
+                chat = mapChat(it.chat)
             )
         }
+    }
+
+    private fun mapMessage(message: Message?): MessageModel? {
+        return message?.let {
+            MessageModel(
+                id = it.messageId,
+                text = it.text,
+                voice = it.voice?.let { voice ->
+                    VoiceModel(
+                        fileId = voice.fileId,
+                        fileUniqueId = voice.fileUniqueId,
+                        duration = voice.duration,
+                        mimeType = voice.mimeType
+                    )
+                },
+                sticker = it.sticker?.let { sticker ->
+                    StickerModel(fileId = sticker.fileId, emoji = sticker.emoji)
+                }
+            )
+        }
+    }
+
+    private fun mapCallback(update: Update): CallbackModel? {
+        val callbackQuery = update.callbackQuery ?: return null
+        val message = callbackQuery.message ?: return null
+        return CallbackModel(
+            userId = callbackQuery.from.id,
+            data = callbackQuery.data,
+            messageText = message.text,
+            buttonText = message.replyMarkup?.inlineKeyboard?.flatten()
+                ?.find { it.callbackData == callbackQuery.data }?.text,
+            chatId = message.chat.id,
+            messageId = message.messageId
+        )
     }
 }

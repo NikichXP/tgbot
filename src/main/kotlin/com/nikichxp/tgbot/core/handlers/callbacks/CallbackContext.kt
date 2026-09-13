@@ -10,7 +10,7 @@ data class CallbackContext(
     var userId: Long,
     var data: String,
     var messageText: String,
-    var buttonText: String,
+    var buttonText: String?,
     var botInfo: BotInfo,
     var chatId: Long,
     var messageId: Long
@@ -21,7 +21,7 @@ data class CallbackContext(
         data = update.callbackQuery.data,
         messageText = update.callbackQuery.message?.text!!,
         buttonText = update.callbackQuery.message.replyMarkup?.inlineKeyboard?.flatten()
-            ?.find { it.callbackData == update.callbackQuery.data }?.text!!,
+            ?.find { it.callbackData == update.callbackQuery.data }?.text,
         botInfo = update.bot,
         chatId = update.getContextChatId() ?: -1L,
         messageId = update.callbackQuery.message.messageId

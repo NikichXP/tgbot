@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.handlers
 
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.ChatCommandsHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -61,6 +62,7 @@ class ChatCommandTest {
         }
 
         val update = mock<Update>(RETURNS_DEEP_STUBS)
+        val updateContext = mock<UpdateContext>()
         val singleCommandHandler = SingleCommandHandler(
             command = "/hello",
             handler = TestHandler(),
@@ -69,10 +71,12 @@ class ChatCommandTest {
 
         `when`(update.message!!.text).thenReturn(command)
         `when`(update.bot).thenReturn(bot)
+        `when`(updateContext.getUpdate()).thenReturn(update)
+        `when`(updateContext.getBotInfo()).thenReturn(bot)
         `when`(commandHandlerScanner.getHandlers()).thenReturn(setOf(singleCommandHandler))
 
         runBlocking {
-            chatCommandsHandler.handleUpdate(update)
+            chatCommandsHandler.handleUpdate(updateContext)
         }
     }
 
