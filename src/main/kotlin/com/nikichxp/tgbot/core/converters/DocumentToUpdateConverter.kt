@@ -2,12 +2,13 @@ package com.nikichxp.tgbot.core.converters
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.TgUpdateFieldsEvent
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
 import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.util.JsonFlattenerService
-import com.nikichxp.tgbot.core.util.diffWith
 import org.bson.Document
+import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 
@@ -18,15 +19,13 @@ class DocumentToUpdateConverter(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
+    private val log = LoggerFactory.getLogger(this.javaClass)
+
     fun convert(body: Document, tgBot: TgBotInfo): Update? {
         val source = body.toJson()
+        trackUpdateFields(source, tgBot)
         try {
-            val (update, diff) = parseUpdateAndGetDiff(source)
-            if (diff.isEmpty()) {
-                return update
-            } else {
-                processUnparsed(UnparsedMessage(body, missedKeys = diff, bot = tgBot))
-            }
+            return objectMapper.readValue(source, Update::class.java)
         } catch (exception: Exception) {
             exception.printStackTrace()
             processUnparsed(UnparsedMessage(body, message = exception.message, bot = tgBot))
@@ -34,14 +33,13 @@ class DocumentToUpdateConverter(
         throw IllegalArgumentException("Cannot convert the incoming message")
     }
 
-    private fun parseUpdateAndGetDiff(source: String): Pair<Update, Set<String>> {
-        val update = objectMapper.readValue(source, Update::class.java)
-        val control = objectMapper.writeValueAsString(update)
-
-        val flatSrc = jsonFlattenerService.toJsonAndFlatten(update)
-        val flatCtr = jsonFlattenerService.parseJsonAndFlatten(control)
-
-        return update to flatSrc.keys.diffWith(flatCtr.keys)
+    private fun trackUpdateFields(source: String, tgBot: TgBotInfo) {
+        try {
+            val paths = jsonFlattenerService.extractLeafPaths(source)
+            applicationEventPublisher.publishEvent(TgUpdateFieldsEvent(this, paths, tgBot))
+        } catch (e: Exception) {
+            log.warn("Failed to extract update fields", e)
+        }
     }
 
     private fun processUnparsed(unparsedMessage: UnparsedMessage) {

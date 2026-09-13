@@ -9,7 +9,3 @@ fun Update.getMarkers(): Set<UpdateMarker> {
         result as? Boolean ?: (result != null)
     }.toSet()
 }
-
-fun <T> Collection<T>.diffWith(other: Collection<T>): Set<T> {
-    return this.subtract(other.toSet()) + other.subtract(this.toSet())
-}
