@@ -49,6 +49,8 @@ Session 1. Everything below is **uncommitted** in the working tree. `./gradlew b
   `debug/interaction/NewUserInteractionHandler` → do it in T2.5.5.
 - New test `core/service/TgUpdateContextMapperTest` (8 cases) pins both null holes and the
   stale-keyboard case. The mapper had no tests at all.
+- **T1.1** — deleted 24 unreachable files under `core/dto` (~34 declarations), including the
+  `inlinequeryresults/` and `inputmedia/` packages (dirs removed). File count 105 → 81. Build green.
 
 **Counters:** `@Deprecated` 4 → **2** (`UpdateContext.getUpdate()`, `SpringTgApiCallExecutorImpl`).
 `getUpdate()` call sites 23 → **22** (T2.1 was groundwork; the collapse happens in T2.3–T2.6).
@@ -149,7 +151,7 @@ Telegram Bot API method name and is what the branch intended.
 
 Low-risk, high-signal. Do these before the structural work so later refactors have less surface area.
 
-### [ ] T1.1 — Delete unreachable `core/dto` declarations (P2, M)
+### [x] T1.1 — Delete unreachable `core/dto` declarations (P2, M) — DONE
 
 **Depends on:** T0.1
 
