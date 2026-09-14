@@ -44,7 +44,7 @@ class ChatCommandsHandler(
         coroutineScope {
             val result = commandHandlerExecutorMap[command]?.let {
                 it.filter { handler -> isRequiredFeatureSupported(handler, updateContext) }
-                    .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(update) else true }
+                    .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(updateContext) else true }
                     .map { handler -> commandHandlerExecutor.execute(handler, args, updateContext) }
             }
 

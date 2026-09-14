@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.childcarebot
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -23,7 +23,7 @@ class ChildCareDebugCommandHandler(
 
     override fun requiredFeatures(): Set<String> = childCareCommandHandler.requiredFeatures()
 
-    override suspend fun authenticate(update: Update): Boolean = childCareCommandHandler.authenticate(update)
+    override suspend fun authenticate(context: UpdateContext): Boolean = childCareCommandHandler.authenticate(context)
 
     @HandleCommand("/ctest")
     suspend fun ctest() {
@@ -40,8 +40,8 @@ class ChildCareDebugCommandHandler(
     }
 
     @HandleCommand("/debugevents")
-    suspend fun getLastEvents(update: Update) {
-        val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
+    suspend fun getLastEvents(updateContext: UpdateContext) {
+        val childInfo = updateContext.from?.id?.let { childInfoRepo.findChildByParent(it) }
             ?: throw IllegalStateException("Child not found")
 
         val lastEvents = childActivityRepo.getLastEvents(childInfo.id, 10)

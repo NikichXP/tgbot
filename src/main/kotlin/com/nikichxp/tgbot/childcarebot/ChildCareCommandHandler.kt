@@ -36,8 +36,8 @@ class ChildCareCommandHandler(
 
     override fun requiredFeatures(): Set<String> = setOf(Features.CHILD_TRACKER)
 
-    override suspend fun authenticate(update: Update): Boolean {
-        val userId = update.getContextUserId() ?: return false
+    override suspend fun authenticate(context: UpdateContext): Boolean {
+        val userId = context.from?.id ?: return false
 
         val child = childInfoRepo.findChildByParent(userId)
 

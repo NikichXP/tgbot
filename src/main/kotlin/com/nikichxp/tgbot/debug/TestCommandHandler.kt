@@ -106,7 +106,6 @@ class TestCommandHandler(
 
     override suspend fun handleCallback(
         callbackContext: CallbackContext,
-        update: Update,
     ): Boolean {
         tgMessageService.editMessageText(
             chatId = callbackContext.chatId,

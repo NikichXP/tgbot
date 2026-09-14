@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.handlers
 
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 
 interface Authenticable {
-    suspend fun authenticate(update: Update): Boolean
+    suspend fun authenticate(context: UpdateContext): Boolean
 }
