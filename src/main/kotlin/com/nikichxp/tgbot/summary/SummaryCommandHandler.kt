@@ -62,7 +62,7 @@ class SummaryCommandHandler(
             return true
         }
 
-        val options = getRecapOptions(args, chatId, update)
+        val options = getRecapOptions(args, chatId, updateContext)
         tgMessageService.sendMessage {
             replyToCurrentMessage()
             text = "Генерирую сводку... ${options.getExtraOptionsString()}"
@@ -124,7 +124,7 @@ class SummaryCommandHandler(
         return true
     }
 
-    private suspend fun getRecapOptions(args: List<String>, chatId: Long, update: Update): RecapOptions {
+    private suspend fun getRecapOptions(args: List<String>, chatId: Long, updateContext: UpdateContext): RecapOptions {
 
         val recapOptionsBuilder = RecapOptionsBuilder()
 
@@ -137,7 +137,7 @@ class SummaryCommandHandler(
                 }
                 path("model") {
                     asArg("modelName") {
-                        if (!trustedUserService.isTrusted(update)) {
+                        if (!trustedUserService.isTrusted(updateContext)) {
                             tgMessageService.replyToCurrentMessage("Выбор модели вам недоступен")
                         } else {
                             recapOptionsBuilder.model = vars["modelName"] ?: throw ConfigMapViolationException()

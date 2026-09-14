@@ -125,6 +125,7 @@ class TgMessageService(
         }
     }
 
+    // TODO this has multiple parameters, use class as parameter
     suspend fun sendDocument(
         chatId: Long,
         bot: TgBotInfo,

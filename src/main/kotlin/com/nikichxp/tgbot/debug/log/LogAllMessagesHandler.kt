@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.debug.log
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
@@ -22,7 +23,8 @@ class LogAllMessagesHandler(
 
     override fun getMarkers(): Set<UpdateMarker> = UpdateMarker.entries.toSet()
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val chatId = update.getContextChatId()
 
         if (update.message?.text?.startsWith(LOG_PREFIX) == true) {

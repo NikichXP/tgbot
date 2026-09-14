@@ -4,6 +4,7 @@ import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildTimezoneService
 import com.nikichxp.tgbot.core.dto.Message
 import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -24,19 +25,20 @@ class ChildReplyHandler(
 
     override fun requiredFeatures(): Set<String> = setOf(Features.CHILD_TRACKER)
 
-    override suspend fun handleUpdate(update: Update) {
-        val text = update.message?.text ?: return
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
+        val text = updateContext.message?.text ?: return
 
         when {
             text.matches(TIME_PATTERN.toRegex()) -> {
-                updateEventTimeByProvidedTime(text, update.message)
+                updateEventTimeByProvidedTime(text, update.message!!)
             }
 
             text.matches(TIME_DIFF_PATTERN.toRegex()) -> {
-                updateEventTimeByDiffShift(text, update.message)
+                updateEventTimeByDiffShift(text, update.message!!)
             }
             text.matches(ISO_DURATION_PATTERN.toRegex()) -> {
-                updateEventTimeByIsoDuration(text, update.message)
+                updateEventTimeByIsoDuration(text, update.message!!)
             }
 
             else -> return

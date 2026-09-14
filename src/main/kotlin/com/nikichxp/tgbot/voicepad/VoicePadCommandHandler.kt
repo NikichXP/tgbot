@@ -25,22 +25,23 @@ class VoicePadCommandHandler(
     private val appConfig: AppConfig
 ) : CommandHandler, UpdateHandler, Authenticable {
 
-    override suspend fun authenticate(update: Update): Boolean =
-        update.getContextUserId() == appConfig.adminId
+    override suspend fun authenticate(context: UpdateContext): Boolean =
+        context.from?.id == appConfig.adminId
 
     override fun requiredFeatures() = setOf(Features.TOOLBOX)
 
     // UpdateHandler: fires for voice messages that are replies (to capture voices added to a session)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_VOICE, UpdateMarker.REPLY)
 
-    override fun canHandle(update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: return false
-        val replyToId = update.message?.replyToMessage?.messageId ?: return false
+    override fun canHandle(context: UpdateContext): Boolean {
+        val chatId = context.getChatId()
+        val replyToId = context.reply?.messageId ?: return false
         val session = sessionService.getActiveSession(chatId) ?: return false
         return session.triggerMessageId == replyToId
     }
 
-    override suspend fun handleUpdate(update: Update) {
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
         val chatId = update.getContextChatId() ?: return
         val voice = update.message?.voice ?: return
         val messageId = update.getContextMessageId() ?: return

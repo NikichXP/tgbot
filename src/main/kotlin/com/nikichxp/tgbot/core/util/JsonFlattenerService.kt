@@ -37,6 +37,40 @@ class JsonFlattenerService(
         return result
     }
 
+    fun extractLeafPaths(json: String): Set<String> {
+        val node = objectMapper.readTree(json)
+        val result = mutableSetOf<String>()
+        if (node is ObjectNode) {
+            collectLeafPaths("", node, result)
+        }
+        return result
+    }
+
+    private fun collectLeafPaths(prefix: String, node: JsonNode, result: MutableSet<String>) {
+        when {
+            node is ObjectNode -> {
+                if (node.isEmpty) {
+                    if (prefix.isNotEmpty()) {
+                        result.add(prefix)
+                    }
+                } else {
+                    node.fieldNames().forEach { name ->
+                        val key = if (prefix.isEmpty()) name else "$prefix.$name"
+                        collectLeafPaths(key, node.get(name), result)
+                    }
+                }
+            }
+            node is ArrayNode -> {
+                if (node.isEmpty) {
+                    result.add("$prefix[]")
+                } else {
+                    node.elements().forEach { collectLeafPaths("$prefix[]", it, result) }
+                }
+            }
+            else -> result.add(prefix)
+        }
+    }
+
     private fun flattenJson(prefix: String, node: JsonNode, result: MutableMap<String, Any>) {
         when (node) {
             is ObjectNode -> {

@@ -36,8 +36,8 @@ class ChildCareCommandHandler(
 
     override fun requiredFeatures(): Set<String> = setOf(Features.CHILD_TRACKER)
 
-    override suspend fun authenticate(update: Update): Boolean {
-        val userId = update.getContextUserId() ?: return false
+    override suspend fun authenticate(context: UpdateContext): Boolean {
+        val userId = context.from?.id ?: return false
 
         val child = childInfoRepo.findChildByParent(userId)
 
@@ -101,8 +101,9 @@ class ChildCareCommandHandler(
     }
 
 
-    override suspend fun handleUpdate(update: Update) {
-        val text = update.message?.text
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val update = updateContext.getUpdate()
+        val text = updateContext.message?.text
 
         if (text == null) {
             tgMessageService.sendMessage {

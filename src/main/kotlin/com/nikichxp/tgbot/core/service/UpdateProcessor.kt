@@ -5,7 +5,6 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.error.ExpectedError
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.util.getMarkers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -53,11 +52,11 @@ class UpdateProcessor(
 
     private suspend fun isHandlerSupportedForV2(context: UpdateContext, handler: UpdateHandler): Boolean {
         val botInfo = context.getBotInfo()
-        val markerSupported = handler.getMarkers().all { context.getUpdate().getMarkers().contains(it) }
+        val markerSupported = context.markers.containsAll(handler.getMarkers())
         val botSupported = botInfo.getSupportedFeatures().containsAll(handler.requiredFeatures())
-        val handlerAllows = handler.canHandle(context.getUpdate())
+        val handlerAllows = handler.canHandle(context)
         val isAuthenticated = if (handler is Authenticable) {
-            handler.authenticate(context.getUpdate())
+            handler.authenticate(context)
         } else {
             true
         }
