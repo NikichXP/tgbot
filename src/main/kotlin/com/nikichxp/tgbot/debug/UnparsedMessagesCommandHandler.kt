@@ -2,15 +2,14 @@ package com.nikichxp.tgbot.debug
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UnparsedMessage
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getContextChatId
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
@@ -32,8 +31,8 @@ class UnparsedMessagesCommandHandler(
 
     override fun requiredFeatures() = setOf(Features.DEBUG)
 
-    override suspend fun authenticate(update: Update): Boolean {
-        if (update.getContextChatId() != appConfig.adminId) {
+    override suspend fun authenticate(context: UpdateContext): Boolean {
+        if (context.getChatId() != appConfig.adminId) {
             tgMessageService.replyToCurrentMessage("You are not allowed to use this bot ~_~")
             return false
         }

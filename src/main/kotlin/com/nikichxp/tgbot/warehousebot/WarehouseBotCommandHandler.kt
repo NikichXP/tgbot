@@ -26,27 +26,16 @@ class WarehouseBotCommandHandler(
 
     override fun requiredFeatures() = setOf(Features.WAREHOUSE)
 
-    override fun canHandle(update: Update): Boolean {
-        return update.message?.text?.startsWith("/") ?: false
+    override fun canHandle(context: UpdateContext): Boolean {
+        return context.message?.text?.startsWith("/") ?: false
     }
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        // TODO implement this
+        tgMessageService.sendMessage {
+            replyToCurrentMessage()
+            text = "This feature is not implemented yet."
+        }
     }
-
-//    override suspend fun processCommand(args: List<String>, command: String, update: Update): Boolean {
-//        runBlocking {
-//            commands[command]?.invoke(update, args)
-//        }
-//        return true
-//    }
-//
-//    override fun isCommandSupported(command: String): Boolean = setOf(
-//        "/list",
-//        "/get",
-//        "/create",
-//        "/update"
-//    ).contains(command)
 
     private suspend fun renderText(update: Update, supplier: suspend () -> List<String>) {
         tgMessageService.replyToCurrentMessage(supplier().joinToString("\n"))

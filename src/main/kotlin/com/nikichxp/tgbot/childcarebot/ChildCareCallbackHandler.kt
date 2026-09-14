@@ -2,13 +2,12 @@ package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getContextUserId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -21,11 +20,12 @@ class ChildCareCallbackHandler(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override suspend fun authenticate(update: Update): Boolean {
-        val child = childInfoRepo.findChildByParent(update.getContextUserId()!!)
+    override suspend fun authenticate(context: UpdateContext): Boolean {
+        val userId = context.from?.id ?: return false
+        val child = childInfoRepo.findChildByParent(userId)
 
         if (child == null) {
-            logger.warn("No user found for child: user id = ${update.getContextUserId()}")
+            logger.warn("No user found for child: user id = $userId")
             return false
         }
 
@@ -37,8 +37,7 @@ class ChildCareCallbackHandler(
     override fun isCallbackSupported(callbackContext: CallbackContext): Boolean = true // TODO add filtering on command
 
     override suspend fun handleCallback(
-        callbackContext: CallbackContext,
-        update: Update,
+        callbackContext: CallbackContext
     ): Boolean {
 
         val data = callbackContext.data

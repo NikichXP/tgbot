@@ -30,7 +30,7 @@ class TgUpdateFieldService(
                 return@forEach
             }
 
-            synchronized(existingFieldsCache) {
+            synchronized(this) {
                 val exists = mongoTemplate.exists<TgUpdateField>(
                     Query.query(Criteria.where(TgUpdateField::path.name).`is`(path))
                 )
