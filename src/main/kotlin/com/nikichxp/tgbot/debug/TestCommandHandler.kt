@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.error.DisplayableError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
@@ -115,8 +116,8 @@ class TestCommandHandler(
         tgMessageService.editMessageText(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
-            text = callbackContext.buttonText,
-            bot = callbackContext.botInfo,
+            text = callbackContext.buttonText ?: "",
+            bot = callbackContext.botInfo as TgBotInfo,
             replyMarkup = TgInlineKeyboard.of(getKeys())
         )
         return true
