@@ -2,9 +2,11 @@ package com.nikichxp.tgbot.core.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.tgbot.core.error.DisplayableError
 import com.nikichxp.tgbot.core.error.ExpectedError
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
+import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.getMarkers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -15,7 +17,8 @@ import org.springframework.stereotype.Component
 @Component
 class UpdateProcessor(
     private val handlers: List<UpdateHandler>,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val tgMessageService: TgMessageService
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -29,10 +32,21 @@ class UpdateProcessor(
         coroutineScope {
             val updateJobs = supportedHandlers.map { handler ->
                 launch {
-                    handler.handleUpdate(updateContext)
+                    handleUpdate(handler, updateContext)
                 }.let { job -> UpdateProcessContext(updateContext, handler, job) }
             }
             updateJobs.forEach { waitForJobCompletion(it) }
+        }
+    }
+
+    private suspend fun handleUpdate(handler: UpdateHandler, updateContext: UpdateContext) {
+        try {
+            handler.handleUpdate(updateContext)
+        } catch (displayableError: DisplayableError) {
+            tgMessageService.sendMessage {
+                replyToCurrentMessage()
+                text = displayableError.displayedMessage
+            }
         }
     }
 

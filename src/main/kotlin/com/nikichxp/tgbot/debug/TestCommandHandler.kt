@@ -2,6 +2,7 @@ package com.nikichxp.tgbot.debug
 
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.tgbot.core.error.DisplayableError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
@@ -75,6 +76,11 @@ class TestCommandHandler(
 
         tgMessageService.sendMessage(message, update.bot)
         return true
+    }
+
+    @HandleCommand("/error")
+    suspend fun testError(): Boolean {
+        throw DisplayableError("This is expected error message!")
     }
 
     @HandleCommand("/testkey")

@@ -11,10 +11,7 @@ import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.ChatCommandParser
-import com.nikichxp.tgbot.core.util.getContextChatId
-import com.nikichxp.tgbot.core.util.getContextUserId
-import com.nikichxp.tgbot.core.util.getMarkers
+import com.nikichxp.tgbot.core.util.*
 import com.nikichxp.tgbot.summary.entity.RecapOptions
 import com.nikichxp.tgbot.summary.entity.RecapOptionsBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -29,10 +26,9 @@ class SummaryCommandHandler(
     private val summaryService: SummaryService,
     private val summaryMessageStorageService: SummaryMessageStorageService,
     private val appConfig: AppConfig,
-    private val trustedUserService: TrustedUserService
+    private val trustedUserService: TrustedUserService,
+    private val storage: AppStorage
 ) : CommandHandler, UpdateHandler {
-
-    private val defaultModel = "google/gemma-4-31b-it"
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
