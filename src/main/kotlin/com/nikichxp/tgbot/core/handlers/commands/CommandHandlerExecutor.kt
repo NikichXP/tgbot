@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.core.handlers.commands
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import org.springframework.stereotype.Component
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.callSuspend
 import kotlin.reflect.full.createType
@@ -28,7 +29,11 @@ class CommandHandlerExecutor {
             }
         }
 
-        return handler.function.callSuspend(*executionArgs.toTypedArray()) as? Boolean ?: true
+        return try {
+            handler.function.callSuspend(*executionArgs.toTypedArray()) as? Boolean ?: true
+        } catch (invocationException: InvocationTargetException) {
+            throw invocationException.targetException
+        }
     }
 
 }
