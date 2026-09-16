@@ -44,5 +44,9 @@ class RecapOptionsBuilder {
             else -> RecapOptions.ofToday(chatId, model)
         }
     }
-
 }
+
+data class RecapResponse(
+    val recap: String,
+    val model: String
+)

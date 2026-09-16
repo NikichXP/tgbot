@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.nikichxp.tgbot.core.config.AppConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -68,7 +69,32 @@ class OpenRouterLLMProvider(
             }
         )
     }
+
+    override suspend fun listModels(): List<String> {
+        check(config.apiKey.isNotBlank()) { "app.openrouter.api-key is not configured" }
+
+        val response = client.get("${config.baseUrl}/models") {
+            header(HttpHeaders.Authorization, "Bearer ${config.apiKey}")
+        }
+
+        if (!response.status.isSuccess()) {
+            val body = runCatching { response.bodyAsText() }.getOrDefault("")
+            logger.warn("OpenRouter models call failed: status={}, body={}", response.status, body)
+            error("OpenRouter models request failed with status ${response.status}: $body")
+        }
+
+        val parsed: OpenRouterModelsResponse = response.body()
+        return parsed.data.map { it.id }
+    }
 }
+
+private data class OpenRouterModelsResponse(
+    val data: List<OpenRouterModelInfo> = emptyList()
+)
+
+private data class OpenRouterModelInfo(
+    val id: String
+)
 
 private data class OpenRouterChatRequest(
     val model: String,

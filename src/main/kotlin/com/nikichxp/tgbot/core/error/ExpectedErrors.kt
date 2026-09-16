@@ -10,3 +10,7 @@ class DuplicatedRatingError : ExpectedError()
 class NotHandledSituationError : ExpectedError() {
     override val printJson = true
 }
+
+class ConfigMapViolationException : DisplayableError("Config map doesn't have expected entity")
+
+class PermissionDeniedError(message: String = "You can't touch this!") : DisplayableError(message)

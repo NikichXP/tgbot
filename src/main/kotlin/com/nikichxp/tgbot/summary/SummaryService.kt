@@ -1,10 +1,12 @@
 package com.nikichxp.tgbot.summary
 
+import com.nikichxp.tgbot.core.error.DisplayableError
 import com.nikichxp.tgbot.core.util.AppStorage
 import com.nikichxp.tgbot.summary.ai.LLMProvider
 import com.nikichxp.tgbot.summary.ai.LLMRequest
 import com.nikichxp.tgbot.summary.entity.LoggedMessage
 import com.nikichxp.tgbot.summary.entity.RecapOptions
+import com.nikichxp.tgbot.summary.entity.RecapResponse
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
@@ -31,17 +33,18 @@ class SummaryService(
         appStorage.saveData("summary_feature_$chatId", enabled.toString())
     }
 
-    suspend fun getRecap(options: RecapOptions): String {
+    suspend fun getRecap(options: RecapOptions): RecapResponse {
         val updates = getUpdatesForChatAfter(options.chatId, options.since)
         if (updates.isEmpty()) {
-            return "Сегодня сообщений не было — пересказывать пока нечего."
+            throw DisplayableError("Сегодня сообщений не было — пересказывать пока нечего.")
         }
 
+        val usingModel = options.model ?: getDefaultModel()
         val chatHistory = chatUpdatesToPromptSerializerService.serialize(updates)
 
         val response = llmProvider.complete(
             LLMRequest.of(
-                model = options.model,
+                model = usingModel,
                 systemPrompt = RECAP_SYSTEM_PROMPT,
                 userPrompt = buildRecapUserPrompt(chatHistory),
                 maxTokens = 8000
@@ -52,7 +55,25 @@ class SummaryService(
             options.chatId, updates.size, response.model,
             response.usage?.promptTokens, response.usage?.completionTokens
         )
-        return response.content.trim().ifBlank { "LLM вернул пустой ответ. Попробуй позже." }
+
+        val text = response.content.trim().ifBlank { "LLM вернул пустой ответ. Попробуй позже." }
+
+        return RecapResponse(
+            recap = text,
+            model = response.model
+        )
+    }
+
+    suspend fun setDefaultModel(modelName: String) {
+        if (modelName !in llmProvider.listModels()) {
+            throw DisplayableError("Model doesn't exist")
+        }
+
+        appStorage.saveData(MODEL_NAME_KEY, modelName)
+    }
+
+    private fun getDefaultModel(): String? {
+        return appStorage.getData(MODEL_NAME_KEY)?.value
     }
 
     private fun buildRecapUserPrompt(chatHistory: String): String = """
@@ -76,6 +97,7 @@ class SummaryService(
     }
 
     companion object {
+        private const val MODEL_NAME_KEY = "recap.model-name"
 
         private val RECAP_SYSTEM_PROMPT = """
             Ты помощник, который делает краткий пересказ переписки в групповом Telegram-чате.

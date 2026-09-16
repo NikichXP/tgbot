@@ -6,12 +6,18 @@ import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
+import com.nikichxp.tgbot.core.error.ConfigMapViolationException
+import com.nikichxp.tgbot.core.error.DisplayableError
+import com.nikichxp.tgbot.core.error.PermissionDeniedError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.*
+import com.nikichxp.tgbot.core.util.ChatCommandParser
+import com.nikichxp.tgbot.core.util.getContextChatId
+import com.nikichxp.tgbot.core.util.getContextUserId
+import com.nikichxp.tgbot.core.util.getMarkers
 import com.nikichxp.tgbot.summary.entity.RecapOptions
 import com.nikichxp.tgbot.summary.entity.RecapOptionsBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -26,8 +32,7 @@ class SummaryCommandHandler(
     private val summaryService: SummaryService,
     private val summaryMessageStorageService: SummaryMessageStorageService,
     private val appConfig: AppConfig,
-    private val trustedUserService: TrustedUserService,
-    private val storage: AppStorage
+    private val trustedUserService: TrustedUserService
 ) : CommandHandler, UpdateHandler {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -70,9 +75,11 @@ class SummaryCommandHandler(
 
                 logger.info("Recap generated: $recap")
 
+                val textToDisplay = recap.recap
+
                 tgMessageService.sendMessage {
                     replyToCurrentMessage()
-                    text = recap
+                    text = textToDisplay
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -88,12 +95,39 @@ class SummaryCommandHandler(
 
     @HandleCommand("/summaryfeature")
     suspend fun toggleLogging(args: List<String>, updateContext: UpdateContext): Boolean {
+        checkAccess(updateContext)
+
+        val chatId = updateContext.getChatId()
+        val toggleStatus = args.first().toBooleanStrictOrNull()
+
+        when (toggleStatus) {
+            true -> summaryService.setFeatureEnabledStatus(chatId, true)
+            false -> summaryService.setFeatureEnabledStatus(chatId, false)
+            null -> throw DisplayableError("Invalid argument. Use 'true' or 'false'")
+        }
+
+        tgMessageService.replyToCurrentMessage(
+            "Summary feature status is: ${summaryService.getFeatureEnabledStatus(chatId)}"
+        )
+        return true
+    }
+
+    @HandleCommand("/recap-default-model")
+    suspend fun setDefaultRecapModel(args: List<String>, updateContext: UpdateContext): Boolean {
+        checkAccess(updateContext)
+        val modelName = args.first()
+
+        summaryService.setDefaultModel(modelName)
+
+        return true
+    }
+
+    private suspend fun checkAccess(updateContext: UpdateContext) {
         val update = updateContext.getUpdate()
         if (!update.getMarkers().contains(UpdateMarker.MESSAGE_IN_GROUP)) {
             tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }
 
-        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
         val callerId = update.getContextUserId() ?: throw IllegalArgumentException("Can't get userId")
 
         if (callerId != appConfig.adminId) {
@@ -101,23 +135,8 @@ class SummaryCommandHandler(
                 replyToCurrentMessage()
                 text = "You are not allowed to use this command"
             }
-            return true
+            throw PermissionDeniedError("You are not allowed to use this command")
         }
-        val toggleStatus = args.first().toBooleanStrictOrNull()
-
-        when (toggleStatus) {
-            true -> summaryService.setFeatureEnabledStatus(chatId, true)
-            false -> summaryService.setFeatureEnabledStatus(chatId, false)
-            null -> {
-                tgMessageService.replyToCurrentMessage("Invalid argument. Use 'true' or 'false'")
-                return false
-            }
-        }
-
-        tgMessageService.replyToCurrentMessage(
-            "Summary feature status is: ${summaryService.getFeatureEnabledStatus(chatId)}"
-        )
-        return true
     }
 
     private suspend fun getRecapOptions(args: List<String>, chatId: Long, update: Update): RecapOptions {
@@ -150,6 +169,5 @@ class SummaryCommandHandler(
 
         return recapOptionsBuilder.build(chatId)
     }
-}
 
-class ConfigMapViolationException : IllegalStateException("Config map doesn't have expected entity")
+}

@@ -5,6 +5,8 @@ interface LLMProvider {
     val name: String
 
     suspend fun complete(request: LLMRequest): LLMResponse
+
+    suspend fun listModels(): List<String>
 }
 
 enum class LLMRole {
