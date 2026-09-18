@@ -15,70 +15,8 @@ is green.
 5. Do not commit. The author reviews each task manually.
 6. Do not add comments or KDoc (see global rules). Names and structure carry the meaning.
 7. When a task changes an invariant recorded in `AGENTS.md`, update `AGENTS.md` in the same task.
-
-## Progress log
-
-Session 1. Everything below is **uncommitted** in the working tree. `./gradlew build` is green
-(0 errors, 25 warnings, 23 tests passing).
-
-**Done:**
-
-- **T0.1** — renamed `updateMessageText` → `editMessageText`. Root cause confirmed via git: commit
-  `b85de1e` renamed the method *and* added two overloads; the rebase dropped the rename hunk and kept
-  the overloads.
-- **T7.7 (new task, found while verifying T0.1)** — see below. `useJUnitPlatform()` was missing, so
-  **5 of 6 test classes never executed**. `kotlin-test` moved from `implementation` to
-  `testImplementation`. Tests executed: 1 → 23.
-- **T2.1** — `UpdateContext` is now sufficient. All ids → `Long`. Added `ChatModel`, `VoiceModel`,
-  `StickerModel`, `UpdateContext.markers`. Fixed **two null holes** that were the actual reason
-  handlers had to call `getUpdate()`:
-  1. `mapMessageEntity` returned `null` when `text == null`, so voice/sticker/photo messages had **no**
-     `message` model at all.
-  2. `mapReplyEntity` returned `null` when the replied-to message had no author, losing `messageId` —
-     which is exactly the case voicepad needs (it replies to a bot message).
-  Also removed the three-`!!` chain in `mapCallbackEntity`; `CallbackModel.buttonText` /
-  `CallbackContext.buttonText` are now nullable (a callback on a message whose keyboard was already
-  replaced used to NPE the whole update).
-- **T2.2, core part** — folded into T2.1 (same two files; splitting would have been artificial churn).
-  `TgUpdateContext.getContextChatId/UserId/MessageId/getMentionedMessage` deleted;
-  `TgUpdateContextMapper` is now the only place resolving them. **Remaining:** the inline copy in
-  `summary/ChatUpdatesToPromptSerializerService` → do it in T2.5.3.
-- **T2.7, most of it** — `core/util/InvolvedPartiesFactory.kt` turned out to be **entirely dead**
-  (112 lines, zero callers, including 2 of the 4 `@Deprecated`). Deleted rather than fixed.
-  **Remaining:** `Update.getContextInvolvedParties()` in `UpdateUtils.kt`, whose only caller is
-  `debug/interaction/NewUserInteractionHandler` → do it in T2.5.5.
-- New test `core/service/TgUpdateContextMapperTest` (8 cases) pins both null holes and the
-  stale-keyboard case. The mapper had no tests at all.
-- **T1.1** — deleted 24 unreachable files under `core/dto` (~34 declarations), including the
-  `inlinequeryresults/` and `inputmedia/` packages (dirs removed). File count 105 → 81. Build green.
-
-**Counters:** `@Deprecated` 4 → **2** (`UpdateContext.getUpdate()`, `SpringTgApiCallExecutorImpl`).
-`getUpdate()` call sites 23 → **22** (T2.1 was groundwork; the collapse happens in T2.3–T2.6).
-
-**Author decisions taken (do not re-litigate):**
-
-- **Ids are `Long`** everywhere in the typed models. Verified safe: none of
-  `UserModel`/`ReplyModel`/`MessageModel`/`CallbackModel` is persisted — `@Document` exists only on
-  `app_data`, `tgBotInfo` and the voicepad session collection. No migration needed.
-- **`LoggedMessage`: drop the old history.** T2.5.3 introduces a flat schema
-  (`chatId`, `authorId`, `authorName`, `text`, `time`) with no backwards-read path and no backfill
-  script. Recap over pre-migration periods is accepted as lost.
-
-**Remaining in Phase 2, in order** — T2.3 (must be atomic: it breaks 4 interfaces at once), then
-T2.5.1 childcarebot (6 files) → T2.5.2 karmabot (5) → T2.5.3 summary (4) → T2.5.4 voicepad (1) →
-T2.5.5 debug (5) → T2.5.6 santabot (1), then T2.4, then T2.6.
-
-**Findings added to the plan this session:** T7.7 (below), plus a real bug in
-`core/jobs/RecalculateKarmaJob.kt:102` — `existing.power == null` is always false because
-`LikeReport.power` is a non-nullable `Double`, so the "update existing record" branch is dead and the
-import always overwrites, losing `source`. T1.4 deletes the file, so this is only extra justification
-for deleting it rather than salvaging it.
-
-**Environment note for reviewers:** the IDE reported ~10 phantom errors
-(`Unresolved reference: setOf`, `mutableMapOf`, `to`, `kotlin.Unit`) after these changes. Cause: the
-IDE's Kotlin plugin is **2.1.0** while the project is on Kotlin **2.4.0**, so the analyzer cannot read
-stdlib metadata. A clean `./gradlew build --rerun-tasks` reports 0 errors. Update the IDE Kotlin
-plugin before reviewing, or the IDE cannot be trusted on this codebase.
+8. After task is completed, mark is as done [x]. Later author will remove all the old tasks. 
+   Some of the tasks are already deleted.
 
 ## Legend
 
@@ -191,7 +129,7 @@ uses it, and `TgUpdateContextMapper` reads `inlineKeyboard` to resolve button te
 **Acceptance:** `./gradlew build` passes. `find src/main -path '*core/dto*' -name '*.kt' | wc -l`
 drops to ~81. No production behaviour change.
 
-### [ ] T1.2 — Remove the duplicated payment DTOs (P2, S)
+### [x] T1.2 — Remove the duplicated payment DTOs (P2, S) — DONE
 
 **Depends on:** T1.1
 
@@ -209,24 +147,7 @@ remains, then delete.
 
 **Acceptance:** `./gradlew build` passes.
 
-### [ ] T1.3 — Delete the RabbitMQ "hello world" scaffolding (P2, S)
-
-**Files:** `mq/HelloWorldListener.kt`, `mq/HelloWorldPayload.kt`, `mq/RabbitConfig.kt`
-
-`HELLO_WORLD_QUEUE`, `helloWorldQueue()` and the listener are a connectivity spike from commit
-`7964762` ("amqp added to config") that now declares a queue on every production start-up.
-
-**Do:** delete `HelloWorldListener.kt` and `HelloWorldPayload.kt`, and remove the
-`HELLO_WORLD_QUEUE` constant plus `helloWorldQueue()` bean from `RabbitConfig.kt`. Keep
-`rabbitMessageConverter` — it is the only piece worth having.
-
-**Decision required from the author:** if nothing else uses AMQP, drop
-`spring-boot-starter-amqp` from `build.gradle.kts` and the four `RABBITMQ_*` keys from
-`application.yaml` + `AGENTS.md` as well. Note this in the task result rather than guessing.
-
-**Acceptance:** application starts without declaring a `hello-world` queue. `./gradlew build` passes.
-
-### [ ] T1.4 — Move or delete the one-off migration jobs (P2, S)
+### [x] T1.4 — Move or delete the one-off migration jobs (P2, S) — DONE, both deleted
 
 **Files:** `core/jobs/UpdateEmojiJob.kt`, `core/jobs/RecalculateKarmaJob.kt`
 
@@ -248,7 +169,7 @@ This resolves the `UpdateEmojiJob.kt:12` and `:49` TODOs.
 
 **Acceptance:** `./gradlew build` passes. `core/jobs/` no longer contains commented-out beans.
 
-### [ ] T1.5 — Remove commented-out code blocks (P2, S)
+### [x] T1.5 — Remove commented-out code blocks (P2, S) — DONE except `MessageStatHandler.kt:79`, deliberately left for T6.6 (behaviour change)
 
 Commented-out code is the worst kind of dead code: it looks intentional and blocks refactoring
 tools. Delete these blocks (do not restore them, do not "improve" them):
@@ -268,7 +189,7 @@ behaviour. Handle that one in T6.6 and leave it here only as a cross-reference.
 
 **Acceptance:** `./gradlew build` passes. `grep -rn '^\s*//\s*\(override\|tgOperations\|runBlocking\|@\)' src/main` returns nothing meaningful.
 
-### [ ] T1.6 — Resolve the dead child-care scaffolding (P2, S)
+### [x] T1.6 — Resolve the dead child-care scaffolding (P2, S) — DONE, both deleted
 
 **Files:** `childcarebot/state/AddCurrentSleepTimeJob.kt`, `childcarebot/ChildKeyboardProvider.kt`
 
@@ -284,20 +205,6 @@ Two live Spring beans that do nothing or crash:
    abstraction with a single implementation is over-engineering (see T7.4).
 
 **Acceptance:** no `TODO(` calls remain in `src/main`: `grep -rn 'TODO(' src/main` is empty.
-
-### [ ] T1.7 — Delete `version.properties` (P2, S)
-
-**Files:** `src/main/resources/version.properties`, `debug/VersionProvider.kt`
-
-`version.properties` says "this should be overwritten during the build process" but nothing writes
-it and nothing reads it — `VersionProvider` reads `Implementation-Version` from
-`META-INF/MANIFEST.MF`, which `build.gradle.kts` populates in `tasks.bootJar`. `build.gradle.kts`
-also computes an unused `buildTime` / `versionName` pair for the same abandoned mechanism.
-
-**Do:** delete `version.properties` and the unused `buildTime`/`versionName` vals in
-`build.gradle.kts`. Keep the manifest mechanism.
-
-**Acceptance:** `./gradlew bootJar` still stamps `Implementation-Version`; `/version` still works.
 
 ---
 
@@ -370,7 +277,7 @@ in the summary module. `UpdateUtils.getMentionedMessage()` survives until T2.6 d
 
 **Acceptance:** `grep -rn 'editedChannelPost' src/main` returns exactly one location.
 
-### [ ] T2.3 — Move the handler SPI to `UpdateContext` (P1, M)
+### [~] T2.3 — Move the handler SPI to `UpdateContext` (P1, M) — SPI signatures migrated; CommandHandlerExecutor still resolves Update params
 
 **Depends on:** T2.1
 
@@ -419,7 +326,7 @@ types, which is fragile (nullability and variance make `List<String>?` not match
 **Acceptance:** `CommandHandlerExecutor` has no `Update` import. `./gradlew build` passes and
 `ChatCommandTest` still passes (it will need updating — see T7.5).
 
-### [ ] T2.5 — Migrate modules off `Update` (P1, L — split per submodule)
+### [~] T2.5 — Migrate modules off `Update` (P1, L — split per submodule) — in progress, see subtasks
 
 **Depends on:** T2.1, T2.2, T2.3
 
@@ -428,7 +335,7 @@ the same: delete `import com.nikichxp.tgbot.core.dto.Update`, delete the
 `val update = updateContext.getUpdate()` line, and replace `update.getContextX()` with the typed
 accessor from T2.1.
 
-#### [ ] T2.5.1 — `childcarebot/`
+#### [~] T2.5.1 — `childcarebot/` — partially done; ChildCareCommandHandler, ChildReplyHandler, ChildReportHelper still on Update
 
 | File | Lines | Legacy usage |
 |---|---|---|
@@ -480,7 +387,7 @@ records changes behaviour.
 `ChatUpdatesToPromptSerializerService.getAuthorNameFromMessage()` (lines 44-50) duplicates
 `core/util/UserFormatter.getUserPrintName()`. Delete the local copy.
 
-#### [ ] T2.5.4 — `voicepad/`
+#### [~] T2.5.4 — `voicepad/` — partially done; createPrompt/createNotepad/deleteVoice still take Update
 
 **File:** `VoicePadCommandHandler.kt` lines 4, 28-29, 36-38, 43-47, 63-66, 71-74, 99-101
 
@@ -491,7 +398,7 @@ This class is the clearest example of the two-formats problem: `execute()` is ne
 Also: `deleteVoice` calls `sessionService.getActiveSession(chatId)` twice (once to remove, once to
 count) — use the value returned by `removeVoice`.
 
-#### [ ] T2.5.5 — `debug/`
+#### [~] T2.5.5 — `debug/` — partially done; NewUserInteractionHandler and log handlers still on getUpdate()
 
 | File | Lines | Legacy usage |
 |---|---|---|
@@ -986,7 +893,7 @@ Also in scope: `MessageStatHandler.kt:77-83` — the `try` block's only statemen
 the send (via `TgMessageService`, since `tgOperations` no longer exists) or delete the reporting path.
 This resolves the `// TODO fix codestyle; refactor` at line 67.
 
-### [ ] T6.7 — Eliminate `!!` on remote-controlled data (P1, M)
+### [~] T6.7 — Eliminate `!!` on remote-controlled data (P1, M) — partially done; mapper/callback/auth sites fixed, ~19 !! remain
 
 **Depends on:** T2.1, T2.5.x
 
@@ -1014,7 +921,7 @@ justification.
 
 # Phase 7 — Build, configuration and hygiene
 
-### [ ] T7.1 — Fix `build.gradle.kts` (P1, S)
+### [~] T7.1 — Fix `build.gradle.kts` (P1, S) — partially done; kotlin-test scope fixed, toolchain/dep cleanup remains
 
 **File:** `build.gradle.kts`
 
@@ -1043,7 +950,7 @@ CI does not honour its own project's rule.
 
 **Acceptance:** a deliberately failing test blocks the pipeline.
 
-### [ ] T7.3 — Externalize prompts, models and user-facing strings (P2, M)
+### [~] T7.3 — Externalize prompts, models and user-facing strings (P2, M) — partially done; recap model externalized, prompts/strings still hardcoded
 
 Model names and multi-line LLM prompts are compiled into class files, so tuning them requires a
 deploy:
@@ -1098,7 +1005,7 @@ settled.
 plus two files of extension functions (`Extended.kt`, `UpdateUtils.kt`). `Extended.kt` is a
 meaningless name. Distribute these to real homes.
 
-### [ ] T7.5 — Fix and extend the test suite (P1, M)
+### [~] T7.5 — Fix and extend the test suite (P1, M) — partially done; new tests added, fake contextLoads and listed gaps remain
 
 **Depends on:** T2.3, T2.4
 

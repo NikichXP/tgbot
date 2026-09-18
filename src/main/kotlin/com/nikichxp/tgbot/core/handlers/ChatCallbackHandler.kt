@@ -22,7 +22,8 @@ class ChatCallbackHandler(
     override suspend fun handleUpdate(updateContext: UpdateContext) {
         val callbackContext = CallbackContext(updateContext)
         val result = callbackHandlers
-//            .filter { it.isBotSupported(update.bot) }
+            .filter { isRequiredFeatureSupported(it, updateContext) }
+            .filter { if (it is Authenticable) it.authenticate(updateContext) else true }
             .find { it.isCallbackSupported(callbackContext) }
             ?.handleCallback(callbackContext)
 
@@ -34,5 +35,9 @@ class ChatCallbackHandler(
 
         log.info("chadId = ${callbackContext.chatId} | $callbackContext | $status")
         // TODO maybe log all failed callbacks?
+    }
+
+    private fun isRequiredFeatureSupported(handler: CallbackHandler, updateContext: UpdateContext): Boolean {
+        return updateContext.getBotInfo().getSupportedFeatures().containsAll(handler.requiredFeatures())
     }
 }
