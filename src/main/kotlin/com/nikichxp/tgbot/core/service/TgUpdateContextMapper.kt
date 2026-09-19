@@ -5,6 +5,7 @@ import com.nikichxp.tgbot.core.dto.Message
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.dto.User
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
+import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.common.CallbackModel
 import com.nikichxp.tgbot.core.entity.common.ChatModel
@@ -13,7 +14,6 @@ import com.nikichxp.tgbot.core.entity.common.ReplyModel
 import com.nikichxp.tgbot.core.entity.common.StickerModel
 import com.nikichxp.tgbot.core.entity.common.UserModel
 import com.nikichxp.tgbot.core.entity.common.VoiceModel
-import com.nikichxp.tgbot.core.util.getMarkers
 import com.nikichxp.tgbot.core.util.getMentionedMessage
 import org.springframework.stereotype.Component
 
@@ -21,20 +21,26 @@ import org.springframework.stereotype.Component
 class TgUpdateContextMapper {
 
     fun mapToUpdateContext(update: Update, bot: TgBotInfo): TgUpdateContext {
-        update.bot = bot
-        val updateContext = TgUpdateContext(update, bot)
+        val updateContext = TgUpdateContext(bot)
 
         val mentionedMessage = update.getMentionedMessage()
 
-        updateContext.id = update.updateId
+        updateContext.updateSeqId = update.updateId
         updateContext.chat = mentionedMessage?.chat?.let(::mapChat)
         updateContext.from = mapUser(mentionedMessage?.from)
         updateContext.reply = mapReply(mentionedMessage?.replyToMessage)
         updateContext.message = mapMessage(mentionedMessage)
         updateContext.callback = mapCallback(update)
-        updateContext.markers = update.getMarkers()
+        updateContext.markers = mapMarkers(update)
 
         return updateContext
+    }
+
+    private fun mapMarkers(update: Update): Set<UpdateMarker> {
+        return UpdateMarker.entries.filter {
+            val result = it.predicate.apply(update)
+            result as? Boolean ?: (result != null)
+        }.toSet()
     }
 
     private fun mapChat(chat: Chat): ChatModel {

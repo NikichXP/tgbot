@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.handlers
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
+import com.nikichxp.tgbot.core.entity.common.MessageModel
 import com.nikichxp.tgbot.core.handlers.ChatCommandsHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
@@ -14,7 +14,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mockito.RETURNS_DEEP_STUBS
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
@@ -61,7 +60,6 @@ class ChatCommandTest {
             override fun requiredFeatures() = setOf<String>()
         }
 
-        val update = mock<Update>(RETURNS_DEEP_STUBS)
         val updateContext = mock<UpdateContext>()
         val singleCommandHandler = SingleCommandHandler(
             command = "/hello",
@@ -69,9 +67,7 @@ class ChatCommandTest {
             function = TestHandler::hello
         )
 
-        `when`(update.message!!.text).thenReturn(command)
-        `when`(update.bot).thenReturn(bot)
-        `when`(updateContext.getUpdate()).thenReturn(update)
+        `when`(updateContext.message).thenReturn(MessageModel(id = 1, text = command))
         `when`(updateContext.getBotInfo()).thenReturn(bot)
         `when`(commandHandlerScanner.getHandlers()).thenReturn(setOf(singleCommandHandler))
 

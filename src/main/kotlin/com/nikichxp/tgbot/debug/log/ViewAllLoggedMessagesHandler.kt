@@ -1,14 +1,12 @@
 package com.nikichxp.tgbot.debug.log
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.error.NotHandledSituationError
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.ChatCommandParser
-import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,8 +19,8 @@ class ViewAllLoggedMessagesHandler(
     override fun requiredFeatures() = setOf(Features.DEBUG)
 
     @HandleCommand("/logging")
-    suspend fun configureLogging(args: List<String>, update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: throw NotHandledSituationError()
+    suspend fun configureLogging(args: List<String>, context: UpdateContext): Boolean {
+        val chatId = context.getChatId()
 
         suspend fun notify(text: String) = tgMessageService.sendMessage(chatId, LogAllMessagesHandler.Companion.LOG_PREFIX + text)
 

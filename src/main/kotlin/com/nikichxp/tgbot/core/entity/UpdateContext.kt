@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.core.entity
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.bots.BotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.common.CallbackModel
@@ -13,8 +12,6 @@ import kotlin.coroutines.CoroutineContext
 
 interface UpdateContext {
 
-    @Deprecated("for migration purposes only!")
-    fun getUpdate(): Update
     fun getBotInfo(): BotInfo
 
     fun getChatId(): Long
@@ -29,13 +26,12 @@ interface UpdateContext {
 }
 
 data class TgUpdateContext(
-    private val update: Update,
     var tgBotV2: TgBotInfo
 ) :
     AbstractCoroutineContextElement(TgUpdateContext),
     UpdateContext {
 
-    var id: Long = update.updateId
+    var updateSeqId: Long = 0
 
     override var chat: ChatModel? = null
     override var from: UserModel? = null
@@ -46,8 +42,6 @@ data class TgUpdateContext(
 
     companion object Key : CoroutineContext.Key<TgUpdateContext>
 
-    // TODO do everything needed to remove this method
-    override fun getUpdate(): Update = update
     override fun getBotInfo(): BotInfo = tgBotV2
     override fun getChatId(): Long = chat?.id ?: throw IllegalStateException("No chat id found")
 

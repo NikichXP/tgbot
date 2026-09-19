@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.karmabot.handlers
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.NotHandledSituationError
@@ -92,14 +91,13 @@ class MessageStatHandler(
 
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.getUpdate()
-        val (userId, userName) = getIdAndName(update)
-        val chatId = update.message?.chat?.id ?: throw NotHandledSituationError()
+        val (userId, userName) = getIdAndName(updateContext)
+        val chatId = updateContext.getChatId()
         userStat.processNewMessage(chatId, userId, userName)
     }
 
-    private fun getIdAndName(update: Update): Pair<Long, String> {
-        val user = update.message?.from ?: throw NotHandledSituationError()
+    private fun getIdAndName(context: UpdateContext): Pair<Long, String> {
+        val user = context.from ?: throw NotHandledSituationError()
         return user.id to UserFormatter.getUserPrintName(user)
     }
 }

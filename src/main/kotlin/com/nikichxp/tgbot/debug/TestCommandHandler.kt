@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.debug
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.error.DisplayableError
@@ -55,26 +54,26 @@ class TestCommandHandler(
     }
 
     @HandleCommand("/removekeys")
-    suspend fun removeKeyboard(update: Update): Boolean {
+    suspend fun removeKeyboard(context: UpdateContext): Boolean {
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Keyboard removed"
             removeKeyboard()
         }
 
-        tgMessageService.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, context.getBotInfo() as TgBotInfo)
         return true
     }
 
     @HandleCommand("/inlinekeys")
-    suspend fun testInlineKeyboard(update: Update): Boolean {
+    suspend fun testInlineKeyboard(context: UpdateContext): Boolean {
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Here is your inline keyboard"
             withInlineKeyboard(getKeys())
         }
 
-        tgMessageService.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, context.getBotInfo() as TgBotInfo)
         return true
     }
 
@@ -84,7 +83,7 @@ class TestCommandHandler(
     }
 
     @HandleCommand("/testkey")
-    suspend fun testKeyboard(update: Update): Boolean {
+    suspend fun testKeyboard(context: UpdateContext): Boolean {
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Here is your keyboard"
@@ -102,7 +101,7 @@ class TestCommandHandler(
             )
         }
 
-        tgMessageService.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, context.getBotInfo() as TgBotInfo)
         return true
     }
 

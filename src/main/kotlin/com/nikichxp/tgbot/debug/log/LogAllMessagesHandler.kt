@@ -1,12 +1,10 @@
 package com.nikichxp.tgbot.debug.log
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getContextChatId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -24,23 +22,22 @@ class LogAllMessagesHandler(
     override fun getMarkers(): Set<UpdateMarker> = UpdateMarker.entries.toSet()
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.getUpdate()
-        val chatId = update.getContextChatId()
+        val chatId = updateContext.chat?.id
 
-        if (update.message?.text?.startsWith(LOG_PREFIX) == true) {
+        if (updateContext.message?.text?.startsWith(LOG_PREFIX) == true) {
             return
         }
 
         if (chatId != null && loggingConfigBackend.shouldLog(chatId)) {
-            logger.info(objectMapper.writeValueAsString(update))
+            logger.info(objectMapper.writeValueAsString(updateContext))
 
             if (!loggingConfigBackend.isAdmin(chatId)) {
-                tgMessageService.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(update))
+                tgMessageService.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(updateContext))
             }
         }
 
         if (chatId != null && loggingConfigBackend.isAdmin(chatId)) {
-            tgMessageService.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(update))
+            tgMessageService.sendMessage(chatId, LOG_PREFIX + objectMapper.writeValueAsString(updateContext))
         }
     }
 

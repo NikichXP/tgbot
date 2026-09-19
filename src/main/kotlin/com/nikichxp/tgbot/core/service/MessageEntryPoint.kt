@@ -2,8 +2,6 @@ package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgUpdateContext
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.tgapi.TgLastKnownMessageService
 import com.nikichxp.tgbot.core.tooling.TracerService
@@ -45,7 +43,7 @@ class MessageEntryPoint(
                 updateProcessor.proceedUpdate(updateContext)
             }
             launch {
-                tgLastKnownMessageService.updateLastKnownMessage(bot, update.updateId)
+                tgLastKnownMessageService.updateLastKnownMessage(bot, updateContext.updateSeqId)
             }
         }
     }

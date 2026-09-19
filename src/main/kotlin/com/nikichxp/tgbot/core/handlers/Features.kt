@@ -9,7 +9,6 @@ object Features {
     const val KARMA = "karma"
     const val SUMMARY = "summary"
     const val STATS = "stats"
-    const val WAREHOUSE = "warehouse"
     const val SHITPOSTING = "shitposting"
     const val TOOLBOX = "toolbox"
 

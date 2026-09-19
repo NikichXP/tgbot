@@ -5,7 +5,6 @@ import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.childcarebot.state.StateTransitionService
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
@@ -14,7 +13,6 @@ import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getContextUserId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeFormatter
@@ -52,8 +50,8 @@ class ChildCareCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_CHAT, UpdateMarker.IS_NOT_COMMAND, UpdateMarker.IS_NOT_REPLY)
 
     @HandleCommand("/status")
-    suspend fun status(update: Update) {
-        val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
+    suspend fun status(context: UpdateContext) {
+        val childInfo = context.from?.id?.let { childInfoRepo.findChildByParent(it) }
             ?: throw IllegalStateException("Child not found")
         val lastState = childActivityRepo.getLastEvent(childInfo.id)?.state ?: ChildActivity.WAKE_UP
         val keyboard = childKeyboardProvider.getKeyboardForState(lastState)
@@ -88,8 +86,8 @@ class ChildCareCommandHandler(
     }
 
     @HandleCommand("/parents")
-    suspend fun listParents(update: Update) {
-        val childInfo = update.getContextUserId()?.let { childInfoRepo.findChildByParent(it) }
+    suspend fun listParents(context: UpdateContext) {
+        val childInfo = context.from?.id?.let { childInfoRepo.findChildByParent(it) }
             ?: throw IllegalStateException("Child not found")
         tgMessageService.sendMessage {
             replyToCurrentMessage()
@@ -102,7 +100,6 @@ class ChildCareCommandHandler(
 
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.getUpdate()
         val text = updateContext.message?.text
 
         if (text == null) {
@@ -115,7 +112,7 @@ class ChildCareCommandHandler(
             return
         }
 
-        doStateTransition(text, update.getContextUserId()!!)
+        doStateTransition(text, updateContext.from?.id!!)
     }
 
     private suspend fun doStateTransition(text: String, userId: Long) {

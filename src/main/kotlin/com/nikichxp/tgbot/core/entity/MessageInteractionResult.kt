@@ -1,24 +1,24 @@
 package com.nikichxp.tgbot.core.entity
 
-import com.nikichxp.tgbot.core.dto.User
+import com.nikichxp.tgbot.core.entity.common.UserModel
 
 data class MessageInteractionResult(
-    val users: MutableMap<User, InteractionRole>,
+    val users: MutableMap<UserModel, InteractionRole>,
     val interactionType: InteractionType,
     val power: Double = .0
 ) {
 
     constructor(
-        users: MutableMap<User, InteractionRole>,
+        users: MutableMap<UserModel, InteractionRole>,
         power: Double = .0
     ) : this(
         users = users, power = power,
         interactionType = if (power == 0.0) InteractionType.NONE else InteractionType.RATING
     )
 
-    fun getActor(): User = users.filterValues { it == InteractionRole.ACTOR }.keys.first()
+    fun getActor(): UserModel = users.filterValues { it == InteractionRole.ACTOR }.keys.first()
 
-    fun getTarget(): User? = users.filterValues { it == InteractionRole.TARGET }.keys.firstOrNull()
+    fun getTarget(): UserModel? = users.filterValues { it == InteractionRole.TARGET }.keys.firstOrNull()
 
     fun isNoInteraction(): Boolean = getTarget() == null
     fun isLikeInteraction(): Boolean = getTarget() != null && power != 0.0

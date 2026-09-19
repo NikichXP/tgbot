@@ -1,6 +1,6 @@
 # AGENTS.md — tg-bot
 
-Telegram bot backend service supporting multiple bots, child-care tracking, karma, AI voice transcription & summaries, warehouse integration, and Discord webhooks.
+Telegram bot backend service supporting multiple bots, child-care tracking, karma, AI voice transcription & summaries, and Discord webhooks.
 
 ## Technology Stack
 
@@ -38,7 +38,6 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 | `APP_WEBHOOK` | Base webhook URL registered with Telegram API | `https://bot.nikichxp.xyz/handle` |
 | `APP_LOCAL_ENV` | When true, skips webhook registration | `false` |
 | `APP_SUSPEND_BOT_REGISTERING` | When true, suspends bot webhook registration | `false` |
-| `APP_WAREHOUSE_URL` | Warehouse service URL | `https://warehouse.nikichxp.xyz/storage` |
 | `APP_TRACER_*` | Tracer configs (`STORE`, `TTL`, `CAPACITY`, `TOKEN`) | `true`, `24`, `100`, `null` |
 | `OPENROUTER_*` | OpenRouter AI configs (`API_KEY`, `DEFAULT_MODEL`, `BASE_URL`, `REFERER`, `TITLE`, `TRANSCRIPTION_MODEL`) | `openrouter/auto`, `openai/whisper-1` |
 | `DISCORD_PUBLIC_KEY` | Public key for Discord interaction signature verification | `null` |
@@ -59,4 +58,10 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 2. **Reactive & Coroutines**: Use Kotlin coroutines (`suspend`, `coRouter`, `awaitBody`, `bodyValueAndAwait`) instead of blocking calls.
 3. **Configuration**: Keep `AppConfig` safe with default parameter values so optional features don't crash startup if an env var is omitted.
 4. **Secrets**: Never commit `.env` or hardcode tokens/credentials in code or manifests.
+5. **`Update` is a wire DTO**: `core.dto.Update` may only be used to (a) read/deserialise the raw
+   Telegram request and (b) map that data into typed models (`UpdateContext` via
+   `TgUpdateContextMapper`, or `LoggedMessage`'s typed fields via `SummaryMessageStorageService`'s
+   one-time legacy-record migration). It must never be stored on a domain entity or read again after
+   mapping. Handlers and business logic must use `UpdateContext` and its typed models
+   (`UserModel`/`ReplyModel`/`MessageModel`/`CallbackModel`) instead.
 

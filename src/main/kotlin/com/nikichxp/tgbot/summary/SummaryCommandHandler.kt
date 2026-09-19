@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.summary
 
 import com.nikichxp.tgbot.core.auth.TrustedUserService
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -15,9 +14,6 @@ import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.ChatCommandParser
-import com.nikichxp.tgbot.core.util.getContextChatId
-import com.nikichxp.tgbot.core.util.getContextUserId
-import com.nikichxp.tgbot.core.util.getMarkers
 import com.nikichxp.tgbot.summary.entity.RecapOptions
 import com.nikichxp.tgbot.summary.entity.RecapOptionsBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -42,21 +38,19 @@ class SummaryCommandHandler(
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_GROUP)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.getUpdate()
-        val chatId = update.getContextChatId() ?: run {
-            logger.warn("Cannot get chatId in update: $update")
+        val chatId = updateContext.chat?.id ?: run {
+            logger.warn("Cannot get chatId in update: $updateContext")
             return
         }
 
         if (summaryService.getFeatureEnabledStatus(chatId)) {
-            summaryMessageStorageService.storeMessage(update)
+            summaryMessageStorageService.storeMessage(updateContext)
         }
     }
 
     @HandleCommand("/whatsup")
     suspend fun whatsup(args: List<String>, updateContext: UpdateContext): Boolean {
-        val update = updateContext.getUpdate()
-        val chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
+        val chatId = updateContext.chat?.id ?: throw IllegalArgumentException("Can't get chat id")
 
         if (!summaryService.getFeatureEnabledStatus(chatId)) {
             // ignore, don't let people know this feature exists so far
@@ -123,12 +117,11 @@ class SummaryCommandHandler(
     }
 
     private suspend fun checkAccess(updateContext: UpdateContext) {
-        val update = updateContext.getUpdate()
-        if (!update.getMarkers().contains(UpdateMarker.MESSAGE_IN_GROUP)) {
+        if (!updateContext.markers.contains(UpdateMarker.MESSAGE_IN_GROUP)) {
             tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }
 
-        val callerId = update.getContextUserId() ?: throw IllegalArgumentException("Can't get userId")
+        val callerId = updateContext.from?.id ?: throw IllegalArgumentException("Can't get userId")
 
         if (callerId != appConfig.adminId) {
             tgMessageService.sendMessage {

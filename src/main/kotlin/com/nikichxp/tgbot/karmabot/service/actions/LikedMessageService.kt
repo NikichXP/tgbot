@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.karmabot.service.actions
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.UserFormatter.getUserPrintName
 import com.nikichxp.tgbot.karmabot.service.UserService
@@ -20,8 +20,8 @@ class LikedMessageService(
     private val likedHistoryService: LikedHistoryService
 ) {
 
-    suspend fun changeRating(interaction: MessageInteractionResult, update: Update) {
-        val messageId = update.message?.messageId ?: throw IllegalStateException()
+    suspend fun changeRating(interaction: MessageInteractionResult, context: UpdateContext) {
+        val messageId = context.message?.id ?: throw IllegalStateException()
         val actor = interaction.getActor()
         val actorInfo = userService.getUserInfo(actor)
         val target = interaction.getTarget() ?: throw IllegalStateException(impossibleStateOfNoTarget)
@@ -37,7 +37,7 @@ class LikedMessageService(
             }
         }
         sendKarmaMsg(
-            update = update,
+            context = context,
             actor = getUserPrintName(actor),
             target = getUserPrintName(target),
             actorKarma = actorInfo.rating,
@@ -47,7 +47,7 @@ class LikedMessageService(
     }
 
     private suspend fun sendKarmaMsg(
-        update: Update,
+        context: UpdateContext,
         actor: String,
         target: String,
         actorKarma: Double,
@@ -55,7 +55,7 @@ class LikedMessageService(
         diff: Double
     ) {
         val text = "$actor ($actorKarma) changed karma of $target ($targetKarma) Δ=$diff"
-        tgMessageService.sendMessage(update.message?.chat?.id!!, text)
+        tgMessageService.sendMessage(context.getChatId(), text)
     }
 
     companion object {
