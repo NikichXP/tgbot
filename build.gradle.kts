@@ -47,8 +47,8 @@ dependencies {
     implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    implementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
@@ -65,6 +65,10 @@ tasks.withType<KotlinCompile> {
     compilerOptions {
         this.jvmTarget.set(JvmTarget.JVM_17)
     }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 abstract class PrintVersion : DefaultTask() {

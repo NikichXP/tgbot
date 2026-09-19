@@ -1,24 +1,26 @@
 package com.nikichxp.tgbot.core.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.nikichxp.tgbot.core.entity.StoredError
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.error.DisplayableError
 import com.nikichxp.tgbot.core.error.ExpectedError
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getMarkers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Component
 
 @Component
 class UpdateProcessor(
     private val handlers: List<UpdateHandler>,
     private val objectMapper: ObjectMapper,
-    private val tgMessageService: TgMessageService
+    private val tgMessageService: TgMessageService,
+    private val mongoTemplate: MongoTemplate
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -61,17 +63,20 @@ class UpdateProcessor(
                 )
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            val message = "Handler ${context.handler::class.java.simpleName} failed to process update: " +
+                    objectMapper.writeValueAsString(context.context)
+            logger.error(message, e)
+            mongoTemplate.save(StoredError(message, e.stackTraceToString()))
         }
     }
 
     private suspend fun isHandlerSupportedForV2(context: UpdateContext, handler: UpdateHandler): Boolean {
         val botInfo = context.getBotInfo()
-        val markerSupported = handler.getMarkers().all { context.getUpdate().getMarkers().contains(it) }
+        val markerSupported = context.markers.containsAll(handler.getMarkers())
         val botSupported = botInfo.getSupportedFeatures().containsAll(handler.requiredFeatures())
-        val handlerAllows = handler.canHandle(context.getUpdate())
+        val handlerAllows = handler.canHandle(context)
         val isAuthenticated = if (handler is Authenticable) {
-            handler.authenticate(context.getUpdate())
+            handler.authenticate(context)
         } else {
             true
         }

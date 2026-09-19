@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.karmabot.service
 
-import com.nikichxp.tgbot.core.dto.User
+import com.nikichxp.tgbot.core.entity.common.UserModel
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
@@ -11,7 +11,7 @@ class UserService(
     private val mongoTemplate: MongoTemplate
 ) {
 
-    fun getUserInfo(user: User): UserInfo {
+    fun getUserInfo(user: UserModel): UserInfo {
         return mongoTemplate.findById(user.id) ?: UserInfo(user).also { mongoTemplate.insert(user) }
     }
 
@@ -23,7 +23,7 @@ class UserService(
         mongoTemplate.save(userInfo)
     }
 
-    fun modifyUser(user: User, action: (UserInfo) -> Unit) {
+    fun modifyUser(user: UserModel, action: (UserInfo) -> Unit) {
         val userInfo = mongoTemplate.findById(user.id) ?: UserInfo(user)
         action(userInfo)
         mongoTemplate.save(userInfo)
@@ -37,6 +37,6 @@ data class UserInfo(
     var rating: Double = 0.0
 ) {
 
-    constructor(user: User) : this(id = user.id, username = user.username, rating = 0.0)
+    constructor(user: UserModel) : this(id = user.id, username = user.username, rating = 0.0)
 
 }

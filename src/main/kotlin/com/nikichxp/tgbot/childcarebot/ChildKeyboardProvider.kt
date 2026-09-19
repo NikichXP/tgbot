@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.core.service.tgapi.TgButton
-import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgReplyMarkup
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,14 +30,5 @@ class ReplyKeyboardProvider : ChildKeyboardProvider() {
             getItems(state).map { TgButton(it) }
         )
     )
-
-}
-
-@Service
-class InlineKeyboardProvider : ChildKeyboardProvider() {
-
-    override fun getKeyboardForState(state: ChildActivity): TgInlineKeyboard {
-        TODO("Not yet implemented")
-    }
 
 }

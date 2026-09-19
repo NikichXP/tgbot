@@ -1,12 +1,10 @@
 package com.nikichxp.tgbot.core.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.nikichxp.tgbot.core.dto.payments.PreCheckoutQuery
 import com.nikichxp.tgbot.core.dto.payments.ShippingQuery
 import com.nikichxp.tgbot.core.dto.polls.Poll
 import com.nikichxp.tgbot.core.dto.polls.PollAnswer
-import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import org.springframework.data.annotation.Id
 
 data class Update(
@@ -35,10 +33,4 @@ data class Update(
     @JsonProperty("edited_business_message") val editedBusinessMessage: Message? = null,
     @JsonProperty("deleted_business_messages") val deletedBusinessMessages: BusinessMessagesDeleted? = null,
     @JsonProperty("purchased_paid_media") val purchasedPaidMedia: PaidMediaPurchased? = null
-) {
-
-    // TODO think about: maybe move this to updateContext, TBD
-    @JsonIgnore
-    lateinit var bot: TgBotInfo
-
-}
+)

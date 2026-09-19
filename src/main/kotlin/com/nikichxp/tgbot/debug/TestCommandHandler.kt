@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.debug
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.error.DisplayableError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
@@ -11,7 +11,6 @@ import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
-import com.nikichxp.tgbot.core.util.getContextChatId
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
@@ -51,30 +50,30 @@ class TestCommandHandler(
 
     @HandleCommand("/myid")
     suspend fun myId(updateContext: UpdateContext) {
-        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.getUpdate().getContextChatId()}")
+        tgMessageService.replyToCurrentMessage("Your id is ${updateContext.getChatId()}")
     }
 
     @HandleCommand("/removekeys")
-    suspend fun removeKeyboard(update: Update): Boolean {
+    suspend fun removeKeyboard(context: UpdateContext): Boolean {
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Keyboard removed"
             removeKeyboard()
         }
 
-        tgMessageService.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, context.getBotInfo() as TgBotInfo)
         return true
     }
 
     @HandleCommand("/inlinekeys")
-    suspend fun testInlineKeyboard(update: Update): Boolean {
+    suspend fun testInlineKeyboard(context: UpdateContext): Boolean {
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Here is your inline keyboard"
             withInlineKeyboard(getKeys())
         }
 
-        tgMessageService.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, context.getBotInfo() as TgBotInfo)
         return true
     }
 
@@ -84,7 +83,7 @@ class TestCommandHandler(
     }
 
     @HandleCommand("/testkey")
-    suspend fun testKeyboard(update: Update): Boolean {
+    suspend fun testKeyboard(context: UpdateContext): Boolean {
         val message = TgSendMessage.create {
             replyToCurrentMessage()
             text = "Here is your keyboard"
@@ -102,7 +101,7 @@ class TestCommandHandler(
             )
         }
 
-        tgMessageService.sendMessage(message, update.bot)
+        tgMessageService.sendMessage(message, context.getBotInfo() as TgBotInfo)
         return true
     }
 
@@ -112,13 +111,12 @@ class TestCommandHandler(
 
     override suspend fun handleCallback(
         callbackContext: CallbackContext,
-        update: Update,
     ): Boolean {
         tgMessageService.editMessageText(
             chatId = callbackContext.chatId,
             messageId = callbackContext.messageId,
-            text = callbackContext.buttonText,
-            bot = callbackContext.botInfo,
+            text = callbackContext.buttonText ?: "",
+            bot = callbackContext.botInfo as TgBotInfo,
             replyMarkup = TgInlineKeyboard.of(getKeys())
         )
         return true

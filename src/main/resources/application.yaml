@@ -38,8 +38,6 @@ app:
   webhook: ${APP_WEBHOOK:https://bot.nikichxp.xyz/handle}
   localEnv: ${APP_LOCAL_ENV:false}
   suspendBotRegistering: ${APP_SUSPEND_BOT_REGISTERING:false}
-  warehouse:
-    url: ${APP_WAREHOUSE_URL:https://warehouse.nikichxp.xyz/storage}
   tracer:
     store: ${APP_TRACER_STORE:true}
     ttl: ${APP_TRACER_TTL:24}

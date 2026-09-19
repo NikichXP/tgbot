@@ -1,12 +1,10 @@
 package com.nikichxp.tgbot.santabot
 
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getContextUserId
-import com.nikichxp.tgbot.core.util.getContextUserName
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
@@ -25,9 +23,9 @@ class SantaBotCommandHandler(
     override fun requiredFeatures() = setOf(Features.SANTA)
 
     @HandleCommand("/create")
-    private suspend fun commandCreate(args: List<String>, update: Update): Boolean {
+    private suspend fun commandCreate(args: List<String>, context: UpdateContext): Boolean {
         val game = SecretSantaGame()
-        game.createdBy = update.getContextUserId() ?: throw IllegalArgumentException("Can't get user id")
+        game.createdBy = context.from?.id ?: throw IllegalArgumentException("Can't get user id")
 
         // TODO argsparser
         var i = 0
@@ -42,7 +40,7 @@ class SantaBotCommandHandler(
             i++
         }
 
-        val player = getSantaUserPlayerFromUpdate(update)
+        val player = getSantaUserPlayerFromUpdate(context)
         game.players += player
         mongoTemplate.save(game)
         tgMessageService.replyToCurrentMessage("game created")
@@ -50,7 +48,7 @@ class SantaBotCommandHandler(
     }
 
     @HandleCommand("/register")
-    private suspend fun commandRegister(args: List<String>, update: Update): Boolean {
+    private suspend fun commandRegister(args: List<String>, context: UpdateContext): Boolean {
         val gameId = args.first()
         val game = getGame(gameId) ?: return noGameFound()
 
@@ -59,7 +57,7 @@ class SantaBotCommandHandler(
             return true
         }
 
-        val player = getSantaUserPlayerFromUpdate(update)
+        val player = getSantaUserPlayerFromUpdate(context)
         var status = false
         if (game.players.none { it.id == player.id }) {
             game.players += player
@@ -73,7 +71,7 @@ class SantaBotCommandHandler(
     }
 
     @HandleCommand("/players")
-    private suspend fun commandPlayers(args: List<String>, update: Update): Boolean {
+    private suspend fun commandPlayers(args: List<String>, context: UpdateContext): Boolean {
         if (args.size != 1) {
             tgMessageService.replyToCurrentMessage("Используйте /players gameId")
             return true
@@ -82,7 +80,7 @@ class SantaBotCommandHandler(
         val gameId = args.first()
         val game = getGame(gameId) ?: return noGameFound()
 
-        if (game.players.none { it.id == update.getContextUserId() }) {
+        if (game.players.none { it.id == context.from?.id }) {
             tgMessageService.replyToCurrentMessage("Вы не зарегистрированы в этой игре")
             return true
         }
@@ -93,7 +91,7 @@ class SantaBotCommandHandler(
     }
 
     @HandleCommand("/ignore")
-    private suspend fun commandIgnore(args: List<String>, update: Update): Boolean {
+    private suspend fun commandIgnore(args: List<String>, context: UpdateContext): Boolean {
         if (args.size != 2) {
             tgMessageService.replyToCurrentMessage("Используйте /ignore gameId @username")
             return true
@@ -102,7 +100,7 @@ class SantaBotCommandHandler(
         val gameId = args[0]
         val ignored = args[1]
         val game = getGame(gameId) ?: return noGameFound()
-        val playerId = getSantaUserPlayerFromUpdate(update).id
+        val playerId = getSantaUserPlayerFromUpdate(context).id
         val player = game.players.find { it.id == playerId }
             ?: throw IllegalArgumentException("register in game first")
         player.ignores += ignored.replace("@", "").lowercase()
@@ -115,11 +113,11 @@ class SantaBotCommandHandler(
     }
 
     @HandleCommand("/testgame")
-    private suspend fun commandTestGame(args: List<String>, update: Update): Boolean {
+    private suspend fun commandTestGame(args: List<String>, context: UpdateContext): Boolean {
         val gameId = args.first()
         val game = getGame(gameId) ?: return noGameFound()
 
-        if (game.createdBy != update.getContextUserId()) {
+        if (game.createdBy != context.from?.id) {
             tgMessageService.replyToCurrentMessage("Вы не создатель игры")
             return true
         }
@@ -132,14 +130,14 @@ class SantaBotCommandHandler(
     }
 
     @HandleCommand("/startgame")
-    private suspend fun commandStartGame(args: List<String>, update: Update): Boolean {
+    private suspend fun commandStartGame(args: List<String>, context: UpdateContext): Boolean {
         val gameId = args.first()
         val game = getGame(gameId) ?: return noGameFound()
 
         when {
             game.isStarted -> tgMessageService.replyToCurrentMessage("Игра уже начата")
             game.players.size < 3 -> tgMessageService.replyToCurrentMessage("Недостаточно игроков")
-            game.createdBy != update.getContextUserId() -> tgMessageService.replyToCurrentMessage("Вы не создатель игры")
+            game.createdBy != context.from?.id -> tgMessageService.replyToCurrentMessage("Вы не создатель игры")
             else -> {
                 val playerPairs = calculatePlayers(game)
                 startGame(playerPairs)
@@ -219,10 +217,10 @@ class SantaBotCommandHandler(
         return individualUserConditionsMet && circularConditionMet
     }
 
-    private fun getSantaUserPlayerFromUpdate(update: Update): SecretSantaPlayer {
+    private fun getSantaUserPlayerFromUpdate(context: UpdateContext): SecretSantaPlayer {
         return SecretSantaPlayer(
-            id = update.getContextUserId() ?: throw IllegalArgumentException("not expected"),
-            username = update.getContextUserName() ?: throw IllegalArgumentException("you must have a username")
+            id = context.from?.id ?: throw IllegalArgumentException("not expected"),
+            username = context.from?.username ?: throw IllegalArgumentException("you must have a username")
         )
     }
 }

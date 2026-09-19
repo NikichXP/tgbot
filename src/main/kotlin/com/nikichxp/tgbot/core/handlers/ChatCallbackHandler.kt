@@ -1,11 +1,9 @@
 package com.nikichxp.tgbot.core.handlers
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
-import com.nikichxp.tgbot.core.util.getContextChatId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -22,12 +20,12 @@ class ChatCallbackHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_CALLBACK)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.getUpdate()
-        val callbackContext = CallbackContext(update)
+        val callbackContext = CallbackContext(updateContext)
         val result = callbackHandlers
-//            .filter { it.isBotSupported(update.bot) }
+            .filter { isRequiredFeatureSupported(it, updateContext) }
+            .filter { if (it is Authenticable) it.authenticate(updateContext) else true }
             .find { it.isCallbackSupported(callbackContext) }
-            ?.handleCallback(callbackContext, update)
+            ?.handleCallback(callbackContext)
 
         val status = when (result) {
             true -> "successfully handled"
@@ -35,7 +33,11 @@ class ChatCallbackHandler(
             null -> "no handler found"
         }
 
-        log.info("chadId = ${update.getContextChatId()} | $callbackContext | $status")
+        log.info("chadId = ${callbackContext.chatId} | $callbackContext | $status")
         // TODO maybe log all failed callbacks?
+    }
+
+    private fun isRequiredFeatureSupported(handler: CallbackHandler, updateContext: UpdateContext): Boolean {
+        return updateContext.getBotInfo().getSupportedFeatures().containsAll(handler.requiredFeatures())
     }
 }

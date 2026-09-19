@@ -1,8 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.nikichxp.tgbot.core.util.getContextChatId
-import com.nikichxp.tgbot.core.util.getContextMessageId
 import com.nikichxp.tgbot.core.util.getCurrentUpdateContext
 
 class TgSendMessage {
@@ -18,14 +16,14 @@ class TgSendMessage {
     val callbacks = mutableListOf<(TgSentMessageResponse) -> Unit>()
 
     suspend fun sendInCurrentChat() {
-        val update = getCurrentUpdateContext().getUpdate()
-        this.chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
+        val context = getCurrentUpdateContext()
+        this.chatId = context.chat?.id ?: throw IllegalArgumentException("Can't get chat id")
     }
 
     suspend fun replyToCurrentMessage() {
-        val update = getCurrentUpdateContext().getUpdate()
-        this.chatId = update.getContextChatId() ?: throw IllegalArgumentException("Can't get chat id")
-        this.replyParameters = TgReplyParameters(chatId, update.getContextMessageId() ?: throw IllegalArgumentException("Can't get message id"))
+        val context = getCurrentUpdateContext()
+        this.chatId = context.chat?.id ?: throw IllegalArgumentException("Can't get chat id")
+        this.replyParameters = TgReplyParameters(chatId, context.message?.id ?: throw IllegalArgumentException("Can't get message id"))
     }
 
     fun withKeyboard(buttons: List<List<String>>) {
