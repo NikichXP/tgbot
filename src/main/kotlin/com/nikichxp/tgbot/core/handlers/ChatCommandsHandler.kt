@@ -5,7 +5,6 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerScanner
 import com.nikichxp.tgbot.core.handlers.commands.SingleCommandHandler
-import com.nikichxp.tgbot.core.util.getContextChatId
 import kotlinx.coroutines.coroutineScope
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -27,15 +26,14 @@ class ChatCommandsHandler(
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
-        val update = updateContext.getUpdate()
-        val query = update.message?.text?.split(" ") ?: run {
-            logger.info("No text in update: $update") // todo this is for debug, remove later
+        val text = updateContext.message?.text
+        val query = text?.split(" ") ?: run {
+            logger.info("No text in update: $updateContext") // todo this is for debug, remove later
             return
         }
         val command = query.first()
 
         if (!command.startsWith("/")) {
-//            logger.info("Command is not a command: $command, update: $update") // todo create debug config for that 
             return
         }
 
@@ -44,19 +42,19 @@ class ChatCommandsHandler(
         coroutineScope {
             val result = commandHandlerExecutorMap[command]?.let {
                 it.filter { handler -> isRequiredFeatureSupported(handler, updateContext) }
-                    .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(update) else true }
+                    .filter { handler -> if (handler.handler is Authenticable) handler.handler.authenticate(updateContext) else true }
                     .map { handler -> commandHandlerExecutor.execute(handler, args, updateContext) }
             }
 
             val log = when {
                 result == null -> "unknown command"
-                result.isEmpty() -> "no handlers for command '$command' handlers for bot ${update.bot}"
+                result.isEmpty() -> "no handlers for command '$command' handlers for bot ${updateContext.getBotInfo()}"
                 result.all { it } -> "successfully handled command"
                 result.any { it } -> "partially handled command (${result.count { it }}/${result.size})"
                 else -> "failed executing command"
             }
 
-            logger.info("chadId = ${update.getContextChatId()} | ${update.message.text} | $log")
+            logger.info("chadId = ${updateContext.getChatId()} | $text | $log")
         }
 
     }

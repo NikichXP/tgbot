@@ -2,9 +2,9 @@ package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildTimezoneService
-import com.nikichxp.tgbot.core.dto.Message
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
+import com.nikichxp.tgbot.core.entity.common.ReplyModel
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
@@ -24,19 +24,20 @@ class ChildReplyHandler(
 
     override fun requiredFeatures(): Set<String> = setOf(Features.CHILD_TRACKER)
 
-    override suspend fun handleUpdate(update: Update) {
-        val text = update.message?.text ?: return
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val text = updateContext.message?.text ?: return
+        val reply = updateContext.reply
 
         when {
             text.matches(TIME_PATTERN.toRegex()) -> {
-                updateEventTimeByProvidedTime(text, update.message)
+                updateEventTimeByProvidedTime(text, reply)
             }
 
             text.matches(TIME_DIFF_PATTERN.toRegex()) -> {
-                updateEventTimeByDiffShift(text, update.message)
+                updateEventTimeByDiffShift(text, reply)
             }
             text.matches(ISO_DURATION_PATTERN.toRegex()) -> {
-                updateEventTimeByIsoDuration(text, update.message)
+                updateEventTimeByIsoDuration(text, reply)
             }
 
             else -> return
@@ -44,14 +45,14 @@ class ChildReplyHandler(
 
     }
 
-    private suspend fun updateEventTimeByProvidedTime(text: String, message: Message) {
+    private suspend fun updateEventTimeByProvidedTime(text: String, reply: ReplyModel?) {
         val rawTime = try {
             getTimeFrom(text)
         } catch (_: Exception) {
             return
         }
 
-        val (chatId, messageId) = message.replyToMessage?.let { it.chat.id to it.messageId }
+        val (chatId, messageId) = reply?.let { it.chat.id to it.messageId }
             ?: return replyWithMessage("Debug - Cannot find replied message")
 
         val activityEvent = childActivityRepo.getActivityByMessageId(chatId, messageId)
@@ -65,8 +66,8 @@ class ChildReplyHandler(
         }
     }
 
-    private suspend fun updateEventTimeByDiffShift(diff: String, message: Message) {
-        val (chatId, messageId) = message.replyToMessage?.let { it.chat.id to it.messageId }
+    private suspend fun updateEventTimeByDiffShift(diff: String, reply: ReplyModel?) {
+        val (chatId, messageId) = reply?.let { it.chat.id to it.messageId }
             ?: return replyWithMessage("Debug - Cannot find replied message")
 
         val activityEvent = childActivityRepo.getActivityByMessageId(chatId, messageId)
@@ -127,8 +128,8 @@ class ChildReplyHandler(
         return LocalTime.parse(text)
     }
     
-    private suspend fun updateEventTimeByIsoDuration(durationStr: String, message: Message) {
-        val (chatId, messageId) = message.replyToMessage?.let { it.chat.id to it.messageId }
+    private suspend fun updateEventTimeByIsoDuration(durationStr: String, reply: ReplyModel?) {
+        val (chatId, messageId) = reply?.let { it.chat.id to it.messageId }
             ?: return replyWithMessage("Debug - Cannot find replied message")
 
         val activityEvent = childActivityRepo.getActivityByMessageId(chatId, messageId)

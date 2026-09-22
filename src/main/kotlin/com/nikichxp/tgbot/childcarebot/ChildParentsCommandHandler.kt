@@ -1,13 +1,12 @@
 package com.nikichxp.tgbot.childcarebot
 
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getContextUserId
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
@@ -21,11 +20,12 @@ class ChildParentsCommandHandler(
 
     override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
 
-    override suspend fun authenticate(update: Update): Boolean {
-        val child = childInfoRepo.findChildByParent(update.getContextUserId()!!)
+    override suspend fun authenticate(context: UpdateContext): Boolean {
+        val userId = context.from?.id ?: return false
+        val child = childInfoRepo.findChildByParent(userId)
 
         if (child == null) {
-            logger.warn("No user found for child: user id = ${update.getContextUserId()}")
+            logger.warn("No user found for child: user id = $userId")
             return false
         }
 

@@ -2,14 +2,11 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.error.TgApiCallException
-import com.nikichxp.tgbot.core.service.helper.ErrorService
 import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor
 import com.nikichxp.tgbot.core.service.tgapi.executor.TgMultipartPart
-import com.nikichxp.tgbot.core.util.getContextChatId
-import com.nikichxp.tgbot.core.util.getContextMessageId
 import com.nikichxp.tgbot.core.util.getCurrentUpdateContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -19,13 +16,12 @@ import org.springframework.stereotype.Service
 @Service
 class TgMessageService(
     private val tgApiCallExecutor: ITgApiCallExecutor,
-    private val errorService: ErrorService,
     private val objectMapper: ObjectMapper
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private suspend fun getCurrentUpdate(): Update = getCurrentUpdateContext().getUpdate()
+    private suspend fun getCurrentContext(): UpdateContext = getCurrentUpdateContext()
 
     suspend fun sendMessage(
         chatId: Long,
@@ -61,14 +57,10 @@ class TgMessageService(
 
     suspend fun replyToCurrentMessage(text: String, replyMarkup: TgReplyMarkup? = null) {
 
-        val update = getCurrentUpdate()
-        update.getContextChatId()?.let {
-            sendMessage(it, text, update.getContextMessageId())
-        } ?: errorService.logAndReportError(
-            logger,
-            "Cannot send message reply to current message: $text",
-            update
-        )
+        val context = getCurrentContext()
+        context.chat?.id?.let {
+            sendMessage(it, text, context.message?.id)
+        } ?: throw TgApiCallException("Cannot send message reply to current message: $text, context=$context")
     }
 
     suspend fun editMessageText(
@@ -109,22 +101,19 @@ class TgMessageService(
         text: String,
         replyMarkup: TgReplyMarkup? = null,
     ) {
-        val update = getCurrentUpdate()
-        val chatId = update.getContextChatId()
-        val messageId = update.getContextMessageId()
+        val context = getCurrentContext()
+        val chatId = context.chat?.id
+        val messageId = context.message?.id
         if (chatId != null && messageId != null) {
-            val tgBotInfo = getCurrentUpdateContext().getBotInfo() as? TgBotInfo
+            val tgBotInfo = context.getBotInfo() as? TgBotInfo
                 ?: throw IllegalArgumentException("TgBotInfo is not an instance of TgBotInfo")
             editMessageText(chatId, messageId, text, tgBotInfo, replyMarkup)
         } else {
-            errorService.logAndReportError(
-                logger,
-                "Cannot edit message text in current context: $text",
-                update
-            )
+            throw TgApiCallException("Cannot edit message text in current context: $text, context=$context")
         }
     }
 
+    // TODO this has multiple parameters, use class as parameter
     suspend fun sendDocument(
         chatId: Long,
         bot: TgBotInfo,

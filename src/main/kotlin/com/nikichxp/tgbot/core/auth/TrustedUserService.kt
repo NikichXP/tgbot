@@ -1,9 +1,7 @@
 package com.nikichxp.tgbot.core.auth
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.util.getContextUserId
-import com.nikichxp.tgbot.core.util.getContextUserName
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import org.springframework.stereotype.Service
 
 @Service
@@ -25,8 +23,8 @@ class TrustedUserService(
         return normalized != null && normalized in parsed.usernames
     }
 
-    fun isTrusted(update: Update): Boolean {
-        return isTrusted(update.getContextUserId(), update.getContextUserName())
+    fun isTrusted(context: UpdateContext): Boolean {
+        return isTrusted(context.from?.id, context.from?.username)
     }
 
     private fun parse(entries: List<String>): ParsedEntries {

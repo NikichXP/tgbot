@@ -7,7 +7,6 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.AppStorage
-import com.nikichxp.tgbot.core.util.getContextUserId
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -87,7 +86,7 @@ class ChildReportHelper(
     }
 
     private fun getChild(updateContext: UpdateContext): ChildInfo {
-        val userId = updateContext.getUpdate().getContextUserId() ?: throw IllegalStateException("Cannot find user in update!")
+        val userId = updateContext.from?.id ?: throw IllegalStateException("Cannot find user in update!")
         return childInfoRepo.findChildByParent(userId) ?: throw IllegalStateException("Child not found")
     }
 

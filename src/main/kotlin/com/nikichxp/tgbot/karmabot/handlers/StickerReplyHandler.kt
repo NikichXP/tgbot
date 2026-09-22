@@ -1,20 +1,16 @@
 package com.nikichxp.tgbot.karmabot.handlers
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.dto.Update
+import com.nikichxp.tgbot.core.entity.InteractionRole
+import com.nikichxp.tgbot.core.entity.MessageInteractionResult
+import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.convertToMessageIntResult
-import com.nikichxp.tgbot.core.util.getContextChatId
-import com.nikichxp.tgbot.core.util.getContextMessageId
-import com.nikichxp.tgbot.core.util.getMembers
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -26,44 +22,32 @@ class StickerReplyHandler(
     private val mongoTemplate: MongoTemplate,
     private val emojiService: EmojiService,
     private val likedMessageService: LikedMessageService,
-    private val objectMapper: ObjectMapper
 ) : UpdateHandler {
-
-    private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun requiredFeatures() = setOf(Features.KARMA)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY, UpdateMarker.HAS_STICKER)
 
-    override suspend fun handleUpdate(update: Update) {
-        val members = update.getMembers() ?: return
-        val (fromId, toId) = members.let {
-            it.author?.id to it.target?.id
-        }
-        val emoji = update.message?.sticker?.emoji
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val author = updateContext.from
+        val target = updateContext.reply?.from
+        val emoji = updateContext.message?.sticker?.emoji
 
-        if (fromId == null || toId == null || emoji == null) {
+        if (author == null || target == null || emoji == null) {
             return
         }
 
         val power = emojiService.getEmojiPower(emoji)
         if (power == null) {
-            saveUnIdentifiedEmoji(fromId, toId, emoji, update)
+            saveUnIdentifiedEmoji(author.id, target.id, emoji, updateContext)
         } else {
-            val interactionResult = update.convertToMessageIntResult(power) ?: let {
-                // TODO make some fancy logger here
-                //  that sends all the errors to tg chat bot
-                //  and can be accessed with web interface
-                logger.error(
-                    "Message cannot be converted to interaction result, whatever: " +
-                            objectMapper.writeValueAsString(update)
-                )
-                null
-            } ?: return
-            likedMessageService.changeRating(interactionResult, update)
+            val interactionResult = MessageInteractionResult(
+                mutableMapOf(author to InteractionRole.ACTOR, target to InteractionRole.TARGET), power
+            )
+            likedMessageService.changeRating(interactionResult, updateContext)
         }
     }
 
-    suspend fun saveUnIdentifiedEmoji(fromId: Long, toId: Long, emoji: String, update: Update) {
+    suspend fun saveUnIdentifiedEmoji(fromId: Long, toId: Long, emoji: String, context: UpdateContext) {
         runBlocking {
             launch {
                 mongoTemplate.save(
@@ -71,8 +55,8 @@ class StickerReplyHandler(
                         from = fromId,
                         to = toId,
                         emoji = emoji,
-                        chatId = update.getContextChatId(),
-                        messageId = update.getContextMessageId()
+                        chatId = context.getChatId(),
+                        messageId = context.message?.id
                     )
                 )
             }

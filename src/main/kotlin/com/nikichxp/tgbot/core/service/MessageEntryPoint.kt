@@ -2,8 +2,6 @@ package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.converters.DocumentToUpdateConverter
 import com.nikichxp.tgbot.core.dto.Update
-import com.nikichxp.tgbot.core.entity.TgUpdateContext
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.tgapi.TgLastKnownMessageService
 import com.nikichxp.tgbot.core.tooling.TracerService
@@ -19,7 +17,8 @@ class MessageEntryPoint(
     private val converter: DocumentToUpdateConverter,
     private val updateProcessor: UpdateProcessor,
     private val tracerService: TracerService,
-    private val tgLastKnownMessageService: TgLastKnownMessageService
+    private val tgLastKnownMessageService: TgLastKnownMessageService,
+    private val tgUpdateContextMapper: TgUpdateContextMapper
 ) {
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
@@ -38,14 +37,13 @@ class MessageEntryPoint(
     }
 
     suspend fun proceedUpdate(update: Update, bot: TgBotInfo) {
-        update.bot = bot
-        val updateContext = TgUpdateContext(update, bot)
+        val updateContext = tgUpdateContextMapper.mapToUpdateContext(update, bot)
         coroutineScope {
             withContext(updateContext) {
                 updateProcessor.proceedUpdate(updateContext)
             }
             launch {
-                tgLastKnownMessageService.updateLastKnownMessage(bot, update.updateId)
+                tgLastKnownMessageService.updateLastKnownMessage(bot, updateContext.updateSeqId)
             }
         }
     }

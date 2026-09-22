@@ -1,15 +1,11 @@
 package com.nikichxp.tgbot.core.util
 
-import com.nikichxp.tgbot.core.dto.User
+import com.nikichxp.tgbot.core.entity.common.UserModel
 
 object UserFormatter {
 
-    fun getUserPrintName(user: User): String {
-        return when {
-            user.username != null -> user.username
-            user.lastName != null -> "${user.firstName} ${user.lastName}"
-            else -> user.firstName
-        }
+    fun getUserPrintName(user: UserModel): String {
+        return user.username ?: user.fullName
     }
 
 }

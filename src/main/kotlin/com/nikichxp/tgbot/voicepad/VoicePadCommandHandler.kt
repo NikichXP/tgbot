@@ -1,7 +1,6 @@
 package com.nikichxp.tgbot.voicepad
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -11,9 +10,6 @@ import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.getContextChatId
-import com.nikichxp.tgbot.core.util.getContextMessageId
-import com.nikichxp.tgbot.core.util.getContextUserId
 import kotlinx.coroutines.currentCoroutineContext
 import org.springframework.stereotype.Service
 
@@ -25,25 +21,25 @@ class VoicePadCommandHandler(
     private val appConfig: AppConfig
 ) : CommandHandler, UpdateHandler, Authenticable {
 
-    override suspend fun authenticate(update: Update): Boolean =
-        update.getContextUserId() == appConfig.adminId
+    override suspend fun authenticate(context: UpdateContext): Boolean =
+        context.from?.id == appConfig.adminId
 
     override fun requiredFeatures() = setOf(Features.TOOLBOX)
 
     // UpdateHandler: fires for voice messages that are replies (to capture voices added to a session)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_VOICE, UpdateMarker.REPLY)
 
-    override fun canHandle(update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: return false
-        val replyToId = update.message?.replyToMessage?.messageId ?: return false
+    override fun canHandle(context: UpdateContext): Boolean {
+        val chatId = context.getChatId()
+        val replyToId = context.reply?.messageId ?: return false
         val session = sessionService.getActiveSession(chatId) ?: return false
         return session.triggerMessageId == replyToId
     }
 
-    override suspend fun handleUpdate(update: Update) {
-        val chatId = update.getContextChatId() ?: return
-        val voice = update.message?.voice ?: return
-        val messageId = update.getContextMessageId() ?: return
+    override suspend fun handleUpdate(updateContext: UpdateContext) {
+        val chatId = updateContext.getChatId()
+        val voice = updateContext.message?.voice ?: return
+        val messageId = updateContext.message?.id ?: return
 
         val session = sessionService.getActiveSession(chatId) ?: return
 
@@ -59,18 +55,18 @@ class VoicePadCommandHandler(
     }
 
     @HandleCommand(CMD_CREATE_PROMPT)
-    suspend fun createPrompt(update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: return false
-        val userId = update.getContextUserId() ?: return false
-        val messageId = update.getContextMessageId() ?: return false
+    suspend fun createPrompt(context: UpdateContext): Boolean {
+        val chatId = context.getChatId()
+        val userId = context.from?.id ?: return false
+        val messageId = context.message?.id ?: return false
         return executionService.startSession(chatId, userId, messageId, CMD_CREATE_PROMPT, MODE_PROMPT)
     }
 
     @HandleCommand(CMD_CREATE_NOTEPAD)
-    suspend fun createNotepad(update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: return false
-        val userId = update.getContextUserId() ?: return false
-        val messageId = update.getContextMessageId() ?: return false
+    suspend fun createNotepad(context: UpdateContext): Boolean {
+        val chatId = context.getChatId()
+        val userId = context.from?.id ?: return false
+        val messageId = context.message?.id ?: return false
         return executionService.startSession(chatId, userId, messageId, CMD_CREATE_NOTEPAD, MODE_NOTEPAD)
     }
 
@@ -95,9 +91,9 @@ class VoicePadCommandHandler(
     }
 
     @HandleCommand("/delete")
-    suspend fun deleteVoice(update: Update): Boolean {
-        val chatId = update.getContextChatId() ?: return false
-        val replyToMessage = update.message?.replyToMessage
+    suspend fun deleteVoice(context: UpdateContext): Boolean {
+        val chatId = context.getChatId()
+        val replyToMessage = context.reply
 
         if (replyToMessage == null) {
             tgMessageService.replyToCurrentMessage(MSG_DELETE_NO_REPLY)

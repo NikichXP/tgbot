@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.core.handlers.commands
 
-import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import org.springframework.stereotype.Component
 import java.lang.reflect.InvocationTargetException
@@ -13,7 +12,6 @@ import kotlin.reflect.full.isSubtypeOf
 class CommandHandlerExecutor {
 
     suspend fun execute(handler: SingleCommandHandler, args: List<String>, updateContext: UpdateContext): Boolean {
-        val update = updateContext.getUpdate()
         val executionArgs = mutableListOf<Any>()
 
         for (parameter in handler.function.parameters) {
@@ -23,7 +21,6 @@ class CommandHandlerExecutor {
                 when (parameter.type) {
                     List::class.createType(listOf(KTypeProjection.invariant(String::class.createType()))) -> executionArgs.add(args)
                     UpdateContext::class.createType() -> executionArgs.add(updateContext)
-                    Update::class.createType() -> executionArgs.add(update)
                     else -> throw IllegalStateException("Unknown parameter type: ${parameter.type}")
                 }
             }
