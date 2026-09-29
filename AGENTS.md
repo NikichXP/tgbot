@@ -40,6 +40,7 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 | `APP_SUSPEND_BOT_REGISTERING` | When true, suspends bot webhook registration | `false` |
 | `APP_TRACER_*` | Tracer configs (`STORE`, `TTL`, `CAPACITY`, `TOKEN`) | `true`, `24`, `100`, `null` |
 | `OPENROUTER_*` | OpenRouter AI configs (`API_KEY`, `DEFAULT_MODEL`, `BASE_URL`, `REFERER`, `TITLE`, `TRANSCRIPTION_MODEL`) | `openrouter/auto`, `openai/whisper-1` |
+| `OKX_COLLECTOR_URL` | okx-collector base URL for `/prices` (`/watch` goes via RabbitMQ `okx.watch.*` queues); bot needs the `okx` feature | `http://localhost:8080` |
 | `DISCORD_PUBLIC_KEY` | Public key for Discord interaction signature verification | `null` |
 
 ## Deployment & Infrastructure

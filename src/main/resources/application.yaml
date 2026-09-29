@@ -52,5 +52,7 @@ app:
     transcriptionModel: ${OPENROUTER_TRANSCRIPTION_MODEL:openai/whisper-1}
   discord:
     publicKey: ${DISCORD_PUBLIC_KEY:}
+  okx:
+    baseUrl: ${OKX_COLLECTOR_URL:http://localhost:8080}
   trustedUsers: ${APP_TRUSTED_USERS:}
   maxRetryCount: ${APP_MAX_RETRY_COUNT:5}

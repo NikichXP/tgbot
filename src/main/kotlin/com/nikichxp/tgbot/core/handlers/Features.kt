@@ -11,5 +11,6 @@ object Features {
     const val STATS = "stats"
     const val SHITPOSTING = "shitposting"
     const val TOOLBOX = "toolbox"
+    const val OKX = "okx"
 
 }

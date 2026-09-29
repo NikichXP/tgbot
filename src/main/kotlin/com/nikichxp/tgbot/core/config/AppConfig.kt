@@ -11,6 +11,7 @@ open class AppConfig(
     var tracer: Tracer = Tracer(),
     var openRouter: OpenRouter = OpenRouter(),
     var discord: Discord = Discord(),
+    var okx: Okx = Okx(),
     var trustedUsers: List<String> = emptyList(),
     var maxRetryCount: Int = 5
 ) {
@@ -18,6 +19,10 @@ open class AppConfig(
     var suspendBotRegistering: Boolean = false
 
     companion object {
+        class Okx(
+            var baseUrl: String = "http://localhost:8080"
+        )
+
         class Discord(
             var publicKey: String? = null
         )
