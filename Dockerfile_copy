@@ -3,7 +3,7 @@
 # digest stays the same, the registry already has them and nodes don't pull them again.
 
 # ---- Extract layers (platform independent, so it runs natively instead of under QEMU) ----
-FROM --platform=$BUILDPLATFORM amazoncorretto:21-alpine AS extract
+FROM --platform=$BUILDPLATFORM amazoncorretto:25-alpine AS extract
 WORKDIR /build
 COPY build/libs/app.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --destination extracted \
@@ -11,7 +11,7 @@ RUN java -Djarmode=tools -jar app.jar extract --layers --destination extracted \
     && find extracted -exec touch -h -d '1980-02-01 00:00:00' {} +
 
 # ---- Runtime ----
-FROM amazoncorretto:21-alpine
+FROM amazoncorretto:25-alpine
 WORKDIR /app
 
 # ordered from least to most frequently changing
