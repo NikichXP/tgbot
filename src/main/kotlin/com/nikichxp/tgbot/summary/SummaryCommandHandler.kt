@@ -1,13 +1,11 @@
 package com.nikichxp.tgbot.summary
 
 import com.nikichxp.tgbot.core.auth.TrustedUserService
-import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.ConfigMapViolationException
 import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.core.error.PermissionDeniedError
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -16,6 +14,7 @@ import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.summary.entity.RecapOptions
 import com.nikichxp.tgbot.summary.entity.RecapOptionsBuilder
+import com.nikichxp.tgbot.util.AuthHelperService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +26,7 @@ class SummaryCommandHandler(
     private val tgMessageService: TgMessageService,
     private val summaryService: SummaryService,
     private val summaryMessageStorageService: SummaryMessageStorageService,
-    private val appConfig: AppConfig,
+    private val authHelperService: AuthHelperService,
     private val trustedUserService: TrustedUserService
 ) : CommandHandler, UpdateHandler {
 
@@ -121,15 +120,7 @@ class SummaryCommandHandler(
             tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }
 
-        val callerId = updateContext.from?.id ?: throw IllegalArgumentException("Can't get userId")
-
-        if (callerId != appConfig.adminId) {
-            tgMessageService.sendMessage {
-                replyToCurrentMessage()
-                text = "You are not allowed to use this command"
-            }
-            throw PermissionDeniedError("You are not allowed to use this command")
-        }
+        authHelperService.checkActionDoneByAdmin(updateContext)
     }
 
     private suspend fun getRecapOptions(args: List<String>, chatId: Long, updateContext: UpdateContext): RecapOptions {

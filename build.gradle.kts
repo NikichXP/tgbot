@@ -8,7 +8,8 @@ val kotlinVersion: String = "2.4.0"
 val coroutinesVersion: String = "1.11.0"
 
 val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
-val versionName: String = if (project.hasProperty("appVersion")) project.property("appVersion").toString() else "unknown"
+val versionName: String =
+    if (project.hasProperty("appVersion")) project.property("appVersion").toString() else "unknown"
 
 group = "com.nikichxp"
 version = if (project.hasProperty("appVersion")) project.property("appVersion")!! else "1.1.0"
@@ -20,6 +21,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.4.0"
     kotlin("plugin.spring") version "2.4.0"
+    kotlin("kapt") version "2.4.0"
 }
 
 repositories {
@@ -47,11 +49,12 @@ dependencies {
     implementation("io.ktor:ktor-client-cio-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
+    testImplementation(kotlin("test"))
 }
 
 dependencyManagement {

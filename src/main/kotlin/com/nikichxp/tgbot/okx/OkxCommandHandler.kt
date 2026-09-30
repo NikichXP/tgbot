@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.util.AuthHelperService
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
@@ -15,6 +16,7 @@ class OkxCommandHandler(
     private val tgMessageService: TgMessageService,
     private val okxCollectorClient: OkxCollectorClient,
     private val rabbitTemplate: RabbitTemplate,
+    private val authHelperService: AuthHelperService
 ) : CommandHandler {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -40,6 +42,8 @@ class OkxCommandHandler(
 
     @HandleCommand("/watch")
     suspend fun watch(args: List<String>, updateContext: UpdateContext): Boolean {
+        authHelperService.checkActionDoneByOwner(updateContext)
+
         val threshold = args.getOrNull(1)?.let(Threshold::parse)
         if (args.size != 2 || threshold == null) {
             tgMessageService.replyToCurrentMessage(
@@ -54,10 +58,13 @@ class OkxCommandHandler(
 
     @HandleCommand("/unwatch")
     suspend fun unwatch(args: List<String>, updateContext: UpdateContext): Boolean {
+        authHelperService.checkActionDoneByOwner(updateContext)
+
         if (args.size != 1) {
             tgMessageService.replyToCurrentMessage("Использование: /unwatch <тикер>")
             return true
         }
+
         send(updateContext, WatchAction.UNWATCH, args[0])
         return true
     }
