@@ -1,39 +1,43 @@
 import LogoutIcon from '@mui/icons-material/Logout'
-import { AppBar, Avatar, Box, Button, Container, IconButton, Toolbar, Tooltip, Typography } from '@mui/material'
+import { AppBar, Avatar, Box, Container, IconButton, Tab, Tabs, Toolbar, Tooltip, Typography } from '@mui/material'
 import type { ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import type { DashboardUser } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 
-const NAV_ITEMS = [
-  { to: '/bots', label: 'Боты' },
-  { to: '/oauth-clients', label: 'OAuth' },
+const sections = [
+  { path: '/bots', label: 'Боты' },
+  { path: '/people', label: 'Люди' },
+  { path: '/lists', label: 'Списки' },
+  { path: '/oauth-clients', label: 'OAuth' },
 ]
 
 export function Layout({ user, children }: { user: DashboardUser; children: ReactNode }) {
   const { logout } = useAuth()
+  const { pathname } = useLocation()
+  const currentSection = sections.find((section) => pathname.startsWith(section.path))?.path ?? false
+
   return (
     <Box sx={{ minHeight: '100vh' }}>
       <AppBar position="static" elevation={0}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ mr: 3 }}>
+        <Toolbar sx={{ gap: 2 }}>
+          <Typography variant="h6" sx={{ display: { xs: 'none', sm: 'block' }, whiteSpace: 'nowrap' }}>
             TG Bot Dashboard
           </Typography>
-          <Box sx={{ flexGrow: 1, display: 'flex', gap: 1 }}>
-            {NAV_ITEMS.map((item) => (
-              <Button
-                key={item.to}
-                component={NavLink}
-                to={item.to}
-                color="inherit"
-                sx={{ opacity: 0.75, '&.active': { opacity: 1, textDecoration: 'underline' } }}
-              >
-                {item.label}
-              </Button>
+          <Tabs
+            value={currentSection}
+            textColor="inherit"
+            indicatorColor="secondary"
+            variant="scrollable"
+            scrollButtons={false}
+            sx={{ flexGrow: 1 }}
+          >
+            {sections.map((section) => (
+              <Tab key={section.path} value={section.path} label={section.label} component={Link} to={section.path} />
             ))}
-          </Box>
+          </Tabs>
           <Tooltip title={user.username ? `@${user.username}` : String(user.id)}>
-            <Avatar src={user.photoUrl} sx={{ width: 32, height: 32, mr: 1 }}>
+            <Avatar src={user.photoUrl} sx={{ width: 32, height: 32 }}>
               {user.name?.[0]}
             </Avatar>
           </Tooltip>

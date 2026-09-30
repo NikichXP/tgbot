@@ -1,5 +1,12 @@
 package com.nikichxp.tgbot.core.service
 
+import com.nikichxp.tgbot.core.converters.TgCallbackQueryToCallbackModelConverter
+import com.nikichxp.tgbot.core.converters.TgChatToChatModelConverter
+import com.nikichxp.tgbot.core.converters.TgMessageToMessageModelConverter
+import com.nikichxp.tgbot.core.converters.TgMessageToReplyModelConverter
+import com.nikichxp.tgbot.core.converters.TgStickerToStickerModelConverter
+import com.nikichxp.tgbot.core.converters.TgUserToUserModelConverter
+import com.nikichxp.tgbot.core.converters.TgVoiceToVoiceModelConverter
 import com.nikichxp.tgbot.core.dto.CallbackQuery
 import com.nikichxp.tgbot.core.dto.Chat
 import com.nikichxp.tgbot.core.dto.InlineKeyboardMarkup
@@ -13,10 +20,20 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.core.convert.support.DefaultConversionService
 
 class TgUpdateContextMapperTest {
 
-    private val mapper = TgUpdateContextMapper()
+    private val userConverter = TgUserToUserModelConverter()
+    private val chatConverter = TgChatToChatModelConverter()
+    private val conversionService = DefaultConversionService().apply {
+        addConverter(userConverter)
+        addConverter(chatConverter)
+        addConverter(TgMessageToMessageModelConverter(TgVoiceToVoiceModelConverter(), TgStickerToStickerModelConverter()))
+        addConverter(TgMessageToReplyModelConverter(userConverter, chatConverter))
+        addConverter(TgCallbackQueryToCallbackModelConverter())
+    }
+    private val mapper = TgUpdateContextMapper(conversionService)
     private val bot = TgBotInfo("testbot", setOf())
 
     @Test

@@ -3,6 +3,9 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import { Layout } from './components/Layout'
 import { BotsPage } from './pages/BotsPage'
+import { PeopleListPage } from './pages/PeopleListPage'
+import { PeopleListsPage } from './pages/PeopleListsPage'
+import { PeoplePage } from './pages/PeoplePage'
 import { LoginPage } from './pages/LoginPage'
 import { OAuthClientsPage } from './pages/OAuthClientsPage'
 
@@ -32,6 +35,9 @@ export default function App() {
       <Routes>
         <Route path="/bots" element={<BotsPage />} />
         <Route path="/oauth-clients" element={<OAuthClientsPage />} />
+        <Route path="/people" element={<PeoplePage />} />
+        <Route path="/lists" element={<PeopleListsPage />} />
+        <Route path="/lists/:name" element={<PeopleListPage />} />
         <Route path="*" element={<Navigate to="/bots" replace />} />
       </Routes>
     </Layout>
