@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.dashboard.api
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.dashboard.dto.AuthConfigResponse
 import com.nikichxp.tgbot.dashboard.dto.CreateBotRequest
+import com.nikichxp.tgbot.dashboard.dto.CreateOAuthClientRequest
 import com.nikichxp.tgbot.dashboard.dto.DashboardPrincipal
 import com.nikichxp.tgbot.dashboard.dto.ErrorResponse
 import com.nikichxp.tgbot.dashboard.dto.LoginResponse
@@ -16,6 +17,7 @@ import com.nikichxp.tgbot.dashboard.error.DashboardNotFoundException
 import com.nikichxp.tgbot.dashboard.error.DashboardUnauthorizedException
 import com.nikichxp.tgbot.dashboard.service.DashboardAuthService
 import com.nikichxp.tgbot.dashboard.service.DashboardBotService
+import com.nikichxp.tgbot.dashboard.service.DashboardOAuthClientService
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -33,7 +35,8 @@ import java.time.Duration
 class DashboardController(
     private val appConfig: AppConfig,
     private val authService: DashboardAuthService,
-    private val botService: DashboardBotService
+    private val botService: DashboardBotService,
+    private val oauthClientService: DashboardOAuthClientService
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -99,6 +102,23 @@ class DashboardController(
             PUT("/bots/{name}/features") { request ->
                 val body = request.awaitBody<UpdateBotFeaturesRequest>()
                 ok().bodyValueAndAwait(botService.updateFeatures(request.pathVariable("name"), body))
+            }
+
+            GET("/oauth-clients") {
+                ok().bodyValueAndAwait(oauthClientService.listClients())
+            }
+
+            POST("/oauth-clients") { request ->
+                ok().bodyValueAndAwait(oauthClientService.createClient(request.awaitBody<CreateOAuthClientRequest>()))
+            }
+
+            POST("/oauth-clients/{clientId}/secret") { request ->
+                ok().bodyValueAndAwait(oauthClientService.rotateSecret(request.pathVariable("clientId")))
+            }
+
+            DELETE("/oauth-clients/{clientId}") { request ->
+                oauthClientService.deleteClient(request.pathVariable("clientId"))
+                noContent().buildAndAwait()
             }
         }
 
