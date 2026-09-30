@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
-class DashboardOAuthClientService(private val clientRepository: OAuthClientRepository) {
+class DashboardOAuthClientService(
+    private val clientRepository: OAuthClientRepository
+) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
