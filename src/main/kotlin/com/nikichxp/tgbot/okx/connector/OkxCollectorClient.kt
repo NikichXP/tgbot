@@ -17,6 +17,7 @@ class OkxCollectorClient(
 
     suspend fun prices(): List<OkxPrice> {
         val response = httpClient.get("${appConfig.okx.baseUrl.trimEnd('/')}/prices")
+        if (!response.status.isSuccess()) {
             throw OkxCollectorException("okx-collector GET /prices returned HTTP ${response.status.value}")
         }
         return response.body()
