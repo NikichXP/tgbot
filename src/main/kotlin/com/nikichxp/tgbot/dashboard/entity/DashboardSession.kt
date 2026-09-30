@@ -8,7 +8,7 @@ import java.time.Instant
 data class DashboardSession(
     @Id val refreshTokenHash: String,
     val userId: Long,
-    val firstName: String?,
+    val name: String?,
     val username: String?,
     val photoUrl: String?,
     val userAgent: String?,

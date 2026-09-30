@@ -62,7 +62,7 @@ app:
     baseUrl: ${OKX_COLLECTOR_URL:http://localhost:8080}
   trustedUsers: ${APP_TRUSTED_USERS:}
   dashboard:
-    loginBot: ${APP_DASHBOARD_LOGIN_BOT:}
+    telegramClientId: ${APP_DASHBOARD_TELEGRAM_CLIENT_ID:}
     allowedOrigins: ${APP_DASHBOARD_ALLOWED_ORIGINS:http://localhost:5173}
     accessTokenTtlMinutes: ${APP_DASHBOARD_ACCESS_TOKEN_TTL_MINUTES:15}
     secureCookie: ${APP_DASHBOARD_SECURE_COOKIE:true}

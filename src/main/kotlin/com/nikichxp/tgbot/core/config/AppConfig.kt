@@ -25,7 +25,7 @@ open class AppConfig(
         )
 
         class Dashboard(
-            var loginBot: String? = null, // falls back to adminBot
+            var telegramClientId: String? = null, // "Log In with Telegram" (OIDC) Client ID from @BotFather
             var allowedOrigins: List<String> = listOf("http://localhost:5173"),
             var accessTokenTtlMinutes: Long = 15,
             var secureCookie: Boolean = true

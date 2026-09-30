@@ -6,7 +6,9 @@ import com.nikichxp.tgbot.dashboard.dto.CreateBotRequest
 import com.nikichxp.tgbot.dashboard.dto.DashboardPrincipal
 import com.nikichxp.tgbot.dashboard.dto.ErrorResponse
 import com.nikichxp.tgbot.dashboard.dto.LoginResponse
+import com.nikichxp.tgbot.dashboard.dto.NonceResponse
 import com.nikichxp.tgbot.dashboard.dto.RefreshResponse
+import com.nikichxp.tgbot.dashboard.dto.TelegramLoginRequest
 import com.nikichxp.tgbot.dashboard.dto.UpdateBotFeaturesRequest
 import com.nikichxp.tgbot.dashboard.error.DashboardConflictException
 import com.nikichxp.tgbot.dashboard.error.DashboardForbiddenException
@@ -45,13 +47,17 @@ class DashboardController(
     fun dashboardRouter() = coRouter {
         "/admin/auth".nest {
             GET("/config") {
-                ok().bodyValueAndAwait(AuthConfigResponse(authService.loginBotUsername()))
+                ok().bodyValueAndAwait(AuthConfigResponse(authService.telegramClientId()))
+            }
+
+            POST("/nonce") {
+                ok().bodyValueAndAwait(NonceResponse(authService.issueLoginNonce()))
             }
 
             POST("/telegram") { request ->
-                val payload = request.awaitBody<Map<String, Any?>>()
+                val body = request.awaitBody<TelegramLoginRequest>()
                 val userAgent = request.headers().firstHeader(HttpHeaders.USER_AGENT)
-                val result = authService.loginWithTelegram(payload, userAgent)
+                val result = authService.loginWithTelegram(body.idToken, userAgent)
                 ok().cookie(refreshCookie(result.tokens.refreshToken, REFRESH_COOKIE_MAX_AGE))
                     .bodyValueAndAwait(
                         LoginResponse(result.tokens.accessToken, result.tokens.expiresIn.seconds, result.user)

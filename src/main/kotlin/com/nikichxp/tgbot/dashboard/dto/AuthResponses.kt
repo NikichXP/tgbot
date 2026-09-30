@@ -1,6 +1,8 @@
 package com.nikichxp.tgbot.dashboard.dto
 
-data class AuthConfigResponse(val botUsername: String)
+data class AuthConfigResponse(val clientId: String)
+
+data class NonceResponse(val nonce: String)
 
 data class LoginResponse(val accessToken: String, val expiresIn: Long, val user: DashboardUserDto)
 

@@ -15,20 +15,15 @@ export interface CreateBotRequest {
 
 export interface DashboardUser {
   id: number
-  firstName?: string
+  name?: string
   username?: string
   photoUrl?: string
 }
 
-/** Payload produced by the Telegram Login Widget. */
-export interface TelegramAuthData {
-  id: number
-  first_name?: string
-  last_name?: string
-  username?: string
-  photo_url?: string
-  auth_date: number
-  hash: string
+/** Result passed by telegram-login.js to the callback (https://core.telegram.org/bots/telegram-login). */
+export interface TelegramLoginResult {
+  id_token?: string
+  error?: string
 }
 
 export interface LoginResponse {

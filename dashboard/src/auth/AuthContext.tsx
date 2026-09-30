@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { api, authApi, getAccessToken, refreshAccessToken, setAccessToken, setOnSessionLost } from '../api/client'
-import type { DashboardUser, LoginResponse, TelegramAuthData } from '../api/types'
+import type { DashboardUser, LoginResponse } from '../api/types'
 
 type AuthState =
   | { status: 'loading' }
@@ -9,7 +9,7 @@ type AuthState =
 
 interface AuthContextValue {
   state: AuthState
-  loginWithTelegram: (data: TelegramAuthData) => Promise<void>
+  loginWithTelegram: (idToken: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -46,10 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
-  const loginWithTelegram = useCallback(async (data: TelegramAuthData) => {
+  const loginWithTelegram = useCallback(async (idToken: string) => {
     const response = await authApi<LoginResponse>('/admin/auth/telegram', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ idToken }),
     })
     setAccessToken(response.accessToken)
     setState({ status: 'authenticated', user: response.user })
@@ -68,6 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
+// the hook belongs next to its provider; fast refresh of this file just reloads the page
+// oxlint-disable-next-line react/only-export-components
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext)
   if (!context) throw new Error('useAuth must be used inside AuthProvider')

@@ -15,7 +15,7 @@ export function Layout({ user, children }: { user: DashboardUser; children: Reac
           </Typography>
           <Tooltip title={user.username ? `@${user.username}` : String(user.id)}>
             <Avatar src={user.photoUrl} sx={{ width: 32, height: 32, mr: 1 }}>
-              {user.firstName?.[0]}
+              {user.name?.[0]}
             </Avatar>
           </Tooltip>
           <Tooltip title="Выйти">

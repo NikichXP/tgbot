@@ -1,8 +1,6 @@
 package com.nikichxp.tgbot.dashboard.service
 
 import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.service.TgBotV2Service
-import com.nikichxp.tgbot.dashboard.connector.TelegramBotApiClient
 import com.nikichxp.tgbot.dashboard.dto.DashboardPrincipal
 import com.nikichxp.tgbot.dashboard.dto.DashboardUserDto
 import com.nikichxp.tgbot.dashboard.dto.IssuedTokens
@@ -11,9 +9,8 @@ import com.nikichxp.tgbot.dashboard.entity.DashboardSession
 import com.nikichxp.tgbot.dashboard.error.DashboardForbiddenException
 import com.nikichxp.tgbot.dashboard.error.DashboardUnauthorizedException
 import com.nikichxp.tgbot.dashboard.repository.DashboardAccessTokenRepository
+import com.nikichxp.tgbot.dashboard.repository.DashboardLoginNonceRepository
 import com.nikichxp.tgbot.dashboard.repository.DashboardSessionRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.security.MessageDigest
@@ -25,40 +22,33 @@ import java.util.Base64
 @Service
 class DashboardAuthService(
     private val appConfig: AppConfig,
-    private val tgBotV2Service: TgBotV2Service,
-    private val telegramBotApiClient: TelegramBotApiClient,
+    private val idTokenVerifier: TelegramIdTokenVerifier,
     private val sessionRepository: DashboardSessionRepository,
-    private val accessTokenRepository: DashboardAccessTokenRepository
+    private val accessTokenRepository: DashboardAccessTokenRepository,
+    private val nonceRepository: DashboardLoginNonceRepository
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
     private val random = SecureRandom()
 
-    @Volatile
-    private var cachedLoginBotUsername: String? = null
-
     private val accessTokenTtl: Duration
         get() = Duration.ofMinutes(appConfig.dashboard.accessTokenTtlMinutes)
 
-    private fun loginBotName(): String =
-        appConfig.dashboard.loginBot?.takeIf { it.isNotBlank() }
-            ?: appConfig.adminBot?.takeIf { it.isNotBlank() }
-            ?: throw IllegalStateException("Neither app.dashboard.loginBot nor app.adminBot is configured")
+    /** Client ID for "Log In with Telegram"; it is public (the frontend passes it to Telegram). */
+    fun telegramClientId(): String =
+        appConfig.dashboard.telegramClientId?.takeIf { it.isNotBlank() }
+            ?: throw IllegalStateException("app.dashboard.telegramClientId is not configured")
 
-    private suspend fun loginBotToken(): String = withContext(Dispatchers.IO) {
-        tgBotV2Service.getTokenById(loginBotName())
-    }
+    /** One-time value the frontend passes to Telegram; it comes back inside the id_token. */
+    suspend fun issueLoginNonce(): String = randomToken().also { nonceRepository.save(it, NONCE_TTL) }
 
-    suspend fun loginBotUsername(): String {
-        cachedLoginBotUsername?.let { return it }
-        val identity = telegramBotApiClient.getMe(loginBotToken())
-            ?: throw IllegalStateException("Login bot token is invalid")
-        return identity.username.also { cachedLoginBotUsername = it }
-    }
-
-    suspend fun loginWithTelegram(payload: Map<String, Any?>, userAgent: String?): LoginResult {
-        val user = TelegramLoginVerifier.verify(payload, loginBotToken())
-            ?: throw DashboardUnauthorizedException("Invalid Telegram login data")
+    suspend fun loginWithTelegram(idToken: String, userAgent: String?): LoginResult {
+        val user = idTokenVerifier.verify(idToken, telegramClientId())
+            ?: throw DashboardUnauthorizedException("Invalid Telegram login")
+        // replay protection: the nonce must be one we issued and not used yet
+        if (user.nonce == null || !nonceRepository.consume(user.nonce)) {
+            throw DashboardUnauthorizedException("Login expired, please try again")
+        }
         if (user.id != appConfig.adminId) {
             logger.warn("Dashboard login rejected for non-admin telegram user ${user.id} (@${user.username})")
             throw DashboardForbiddenException("Only the bot admin may use the dashboard")
@@ -70,7 +60,7 @@ class DashboardAuthService(
             DashboardSession(
                 refreshTokenHash = sha256(refreshToken),
                 userId = user.id,
-                firstName = user.firstName,
+                name = user.name,
                 username = user.username,
                 photoUrl = user.photoUrl,
                 userAgent = userAgent?.take(300),
@@ -123,7 +113,7 @@ class DashboardAuthService(
         return token
     }
 
-    private fun DashboardSession.toUserDto() = DashboardUserDto(userId, firstName, username, photoUrl)
+    private fun DashboardSession.toUserDto() = DashboardUserDto(userId, name, username, photoUrl)
 
     private fun randomToken(): String {
         val bytes = ByteArray(32).also { random.nextBytes(it) }
@@ -132,4 +122,8 @@ class DashboardAuthService(
 
     private fun sha256(value: String): String =
         MessageDigest.getInstance("SHA-256").digest(value.toByteArray()).joinToString("") { "%02x".format(it) }
+
+    companion object {
+        private val NONCE_TTL: Duration = Duration.ofMinutes(10)
+    }
 }

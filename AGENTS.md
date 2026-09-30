@@ -46,7 +46,7 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 | `OKX_COLLECTOR_URL` | okx-collector base URL for `/prices` (`/watch` goes via RabbitMQ `okx.watch.*` queues); bot needs the `okx` feature | `http://localhost:8080` |
 | `DISCORD_PUBLIC_KEY` | Public key for Discord interaction signature verification | `null` |
 | `REDIS_*` | Redis (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `DATABASE`) — dashboard access tokens | `localhost`, `6379`, db `0` |
-| `APP_DASHBOARD_LOGIN_BOT` | Bot (Mongo id) whose token verifies Telegram Login Widget data | `APP_ADMIN_BOT` |
+| `APP_DASHBOARD_TELEGRAM_CLIENT_ID` | "Log In with Telegram" (OIDC) Client ID from @BotFather (the client secret is not used) | — |
 | `APP_DASHBOARD_ALLOWED_ORIGINS` | CORS origins allowed to call `/admin/**` with credentials | `http://localhost:5173` |
 | `APP_DASHBOARD_ACCESS_TOKEN_TTL_MINUTES` | Dashboard access token lifetime | `15` |
 | `APP_DASHBOARD_SECURE_COOKIE` | `Secure` flag of the refresh-token cookie (disable only for local http) | `true` |
@@ -55,13 +55,17 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 
 React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.xyz`; see
 [`dashboard/README.md`](dashboard/README.md). Backend side lives in `com.nikichxp.tgbot.dashboard`
-(`api`, `service`, `repository`, `connector`, `dto`, `entity`, `error`):
+(`api`, `config`, `service`, `repository`, `connector`, `dto`, `entity`, `error`):
 
-- `/admin/auth/*` (public): Telegram Login Widget login, refresh, logout. Only `APP_ADMIN_ID` is let in.
+- `/admin/auth/*` (public): config, login nonce, Telegram login, refresh, logout. Only `APP_ADMIN_ID` is let in.
+- Login is "Log In with Telegram" via OpenID Connect: `telegram-login.js` popup returns an `id_token` (JWT) to the
+  frontend; the backend verifies it against Telegram's JWKS (`iss`, `aud` = client id, `exp`) and a one-time
+  nonce (Redis `dashboard:nonce:*`, 10 min) issued by `POST /admin/auth/nonce`. The numeric user id is the `id` claim.
 - `/admin/*` (Bearer access token): `me`, `features`, `bots` (list/add), `bots/{name}/features`.
 - Access tokens: opaque, Redis (`dashboard:access:<sha256>`, TTL). Refresh tokens: opaque, HttpOnly cookie,
   SHA-256 stored in Mongo `dashboardSessions`, no expiry, revoked on logout.
-- The login bot must have its domain set via @BotFather → `/setdomain` → `dashboard.tgbot.nikichxp.xyz`.
+- @BotFather → bot → Login Widget must list `https://dashboard.tgbot.nikichxp.xyz` as a trusted origin and
+  `https://dashboard.tgbot.nikichxp.xyz/` as a redirect URI (the login page is always served on `/`).
 - Features offered in the UI come from `Features.ALL` — add new feature constants there too.
 
 ## Deployment & Infrastructure
@@ -88,7 +92,7 @@ React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.x
    - `service/` — services (business logic);
    - `repository/` — repositories (MongoDB/Redis access); services don't call `MongoTemplate`/Redis directly;
    - `connector/` — clients of external systems (HTTP APIs etc.);
-   - `entity/` — persisted documents, `error/` — exceptions, `api/` — routers/controllers.
+   - `entity/` — persisted documents, `error/` — exceptions, `api/` — routers/controllers, `config/` — Spring config.
 
    Exception: an interface following the `IFooService` pattern and its implementations
    (`FooServiceBarImpl`) may live together in one package. Applies to new and modified code; legacy
