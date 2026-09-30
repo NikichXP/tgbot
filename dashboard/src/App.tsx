@@ -4,6 +4,7 @@ import { useAuth } from './auth/AuthContext'
 import { Layout } from './components/Layout'
 import { BotsPage } from './pages/BotsPage'
 import { LoginPage } from './pages/LoginPage'
+import { OAuthClientsPage } from './pages/OAuthClientsPage'
 
 const TELEGRAM_REGISTERED_REDIRECT_PATH = '/'
 
@@ -30,6 +31,7 @@ export default function App() {
     <Layout user={state.user}>
       <Routes>
         <Route path="/bots" element={<BotsPage />} />
+        <Route path="/oauth-clients" element={<OAuthClientsPage />} />
         <Route path="*" element={<Navigate to="/bots" replace />} />
       </Routes>
     </Layout>

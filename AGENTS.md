@@ -46,7 +46,7 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 | `OKX_COLLECTOR_URL` | okx-collector base URL for `/prices` (`/watch` goes via RabbitMQ `okx.watch.*` queues); bot needs the `okx` feature | `http://localhost:8080` |
 | `DISCORD_PUBLIC_KEY` | Public key for Discord interaction signature verification | `null` |
 | `REDIS_*` | Redis (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `DATABASE`) — dashboard access tokens | `localhost`, `6379`, db `0` |
-| `APP_DASHBOARD_TELEGRAM_CLIENT_ID` | "Log In with Telegram" (OIDC) Client ID from @BotFather (the client secret is not used) | — |
+| `APP_DASHBOARD_TELEGRAM_CLIENT_ID` | "Log In with Telegram" (OIDC) Client ID from @BotFather (the client secret is not used); also used by `/oauth/*` | — |
 | `APP_DASHBOARD_ALLOWED_ORIGINS` | CORS origins allowed to call `/admin/**` with credentials | `http://localhost:5173` |
 | `APP_DASHBOARD_ACCESS_TOKEN_TTL_MINUTES` | Dashboard access token lifetime | `15` |
 | `APP_DASHBOARD_SECURE_COOKIE` | `Secure` flag of the refresh-token cookie (disable only for local http) | `true` |
@@ -61,12 +61,35 @@ React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.x
 - Login is "Log In with Telegram" via OpenID Connect: `telegram-login.js` popup returns an `id_token` (JWT) to the
   frontend; the backend verifies it against Telegram's JWKS (`iss`, `aud` = client id, `exp`) and a one-time
   nonce (Redis `dashboard:nonce:*`, 10 min) issued by `POST /admin/auth/nonce`. The numeric user id is the `id` claim.
-- `/admin/*` (Bearer access token): `me`, `features`, `bots` (list/add), `bots/{name}/features`.
+- `/admin/*` (Bearer access token): `me`, `features`, `bots` (list/add), `bots/{name}/features`, `oauth-clients`
+  (list/add/rotate secret/delete).
 - Access tokens: opaque, Redis (`dashboard:access:<sha256>`, TTL). Refresh tokens: opaque, HttpOnly cookie,
   SHA-256 stored in Mongo `dashboardSessions`, no expiry, revoked on logout.
 - @BotFather → bot → Login Widget must list `https://dashboard.tgbot.nikichxp.xyz` as a trusted origin and
   `https://dashboard.tgbot.nikichxp.xyz/` as a redirect URI (the login page is always served on `/`).
 - Features offered in the UI come from `Features.ALL` — add new feature constants there too.
+
+## Telegram login for other services (`oauth/`)
+
+tg-bot is an OAuth 2.0 authorization-code provider on top of "Log In with Telegram", so other services
+(any other service in the workspace) don't implement Telegram login themselves. Integrator guide:
+[`docs/oauth-integration.md`](docs/oauth-integration.md). Code: `com.nikichxp.tgbot.oauth`.
+
+- Clients (`client_id`, name, SHA-256 of secret, redirect URIs) live in Mongo `oauthClients`; managed from the
+  dashboard (`/admin/oauth-clients`, `DashboardOAuthClientService`). Secret is shown once; can be rotated.
+- `GET /oauth/authorize?client_id&redirect_uri&state&response_mode=query|web_message` — hosted login page
+  (`resources/oauth/authorize.html`). Unknown client / unregistered redirect URI → 400, never a redirect.
+  Issues a nonce (Redis `oauth:request:*`, 15 min) bound to client/redirect/state. `web_message` pages may be framed
+  only by the client's redirect-URI origins (CSP `frame-ancestors`), `query` pages not at all.
+- `POST /oauth/login {idToken}` — called by that page; verifies the Telegram `id_token` (same
+  `TelegramIdTokenVerifier`/client id as the dashboard), consumes the nonce, issues a one-time code
+  (Redis `oauth:code:<sha256>`, 60 s).
+- `POST /oauth/token` (form, `client_secret_post` or `client_secret_basic`) — exchanges the code for
+  `{ user: {id, name, username, photoUrl}, authTime }`. OAuth-style errors.
+- `GET /oauth/embed.js` — `TgBotAuth.mount(el, {clientId, redirectUri, state, onCode})` iframe helper.
+- Any Telegram user may log in here (unlike the dashboard); authorization is the client's job.
+- @BotFather → Login Widget must also list `https://api.tgbot.nikichxp.xyz` (origin) and
+  `https://api.tgbot.nikichxp.xyz/oauth/authorize` (redirect URI): telegram-login.js uses the page URL without query.
 
 ## Deployment & Infrastructure
 

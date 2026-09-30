@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin">
+  <title>Вход через Telegram</title>
+  <style>
+    :root { color-scheme: light dark; }
+    html, body { margin: 0; background: transparent; }
+    body {
+      font-family: -apple-system, system-ui, Roboto, Arial, sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; min-height: 100vh; box-sizing: border-box; padding: 8px;
+    }
+    body.standalone { background: Canvas; }
+    .title { font-size: 15px; opacity: .75; margin: 0 0 8px; text-align: center; }
+    .status { font-size: 13px; min-height: 16px; text-align: center; }
+    .status.error { color: #d93025; }
+    .tg-auth-button[disabled] { opacity: .6; pointer-events: none; }
+    .reload { font: inherit; font-size: 13px; background: none; border: none; color: #119AF5; cursor: pointer; }
+  </style>
+  <script id="oauth-config" type="application/json">__OAUTH_CONFIG__</script>
+</head>
+<body>
+  <p class="title" id="title" hidden></p>
+  <button type="button" class="tg-auth-button" id="login" disabled>Войти через Telegram</button>
+  <div class="status" id="status"></div>
+  <button type="button" class="reload" id="reload" hidden>Попробовать ещё раз</button>
+  <script>
+    (function () {
+      var config = JSON.parse(document.getElementById('oauth-config').textContent);
+      var loginButton = document.getElementById('login');
+      var statusLine = document.getElementById('status');
+      var reloadButton = document.getElementById('reload');
+      var isWebMessage = config.responseMode === 'web_message';
+      var messageTarget = window.parent !== window ? window.parent : window.opener;
+      var loginInProgress = false;
+
+      if (!isWebMessage || messageTarget === window.opener) {
+        document.body.classList.add('standalone');
+        var title = document.getElementById('title');
+        title.textContent = 'Вход в «' + config.clientName + '»';
+        title.hidden = false;
+      }
+
+      function showStatus(text, isError) {
+        statusLine.textContent = text;
+        statusLine.className = isError ? 'status error' : 'status';
+      }
+
+      function fail(message) {
+        loginInProgress = false;
+        loginButton.disabled = false;
+        showStatus(message, true);
+        reloadButton.hidden = false;
+      }
+
+      function deliver(result) {
+        if (isWebMessage) {
+          messageTarget.postMessage(
+            { type: 'tgbot-oauth', code: result.code, state: result.state },
+            result.targetOrigin
+          );
+          showStatus('Готово', false);
+          return;
+        }
+        var target = new URL(result.redirectUri);
+        target.searchParams.set('code', result.code);
+        if (result.state != null) target.searchParams.set('state', result.state);
+        window.location.assign(target.toString());
+      }
+
+      function onTelegramResult(result) {
+        if (result.error) {
+          if (result.error !== 'popup_closed') fail('Telegram: ' + result.error);
+          else loginInProgress = false;
+          return;
+        }
+        showStatus('Проверяем вход…', false);
+        loginButton.disabled = true;
+        fetch('/oauth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: result.id_token })
+        })
+          .then(function (response) {
+            return response.json().then(function (body) {
+              if (!response.ok) throw new Error(body.error_description || body.error || response.statusText);
+              return body;
+            });
+          })
+          .then(deliver)
+          .catch(function (e) { fail(e.message); });
+      }
+
+      reloadButton.addEventListener('click', function () { window.location.reload(); });
+      loginButton.addEventListener('click', function () { loginInProgress = true; });
+
+      if (isWebMessage && !messageTarget) {
+        fail('Страница должна быть открыта во фрейме или всплывающем окне');
+        return;
+      }
+
+      setTimeout(function () {
+        if (!loginInProgress) window.location.reload();
+      }, config.reloadAfterMs);
+
+      var script = document.createElement('script');
+      script.src = 'https://oauth.telegram.org/js/telegram-login.js?6';
+      script.async = true;
+      script.onload = function () {
+        window.Telegram.Login.init({ client_id: Number(config.telegramClientId), nonce: config.nonce, lang: 'ru' }, onTelegramResult);
+        loginButton.disabled = false;
+      };
+      script.onerror = function () { fail('Не удалось загрузить Telegram Login'); };
+      document.head.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

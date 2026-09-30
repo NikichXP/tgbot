@@ -30,3 +30,21 @@ export interface LoginResponse {
   expiresIn: number
   user: DashboardUser
 }
+
+export interface OAuthClient {
+  clientId: string
+  name: string
+  redirectUris: string[]
+  createdAt: string
+}
+
+export interface CreateOAuthClientRequest {
+  clientId: string
+  name?: string
+  redirectUris: string[]
+}
+
+export interface OAuthClientWithSecret {
+  client: OAuthClient
+  clientSecret: string
+}

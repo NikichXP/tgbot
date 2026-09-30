@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.dashboard.service
 
 import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.tgbot.core.util.SecureTokens
 import com.nikichxp.tgbot.dashboard.dto.DashboardPrincipal
 import com.nikichxp.tgbot.dashboard.dto.DashboardUserDto
 import com.nikichxp.tgbot.dashboard.dto.IssuedTokens
@@ -13,11 +14,8 @@ import com.nikichxp.tgbot.dashboard.repository.DashboardLoginNonceRepository
 import com.nikichxp.tgbot.dashboard.repository.DashboardSessionRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import java.security.MessageDigest
-import java.security.SecureRandom
 import java.time.Duration
 import java.time.Instant
-import java.util.Base64
 
 @Service
 class DashboardAuthService(
@@ -29,7 +27,6 @@ class DashboardAuthService(
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
-    private val random = SecureRandom()
 
     private val accessTokenTtl: Duration
         get() = Duration.ofMinutes(appConfig.dashboard.accessTokenTtlMinutes)
@@ -114,13 +111,9 @@ class DashboardAuthService(
 
     private fun DashboardSession.toUserDto() = DashboardUserDto(userId, name, username, photoUrl)
 
-    private fun randomToken(): String {
-        val bytes = ByteArray(32).also { random.nextBytes(it) }
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
-    }
+    private fun randomToken(): String = SecureTokens.randomUrlSafe()
 
-    private fun sha256(value: String): String =
-        MessageDigest.getInstance("SHA-256").digest(value.toByteArray()).joinToString("") { "%02x".format(it) }
+    private fun sha256(value: String): String = SecureTokens.sha256Hex(value)
 
     companion object {
         private val NONCE_TTL: Duration = Duration.ofMinutes(10)
