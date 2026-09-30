@@ -13,6 +13,7 @@ open class AppConfig(
     var discord: Discord = Discord(),
     var okx: Okx = Okx(),
     var trustedUsers: List<String> = emptyList(),
+    var dashboard: Dashboard = Dashboard(),
     var maxRetryCount: Int = 5
 ) {
 
@@ -21,6 +22,13 @@ open class AppConfig(
     companion object {
         class Okx(
             var baseUrl: String = "http://localhost:8080"
+        )
+
+        class Dashboard(
+            var loginBot: String? = null, // falls back to adminBot
+            var allowedOrigins: List<String> = listOf("http://localhost:5173"),
+            var accessTokenTtlMinutes: Long = 15,
+            var secureCookie: Boolean = true
         )
 
         class Discord(

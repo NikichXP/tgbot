@@ -30,6 +30,18 @@ class TgBotV2Service(
         return mongoTemplate.findAll<TgBotInfoV2Entity>().map { TgBotInfo(it) }
     }
 
+    fun findBotEntity(botId: String): TgBotInfoV2Entity? {
+        return mongoTemplate.findById<TgBotInfoV2Entity>(botId)
+    }
+
+    fun saveBotEntity(entity: TgBotInfoV2Entity): TgBotInfoV2Entity {
+        return mongoTemplate.save(entity)
+    }
+
+    fun listBotEntities(): List<TgBotInfoV2Entity> {
+        return mongoTemplate.findAll<TgBotInfoV2Entity>()
+    }
+
     fun getTokenById(botId: String): String {
         return getBotEntityById(botId).token
     }

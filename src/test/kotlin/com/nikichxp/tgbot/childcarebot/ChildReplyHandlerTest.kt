@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.childcarebot
 
 import org.assertj.core.api.Assertions.assertThat
-import kotlin.test.Test
+import org.junit.jupiter.api.Test
 
 class ChildReplyHandlerTest {
 

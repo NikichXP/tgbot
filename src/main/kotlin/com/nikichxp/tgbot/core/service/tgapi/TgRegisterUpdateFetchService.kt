@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
 import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgUpdateFetchType
 import com.nikichxp.tgbot.core.service.TgBotV2Service
 import jakarta.annotation.PostConstruct
@@ -17,7 +18,6 @@ class TgRegisterUpdateFetchService(
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
-    private val bots = tgBotV2Service.listBots()
 
     @PostConstruct
     fun registerWebhooks() {
@@ -25,18 +25,22 @@ class TgRegisterUpdateFetchService(
             logger.info("Local environment is set to local - webhook will not be set")
         }
 
-        tgBotV2Service.listBots().forEach { tgBotInfo ->
-            when (tgBotInfo.updateFetchType) {
-                TgUpdateFetchType.POLLING -> {
-                    logger.info("Registering polling for bot: ${tgBotInfo.name}")
-                    tgUpdatePollService.startPollingFor(tgBotInfo)
-                }
+        runBlocking {
+            tgBotV2Service.listBots().forEach { registerBot(it) }
+        }
+    }
 
-                TgUpdateFetchType.WEBHOOK -> if (appConfig.localEnv || appConfig.suspendBotRegistering) {
-                    logger.info("Local env: skip webhook setting for bot: ${tgBotInfo.name}")
-                } else {
-                    runBlocking { tgBotWebhookService.register(tgBotInfo) }
-                }
+    suspend fun registerBot(tgBotInfo: TgBotInfo) {
+        when (tgBotInfo.updateFetchType) {
+            TgUpdateFetchType.POLLING -> {
+                logger.info("Registering polling for bot: ${tgBotInfo.name}")
+                tgUpdatePollService.startPollingFor(tgBotInfo)
+            }
+
+            TgUpdateFetchType.WEBHOOK -> if (appConfig.localEnv || appConfig.suspendBotRegistering) {
+                logger.info("Local env: skip webhook setting for bot: ${tgBotInfo.name}")
+            } else {
+                tgBotWebhookService.register(tgBotInfo)
             }
         }
     }

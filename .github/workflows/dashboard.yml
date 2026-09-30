@@ -1,10 +1,10 @@
-name: CI/CD Build and Push
+name: Dashboard Build and Deploy
 
 on:
   push:
     branches:
       - master
-    paths-ignore:
+    paths:
       - "dashboard/**"
       - ".github/workflows/dashboard.yml"
   workflow_dispatch:
@@ -15,6 +15,7 @@ concurrency:
 
 env:
   NAMESPACE: tgbot
+  API_BASE_URL: https://api.tgbot.nikichxp.xyz
 
 jobs:
   build-and-push:
@@ -24,15 +25,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v5
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
-          java-version: "21"
-          distribution: "adopt"
-          cache: "gradle"
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: dashboard/package-lock.json
 
-      - name: Build with Gradle
-        run: ./gradlew bootJar -PappVersion=v${{ github.run_number }}
+      - name: Lint and type-check
+        working-directory: dashboard
+        run: |
+          npm ci
+          npm run lint
+          npm run build
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
@@ -50,14 +55,16 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v7
         with:
-          context: .
-          file: Dockerfile_copy
+          context: dashboard
+          file: dashboard/Dockerfile
           push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ secrets.REGISTRY_URL }}/tgbot:latest
+          platforms: linux/arm64
+          build-args: |
+            VITE_API_BASE_URL=${{ env.API_BASE_URL }}
+          tags: ${{ secrets.REGISTRY_URL }}/tgbot-dashboard:latest
           provenance: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=dashboard
+          cache-to: type=gha,mode=max,scope=dashboard
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
@@ -78,8 +85,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          kubectl -n "$NAMESPACE" rollout restart deployment/tgbot
-          kubectl -n "$NAMESPACE" rollout status deployment/tgbot --timeout=300s
+          # the Deployment comes from infra-scripts via ArgoCD; skip until it exists
+          if kubectl -n "$NAMESPACE" get deployment/tgbot-dashboard >/dev/null 2>&1; then
+            kubectl -n "$NAMESPACE" rollout restart deployment/tgbot-dashboard
+            kubectl -n "$NAMESPACE" rollout status deployment/tgbot-dashboard --timeout=300s
+          fi
 
       - name: Cleanup kubeconfig
         if: always()

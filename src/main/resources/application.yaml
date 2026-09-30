@@ -26,6 +26,12 @@ spring:
       uri: ${MONGODB_URI:mongodb://localhost:27017/tg-bot}
       database: ${MONGODB_DATABASE:tg-bot}
       auto-index-creation: true
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      username: ${REDIS_USERNAME:}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
@@ -55,4 +61,9 @@ app:
   okx:
     baseUrl: ${OKX_COLLECTOR_URL:http://localhost:8080}
   trustedUsers: ${APP_TRUSTED_USERS:}
+  dashboard:
+    loginBot: ${APP_DASHBOARD_LOGIN_BOT:}
+    allowedOrigins: ${APP_DASHBOARD_ALLOWED_ORIGINS:http://localhost:5173}
+    accessTokenTtlMinutes: ${APP_DASHBOARD_ACCESS_TOKEN_TTL_MINUTES:15}
+    secureCookie: ${APP_DASHBOARD_SECURE_COOKIE:true}
   maxRetryCount: ${APP_MAX_RETRY_COUNT:5}

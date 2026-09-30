@@ -9,6 +9,9 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 - **Database**: MongoDB (`spring-boot-starter-data-mongodb`)
 - **HTTP Client**: Ktor Client (`io.ktor:ktor-client-cio-jvm`)
 - **Build Tool**: Gradle (Kotlin DSL, `./gradlew`)
+- **Cache/session store**: Redis (reactive, dashboard tokens)
+- **Tests**: JUnit 5 only (`org.junit.jupiter.api.Test`; `kotlin.test` asserts via `kotlin-test-junit5`). JUnit 4 and
+  the vintage engine are excluded in `build.gradle.kts` — don't add them back.
 
 ## Configuration Architecture
 
@@ -42,16 +45,36 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 | `OPENROUTER_*` | OpenRouter AI configs (`API_KEY`, `DEFAULT_MODEL`, `BASE_URL`, `REFERER`, `TITLE`, `TRANSCRIPTION_MODEL`) | `openrouter/auto`, `openai/whisper-1` |
 | `OKX_COLLECTOR_URL` | okx-collector base URL for `/prices` (`/watch` goes via RabbitMQ `okx.watch.*` queues); bot needs the `okx` feature | `http://localhost:8080` |
 | `DISCORD_PUBLIC_KEY` | Public key for Discord interaction signature verification | `null` |
+| `REDIS_*` | Redis (`HOST`, `PORT`, `USERNAME`, `PASSWORD`, `DATABASE`) — dashboard access tokens | `localhost`, `6379`, db `0` |
+| `APP_DASHBOARD_LOGIN_BOT` | Bot (Mongo id) whose token verifies Telegram Login Widget data | `APP_ADMIN_BOT` |
+| `APP_DASHBOARD_ALLOWED_ORIGINS` | CORS origins allowed to call `/admin/**` with credentials | `http://localhost:5173` |
+| `APP_DASHBOARD_ACCESS_TOKEN_TTL_MINUTES` | Dashboard access token lifetime | `15` |
+| `APP_DASHBOARD_SECURE_COOKIE` | `Secure` flag of the refresh-token cookie (disable only for local http) | `true` |
+
+## Web dashboard (`dashboard/`)
+
+React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.xyz`; see
+[`dashboard/README.md`](dashboard/README.md). Backend side lives in `com.nikichxp.tgbot.dashboard`
+(`api`, `service`, `repository`, `connector`, `dto`, `entity`, `error`):
+
+- `/admin/auth/*` (public): Telegram Login Widget login, refresh, logout. Only `APP_ADMIN_ID` is let in.
+- `/admin/*` (Bearer access token): `me`, `features`, `bots` (list/add), `bots/{name}/features`.
+- Access tokens: opaque, Redis (`dashboard:access:<sha256>`, TTL). Refresh tokens: opaque, HttpOnly cookie,
+  SHA-256 stored in Mongo `dashboardSessions`, no expiry, revoked on logout.
+- The login bot must have its domain set via @BotFather → `/setdomain` → `dashboard.tgbot.nikichxp.xyz`.
+- Features offered in the UI come from `Features.ALL` — add new feature constants there too.
 
 ## Deployment & Infrastructure
 
 - **Cluster Manifests**: Managed in [`infra-scripts/manifests/tgbot/`](../infra-scripts/manifests/tgbot/).
-- **Ingress**: `bot.nikichxp.xyz` routed via Traefik to port `8080` (`/handle/{bot}`).
+- **Ingress**: `api.tgbot.nikichxp.xyz` → backend, `dashboard.tgbot.nikichxp.xyz` → dashboard (`31-ingress-tgbot.yaml`);
+  legacy `bot.nikichxp.xyz` → backend (`30-ingress.yaml`), kept while `APP_WEBHOOK` still points to it.
 - **Secrets**: `tgbot-auth` Secret in namespace `tgbot`.
 - **Health Probes**:
   - Liveness: `/actuator/health/liveness`
   - Readiness: `/actuator/health/readiness`
-- **Docker Image**: Built via GitHub Actions and published to `kraken.nikichxp.xyz/tgbot:latest`.
+- **Docker Images**: Built via GitHub Actions: `kraken.nikichxp.xyz/tgbot:latest` (`github-build-push.yml`, ignores
+  `dashboard/**`) and `kraken.nikichxp.xyz/tgbot-dashboard:latest` (`dashboard.yml`, only `dashboard/**`).
 
 ## Conventions & Best Practices
 
@@ -59,7 +82,18 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 2. **Reactive & Coroutines**: Use Kotlin coroutines (`suspend`, `coRouter`, `awaitBody`, `bodyValueAndAwait`) instead of blocking calls.
 3. **Configuration**: Keep `AppConfig` safe with default parameter values so optional features don't crash startup if an env var is omitted.
 4. **Secrets**: Never commit `.env` or hardcode tokens/credentials in code or manifests.
-5. **`Update` is a wire DTO**: `core.dto.Update` may only be used to (a) read/deserialise the raw
+5. **Package layout by role**: don't mix roles in one file or package. Within a feature package
+   (e.g. `com.nikichxp.tgbot.dashboard`):
+   - `dto/` — DTOs (request/response bodies and internal data carriers), never next to services;
+   - `service/` — services (business logic);
+   - `repository/` — repositories (MongoDB/Redis access); services don't call `MongoTemplate`/Redis directly;
+   - `connector/` — clients of external systems (HTTP APIs etc.);
+   - `entity/` — persisted documents, `error/` — exceptions, `api/` — routers/controllers.
+
+   Exception: an interface following the `IFooService` pattern and its implementations
+   (`FooServiceBarImpl`) may live together in one package. Applies to new and modified code; legacy
+   code is migrated when touched.
+6. **`Update` is a wire DTO**: `core.dto.Update` may only be used to (a) read/deserialise the raw
    Telegram request and (b) map that data into typed models (`UpdateContext` via
    `TgUpdateContextMapper`, or `LoggedMessage`'s typed fields via `SummaryMessageStorageService`'s
    one-time legacy-record migration). It must never be stored on a domain entity or read again after
