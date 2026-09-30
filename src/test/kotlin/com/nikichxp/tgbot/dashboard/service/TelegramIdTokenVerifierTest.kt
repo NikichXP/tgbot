@@ -27,7 +27,7 @@ class TelegramIdTokenVerifierTest {
         issuer: String = "https://oauth.telegram.org",
         audience: String = clientId,
         expiresAt: Instant = Instant.now().plusSeconds(3600),
-        withId: Boolean = true
+        id: Any? = 34080460L
     ): String {
         val claims = JWTClaimsSet.Builder()
             .issuer(issuer)
@@ -38,7 +38,7 @@ class TelegramIdTokenVerifierTest {
             .claim("name", "Nik")
             .claim("preferred_username", "nikichxp")
             .claim("nonce", "n-1")
-            .apply { if (withId) claim("id", 34080460L) }
+            .apply { if (id != null) claim("id", id) }
             .build()
         return SignedJWT(JWSHeader.Builder(JWSAlgorithm.RS256).keyID(key.keyID).build(), claims)
             .apply { sign(RSASSASigner(key)) }
@@ -54,6 +54,17 @@ class TelegramIdTokenVerifierTest {
         assertThat(user?.username).isEqualTo("nikichxp")
         assertThat(user?.name).isEqualTo("Nik")
         assertThat(user?.nonce).isEqualTo("n-1")
+    }
+
+    @Test
+    fun `accepts telegram user id sent as a string`() {
+        // this is what Telegram actually sends
+        assertThat(verify(token(id = "34080460"))?.id).isEqualTo(34080460L)
+    }
+
+    @Test
+    fun `rejects non-numeric telegram user id`() {
+        assertThat(verify(token(id = "abc"))).isNull()
     }
 
     @Test
@@ -79,7 +90,7 @@ class TelegramIdTokenVerifierTest {
 
     @Test
     fun `rejects token without telegram user id`() {
-        assertThat(verify(token(withId = false))).isNull()
+        assertThat(verify(token(id = null))).isNull()
     }
 
     @Test

@@ -40,13 +40,25 @@ class TelegramIdTokenVerifier(private val telegramJwkSource: JWKSource<SecurityC
             logger.warn("Telegram id_token rejected: ${e.message}")
             return null
         }
-        return TelegramIdTokenUser(
-            id = claims.getLongClaim("id"),
-            name = claims.getStringClaim("name"),
-            username = claims.getStringClaim("preferred_username"),
-            photoUrl = claims.getStringClaim("picture"),
-            nonce = claims.getStringClaim("nonce")
-        )
+        return try {
+            TelegramIdTokenUser(
+                id = telegramUserId(claims.getClaim("id")),
+                name = claims.getStringClaim("name"),
+                username = claims.getStringClaim("preferred_username"),
+                photoUrl = claims.getStringClaim("picture"),
+                nonce = claims.getStringClaim("nonce")
+            )
+        } catch (e: Exception) {
+            logger.warn("Telegram id_token has unexpected claims: ${e.message}")
+            null
+        }
+    }
+
+    // Telegram sends the numeric user id as a JSON string (despite the docs example showing a number)
+    private fun telegramUserId(claim: Any?): Long = when (claim) {
+        is Number -> claim.toLong()
+        is String -> claim.toLong()
+        else -> throw IllegalArgumentException("\"id\" claim is missing or not numeric: $claim")
     }
 
     companion object {
