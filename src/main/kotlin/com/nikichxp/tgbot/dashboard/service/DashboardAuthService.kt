@@ -34,19 +34,16 @@ class DashboardAuthService(
     private val accessTokenTtl: Duration
         get() = Duration.ofMinutes(appConfig.dashboard.accessTokenTtlMinutes)
 
-    /** Client ID for "Log In with Telegram"; it is public (the frontend passes it to Telegram). */
     fun telegramClientId(): String =
         appConfig.dashboard.telegramClientId?.takeIf { it.isNotBlank() }
             ?: throw IllegalStateException("app.dashboard.telegramClientId is not configured")
 
-    /** One-time value the frontend passes to Telegram; it comes back inside the id_token. */
     suspend fun issueLoginNonce(): String = randomToken().also { nonceRepository.save(it, NONCE_TTL) }
 
     suspend fun loginWithTelegram(idToken: String, userAgent: String?): LoginResult {
         val user = idTokenVerifier.verify(idToken, telegramClientId())
             ?: throw DashboardUnauthorizedException("Invalid Telegram login")
-        // replay protection: the nonce must be one we issued and not used yet
-        if (user.nonce == null || !nonceRepository.consume(user.nonce)) {
+        if (!consumeIssuedNonce(user.nonce)) {
             throw DashboardUnauthorizedException("Login expired, please try again")
         }
         if (user.id != appConfig.adminId) {
@@ -78,7 +75,6 @@ class DashboardAuthService(
         val session = sessionRepository.findById(sha256(refreshToken))
             ?: throw DashboardUnauthorizedException("Unknown refresh token")
         if (session.userId != appConfig.adminId) {
-            // admin was changed since this session was created
             sessionRepository.deleteById(session.refreshTokenHash)
             throw DashboardForbiddenException("Only the bot admin may use the dashboard")
         }
@@ -102,6 +98,9 @@ class DashboardAuthService(
         accessToken?.let { accessTokenRepository.delete(sha256(it)) }
         refreshToken?.let { sessionRepository.deleteById(sha256(it)) }
     }
+
+    private suspend fun consumeIssuedNonce(nonce: String?): Boolean =
+        nonce != null && nonceRepository.consumeIfPresent(nonce)
 
     private suspend fun issueAccessToken(session: DashboardSession): String {
         val token = randomToken()

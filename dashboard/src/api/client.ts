@@ -1,7 +1,3 @@
-// Access token: short-lived, kept in sessionStorage and sent as `Authorization: Bearer`.
-// Refresh token: long-lived, kept by the browser in an HttpOnly cookie that JS can't read;
-// it is only sent to /admin/auth/*, so a new access token can be obtained after expiry or in a new tab.
-
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 const ACCESS_TOKEN_KEY = 'tgbot.accessToken'
 
@@ -27,7 +23,7 @@ export function setAccessToken(token: string | null) {
     if (token) sessionStorage.setItem(ACCESS_TOKEN_KEY, token)
     else sessionStorage.removeItem(ACCESS_TOKEN_KEY)
   } catch {
-    // storage unavailable (private mode etc.) - the refresh cookie still keeps us logged in
+    return
   }
 }
 
@@ -45,16 +41,15 @@ async function toError(response: Response): Promise<ApiError> {
     const body = await response.json()
     if (body?.error) message = body.error
   } catch {
-    // not JSON
+    return new ApiError(response.status, message)
   }
   return new ApiError(response.status, message)
 }
 
-// Several requests may hit 401 at once; they must share a single refresh call.
-let refreshInFlight: Promise<boolean> | null = null
+let sharedRefreshInFlight: Promise<boolean> | null = null
 
 export function refreshAccessToken(): Promise<boolean> {
-  refreshInFlight ??= (async () => {
+  sharedRefreshInFlight ??= (async () => {
     try {
       const response = await fetch(`${API_BASE}/admin/auth/refresh`, { method: 'POST', credentials: 'include' })
       if (!response.ok) {
@@ -67,10 +62,10 @@ export function refreshAccessToken(): Promise<boolean> {
     } catch {
       return false
     } finally {
-      refreshInFlight = null
+      sharedRefreshInFlight = null
     }
   })()
-  return refreshInFlight
+  return sharedRefreshInFlight
 }
 
 let onSessionLost: () => void = () => {}
@@ -79,8 +74,7 @@ export function setOnSessionLost(handler: () => void) {
   onSessionLost = handler
 }
 
-/** Authenticated JSON request; transparently refreshes the access token once on 401. */
-export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+export async function apiWithTokenRefresh<T>(path: string, init: RequestInit = {}): Promise<T> {
   let response = await send(path, init)
   if (response.status === 401) {
     if (await refreshAccessToken()) {
@@ -93,7 +87,6 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>
 }
 
-/** Unauthenticated request to /admin/auth/*. */
 export async function authApi<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await send(path, init)
   if (!response.ok) throw await toError(response)

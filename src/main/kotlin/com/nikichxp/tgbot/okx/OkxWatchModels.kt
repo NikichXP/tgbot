@@ -61,6 +61,4 @@ data class WatchNotification(
     val watches: List<WatchInfo>? = null,
 )
 
-data class OkxPrice(val instrumentId: String, val price: Double? = null)
-
 fun formatNumber(value: Double): String = value.toBigDecimal().stripTrailingZeros().toPlainString()

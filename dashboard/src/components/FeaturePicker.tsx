@@ -8,15 +8,15 @@ interface Props {
   disabled?: boolean
 }
 
-/** Clickable chips; features selected on the bot but unknown to the backend are still shown so they can be removed. */
 export function FeaturePicker({ available, selected, onChange, disabled }: Props) {
-  const all = [...available, ...selected.filter((f) => !available.includes(f))]
+  const selectedButUnknownToBackend = selected.filter((f) => !available.includes(f))
+  const shown = [...available, ...selectedButUnknownToBackend]
   const toggle = (feature: string) =>
     onChange(selected.includes(feature) ? selected.filter((f) => f !== feature) : [...selected, feature])
 
   return (
     <Stack direction="row" useFlexGap spacing={1} sx={{ flexWrap: 'wrap' }}>
-      {all.map((feature) => {
+      {shown.map((feature) => {
         const active = selected.includes(feature)
         return (
           <Chip

@@ -5,6 +5,8 @@ import { Layout } from './components/Layout'
 import { BotsPage } from './pages/BotsPage'
 import { LoginPage } from './pages/LoginPage'
 
+const TELEGRAM_REGISTERED_REDIRECT_PATH = '/'
+
 export default function App() {
   const { state } = useAuth()
   const location = useLocation()
@@ -18,8 +20,9 @@ export default function App() {
   }
 
   if (state.status === 'anonymous') {
-    // Telegram uses the page URL as redirect_uri and only accepts pre-registered ones: keep login on "/"
-    if (location.pathname !== '/') return <Navigate to="/" replace />
+    if (location.pathname !== TELEGRAM_REGISTERED_REDIRECT_PATH) {
+      return <Navigate to={TELEGRAM_REGISTERED_REDIRECT_PATH} replace />
+    }
     return <LoginPage />
   }
 

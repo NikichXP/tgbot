@@ -14,7 +14,6 @@ object Features {
     const val TOOLBOX = "toolbox"
     const val OKX = "okx"
 
-    // keep in sync with the constants above: this is what the dashboard offers to toggle
     val ALL = listOf(CHILD_TRACKER, DEBUG, SANTA, DEMO, KARMA, SUMMARY, STATS, SHITPOSTING, TOOLBOX, OKX)
 
 }

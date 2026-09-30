@@ -9,11 +9,12 @@ import { AuthProvider } from './auth/AuthContext'
 
 const theme = createTheme({ colorSchemes: { light: true, dark: true } })
 
+const isClientError = (error: Error) => error instanceof ApiError && error.status < 500
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // retrying 4xx (bad request, forbidden...) is pointless
-      retry: (failureCount, error) => !(error instanceof ApiError && error.status < 500) && failureCount < 2,
+      retry: (failureCount, error) => !isClientError(error) && failureCount < 2,
       refetchOnWindowFocus: false,
     },
   },

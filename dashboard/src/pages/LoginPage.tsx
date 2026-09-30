@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { authApi } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
-import { loadTelegramLogin, openTelegramLogin } from '../auth/telegramLogin'
+import { loadTelegramLogin, openTelegramLoginPopupSynchronously } from '../auth/telegramLogin'
 
 export function LoginPage() {
   const { loginWithTelegram } = useAuth()
@@ -16,8 +16,7 @@ export function LoginPage() {
     queryFn: () => authApi<{ clientId: string }>('/admin/auth/config'),
   })
   const script = useQuery({ queryKey: ['telegram-login-script'], queryFn: () => loadTelegramLogin().then(() => true) })
-  // Fetched in advance: the popup has to open synchronously on click. One nonce per attempt.
-  const nonce = useQuery({
+  const prefetchedNonce = useQuery({
     queryKey: ['login-nonce'],
     queryFn: () => authApi<{ nonce: string }>('/admin/auth/nonce', { method: 'POST' }),
     staleTime: 5 * 60 * 1000,
@@ -25,10 +24,10 @@ export function LoginPage() {
   })
 
   const login = () => {
-    if (!config.data || !nonce.data) return
+    if (!config.data || !prefetchedNonce.data) return
     setError(null)
-    openTelegramLogin(config.data.clientId, nonce.data.nonce, async (result) => {
-      nonce.refetch()
+    openTelegramLoginPopupSynchronously(config.data.clientId, prefetchedNonce.data.nonce, async (result) => {
+      prefetchedNonce.refetch()
       if (result.error) {
         if (result.error !== 'popup_closed') setError(`Telegram: ${result.error}`)
         return
@@ -45,8 +44,8 @@ export function LoginPage() {
     })
   }
 
-  const loadError = config.error ?? script.error ?? nonce.error
-  const ready = config.data && script.data && nonce.data && !loggingIn
+  const loadError = config.error ?? script.error ?? prefetchedNonce.error
+  const ready = config.data && script.data && prefetchedNonce.data && !loggingIn
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'grid', placeItems: 'center', p: 2 }}>

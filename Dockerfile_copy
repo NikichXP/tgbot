@@ -1,9 +1,26 @@
-FROM amazoncorretto:21-alpine
+# Image for the jar built by CI (./gradlew bootJar). The fat jar is split into Spring Boot layers so that
+# rarely changing parts (third-party dependencies) are separate image layers: when they don't change, their
+# digest stays the same, the registry already has them and nodes don't pull them again.
 
+# ---- Extract layers (platform independent, so it runs natively instead of under QEMU) ----
+FROM --platform=$BUILDPLATFORM amazoncorretto:21-alpine AS extract
+WORKDIR /build
+COPY build/libs/app.jar app.jar
+RUN java -Djarmode=tools -jar app.jar extract --layers --destination extracted \
+    # a layer is reused only if byte-identical, including mtimes: pin them (dirs get "now" on extraction)
+    && find extracted -exec touch -h -d '1980-02-01 00:00:00' {} +
+
+# ---- Runtime ----
+FROM amazoncorretto:21-alpine
 WORKDIR /app
 
-COPY build/libs/app.jar .
+# ordered from least to most frequently changing
+COPY --from=extract /build/extracted/dependencies/ ./
+COPY --from=extract /build/extracted/spring-boot-loader/ ./
+COPY --from=extract /build/extracted/snapshot-dependencies/ ./
+COPY --from=extract /build/extracted/application/ ./
 
 EXPOSE 8080
 
+# app.jar here is a thin jar: its manifest Class-Path points to lib/ from the dependencies layer
 CMD ["java", "-Xmx1G", "-jar", "app.jar"]

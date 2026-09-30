@@ -11,7 +11,6 @@ import java.net.URI
 @Configuration
 class TelegramOidcConfig {
 
-    /** Telegram's public signing keys; cached and refreshed by Nimbus (also on an unknown `kid`). */
     @Bean
     fun telegramJwkSource(): JWKSource<SecurityContext> =
         JWKSourceBuilder.create<SecurityContext>(

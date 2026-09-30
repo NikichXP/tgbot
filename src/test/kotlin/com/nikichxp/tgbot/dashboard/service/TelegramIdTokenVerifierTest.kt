@@ -58,7 +58,6 @@ class TelegramIdTokenVerifierTest {
 
     @Test
     fun `accepts telegram user id sent as a string`() {
-        // this is what Telegram actually sends
         assertThat(verify(token(id = "34080460"))?.id).isEqualTo(34080460L)
     }
 

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { api, authApi, getAccessToken, refreshAccessToken, setAccessToken, setOnSessionLost } from '../api/client'
+import { apiWithTokenRefresh, authApi, getAccessToken, refreshAccessToken, setAccessToken, setOnSessionLost } from '../api/client'
 import type { DashboardUser, LoginResponse } from '../api/types'
 
 type AuthState =
@@ -18,7 +18,6 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
 
-  // On start: reuse the tab's access token, or silently get a new one via the refresh cookie.
   useEffect(() => {
     let cancelled = false
     ;(async () => {
@@ -28,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return
       }
       try {
-        const user = await api<DashboardUser>('/admin/me')
+        const user = await apiWithTokenRefresh<DashboardUser>('/admin/me')
         if (!cancelled) setState({ status: 'authenticated', user })
       } catch {
         if (!cancelled) setState({ status: 'anonymous' })
@@ -68,7 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-// the hook belongs next to its provider; fast refresh of this file just reloads the page
 // oxlint-disable-next-line react/only-export-components
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext)

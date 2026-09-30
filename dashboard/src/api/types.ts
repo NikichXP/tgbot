@@ -20,7 +20,6 @@ export interface DashboardUser {
   photoUrl?: string
 }
 
-/** Result passed by telegram-login.js to the callback (https://core.telegram.org/bots/telegram-login). */
 export interface TelegramLoginResult {
   id_token?: string
   error?: string

@@ -6,6 +6,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.okx.connector.OkxCollectorClient
 import com.nikichxp.tgbot.util.AuthHelperService
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate

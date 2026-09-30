@@ -1,20 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { api } from './client'
+import { apiWithTokenRefresh } from './client'
 import type { Bot, CreateBotRequest } from './types'
 
 export function useBots() {
-  return useQuery({ queryKey: ['bots'], queryFn: () => api<Bot[]>('/admin/bots') })
+  return useQuery({ queryKey: ['bots'], queryFn: () => apiWithTokenRefresh<Bot[]>('/admin/bots') })
 }
 
 export function useFeatures() {
-  return useQuery({ queryKey: ['features'], queryFn: () => api<string[]>('/admin/features') })
+  return useQuery({ queryKey: ['features'], queryFn: () => apiWithTokenRefresh<string[]>('/admin/features') })
 }
 
 export function useCreateBot() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (request: CreateBotRequest) =>
-      api<Bot>('/admin/bots', { method: 'POST', body: JSON.stringify(request) }),
+      apiWithTokenRefresh<Bot>('/admin/bots', { method: 'POST', body: JSON.stringify(request) }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bots'] }),
   })
 }
@@ -23,7 +23,7 @@ export function useUpdateBotFeatures() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ name, supportedFeatures }: { name: string; supportedFeatures: string[] }) =>
-      api<Bot>(`/admin/bots/${encodeURIComponent(name)}/features`, {
+      apiWithTokenRefresh<Bot>(`/admin/bots/${encodeURIComponent(name)}/features`, {
         method: 'PUT',
         body: JSON.stringify({ supportedFeatures }),
       }),

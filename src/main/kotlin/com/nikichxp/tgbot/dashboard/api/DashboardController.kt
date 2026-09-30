@@ -29,11 +29,6 @@ import org.springframework.web.reactive.function.server.coRouter
 import org.springframework.web.server.ResponseStatusException
 import java.time.Duration
 
-/**
- * API of the web dashboard (dashboard.tgbot.nikichxp.xyz).
- * - `/admin/auth/...` is public: Telegram login and token refresh/logout.
- * - everything else under `/admin` requires `Authorization: Bearer <access token>`.
- */
 @Configuration
 class DashboardController(
     private val appConfig: AppConfig,
@@ -146,7 +141,6 @@ class DashboardController(
         private const val REFRESH_COOKIE = "tgbot_dashboard_refresh"
         private const val PRINCIPAL_ATTRIBUTE = "dashboardPrincipal"
 
-        // the session itself never expires, the cookie just needs to outlive any realistic usage
         private val REFRESH_COOKIE_MAX_AGE = Duration.ofDays(3650)
     }
 }

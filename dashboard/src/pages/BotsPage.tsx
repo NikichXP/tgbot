@@ -2,8 +2,11 @@ import AddIcon from '@mui/icons-material/Add'
 import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material'
 import { useState } from 'react'
 import { useBots, useFeatures } from '../api/bots'
+import type { Bot } from '../api/types'
 import { AddBotDialog } from '../components/AddBotDialog'
 import { BotCard } from '../components/BotCard'
+
+const draftResettingKey = (bot: Bot) => `${bot.name}:${bot.supportedFeatures.join(',')}`
 
 export function BotsPage() {
   const bots = useBots()
@@ -29,8 +32,7 @@ export function BotsPage() {
       {bots.data && features.data && (
         <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
           {bots.data.map((bot) => (
-            // key includes features so the card's draft resets when server data changes
-            <BotCard key={`${bot.name}:${bot.supportedFeatures.join(',')}`} bot={bot} availableFeatures={availableFeatures} />
+            <BotCard key={draftResettingKey(bot)} bot={bot} availableFeatures={availableFeatures} />
           ))}
         </Box>
       )}

@@ -16,8 +16,7 @@ class WebConfig(private val appConfig: AppConfig) {
         setMaxAge(Duration.ofDays(1))
     }
 
-    // the dashboard sends the refresh-token cookie, which requires explicit origins + credentials
-    private val dashboardCors by lazy {
+    private val dashboardCorsWithCredentials by lazy {
         CorsConfiguration().apply {
             allowedOrigins = appConfig.dashboard.allowedOrigins.map { it.trim() }.filter { it.isNotEmpty() }
             allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
@@ -29,6 +28,6 @@ class WebConfig(private val appConfig: AppConfig) {
 
     @Bean
     fun corsConfiguration() = CorsWebFilter { exchange ->
-        if (exchange.request.path.value().startsWith("/admin")) dashboardCors else publicCors
+        if (exchange.request.path.value().startsWith("/admin")) dashboardCorsWithCredentials else publicCors
     }
 }

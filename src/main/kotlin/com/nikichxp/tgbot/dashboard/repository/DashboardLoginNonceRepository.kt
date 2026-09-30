@@ -5,7 +5,6 @@ import org.springframework.data.redis.core.ReactiveStringRedisTemplate
 import org.springframework.stereotype.Repository
 import java.time.Duration
 
-/** One-time nonces for Telegram login: issued before the popup opens, consumed when the id_token arrives. */
 @Repository
 class DashboardLoginNonceRepository(private val redis: ReactiveStringRedisTemplate) {
 
@@ -13,8 +12,7 @@ class DashboardLoginNonceRepository(private val redis: ReactiveStringRedisTempla
         redis.opsForValue().set(key(nonce), "1", ttl).awaitSingle()
     }
 
-    /** @return true if the nonce existed (and is now gone) */
-    suspend fun consume(nonce: String): Boolean = redis.delete(key(nonce)).awaitSingle() > 0
+    suspend fun consumeIfPresent(nonce: String): Boolean = redis.delete(key(nonce)).awaitSingle() > 0
 
     private fun key(nonce: String) = "dashboard:nonce:$nonce"
 }

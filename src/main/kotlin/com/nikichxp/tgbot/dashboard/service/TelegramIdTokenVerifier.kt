@@ -14,11 +14,6 @@ import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
-/**
- * Verifies an `id_token` issued by "Log In with Telegram" (OpenID Connect):
- * signature against Telegram's JWKS, `iss`, `aud` (= our Client ID) and `exp`.
- * https://core.telegram.org/bots/telegram-login
- */
 @Service
 class TelegramIdTokenVerifier(private val telegramJwkSource: JWKSource<SecurityContext>) {
 
@@ -26,7 +21,7 @@ class TelegramIdTokenVerifier(private val telegramJwkSource: JWKSource<SecurityC
 
     suspend fun verify(idToken: String, clientId: String): TelegramIdTokenUser? {
         val processor = DefaultJWTProcessor<SecurityContext>().apply {
-            jwsKeySelector = JWSVerificationKeySelector(ALLOWED_ALGORITHMS, telegramJwkSource)
+            jwsKeySelector = JWSVerificationKeySelector(SUPPORTED_BOTFATHER_SIGNING_ALGORITHMS, telegramJwkSource)
             jwtClaimsSetVerifier = DefaultJWTClaimsVerifier(
                 clientId,
                 JWTClaimsSet.Builder().issuer(TelegramOidcConfig.ISSUER).build(),
@@ -34,7 +29,6 @@ class TelegramIdTokenVerifier(private val telegramJwkSource: JWKSource<SecurityC
             )
         }
         val claims = try {
-            // JWKS may be fetched over (blocking) HTTP on a cache miss
             withContext(Dispatchers.IO) { processor.process(idToken, null) }
         } catch (e: Exception) {
             logger.warn("Telegram id_token rejected: ${e.message}")
@@ -42,7 +36,7 @@ class TelegramIdTokenVerifier(private val telegramJwkSource: JWKSource<SecurityC
         }
         return try {
             TelegramIdTokenUser(
-                id = telegramUserId(claims.getClaim("id")),
+                id = parseTelegramUserIdFromNumberOrString(claims.getClaim("id")),
                 name = claims.getStringClaim("name"),
                 username = claims.getStringClaim("preferred_username"),
                 photoUrl = claims.getStringClaim("picture"),
@@ -54,15 +48,13 @@ class TelegramIdTokenVerifier(private val telegramJwkSource: JWKSource<SecurityC
         }
     }
 
-    // Telegram sends the numeric user id as a JSON string (despite the docs example showing a number)
-    private fun telegramUserId(claim: Any?): Long = when (claim) {
+    private fun parseTelegramUserIdFromNumberOrString(claim: Any?): Long = when (claim) {
         is Number -> claim.toLong()
         is String -> claim.toLong()
         else -> throw IllegalArgumentException("\"id\" claim is missing or not numeric: $claim")
     }
 
     companion object {
-        // the algorithm is chosen per bot in @BotFather; EdDSA/ES256K would need extra crypto providers
-        private val ALLOWED_ALGORITHMS = setOf(JWSAlgorithm.RS256, JWSAlgorithm.ES256)
+        private val SUPPORTED_BOTFATHER_SIGNING_ALGORITHMS = setOf(JWSAlgorithm.RS256, JWSAlgorithm.ES256)
     }
 }

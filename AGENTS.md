@@ -79,6 +79,9 @@ React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.x
   - Readiness: `/actuator/health/readiness`
 - **Docker Images**: Built via GitHub Actions: `kraken.nikichxp.xyz/tgbot:latest` (`github-build-push.yml`, ignores
   `dashboard/**`) and `kraken.nikichxp.xyz/tgbot-dashboard:latest` (`dashboard.yml`, only `dashboard/**`).
+- **Backend image layers**: `Dockerfile_copy` (used by CI) splits the boot jar into Spring Boot layers
+  (`dependencies` ~55 MB, `spring-boot-loader`, `snapshot-dependencies`, `application` ~1.3 MB) with pinned mtimes,
+  so a code-only push re-uploads/pulls only the application layer. Keep jar builds reproducible (Gradle 9 default).
 
 ## Conventions & Best Practices
 
@@ -97,7 +100,11 @@ React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.x
    Exception: an interface following the `IFooService` pattern and its implementations
    (`FooServiceBarImpl`) may live together in one package. Applies to new and modified code; legacy
    code is migrated when touched.
-6. **`Update` is a wire DTO**: `core.dto.Update` may only be used to (a) read/deserialise the raw
+6. **Self-explanatory code, no comments**: code must be understandable without comments — express intent
+   through names (functions, variables, constants) and tests instead. No KDoc/Javadoc/JSDoc, no comments
+   explaining what code does. Never touch `TODO` comments. Tool directives (`oxlint-disable…`,
+   `/// <reference …>`) are not comments in this sense.
+7. **`Update` is a wire DTO**: `core.dto.Update` may only be used to (a) read/deserialise the raw
    Telegram request and (b) map that data into typed models (`UpdateContext` via
    `TgUpdateContextMapper`, or `LoggedMessage`'s typed fields via `SummaryMessageStorageService`'s
    one-time legacy-record migration). It must never be stored on a domain entity or read again after
