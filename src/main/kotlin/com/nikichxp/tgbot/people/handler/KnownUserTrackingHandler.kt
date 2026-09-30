@@ -9,7 +9,9 @@ import com.nikichxp.tgbot.people.service.KnownUserService
 import org.springframework.stereotype.Component
 
 @Component
-class KnownUserTrackingHandler(private val knownUserService: KnownUserService) : UpdateHandler {
+class KnownUserTrackingHandler(
+    private val knownUserService: KnownUserService
+) : UpdateHandler {
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.ALL)
     override fun requiredFeatures(): Set<String> = emptySet()

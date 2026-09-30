@@ -1,6 +1,5 @@
 package com.nikichxp.tgbot.dashboard.service
 
-import com.nikichxp.tgbot.dashboard.dto.KnownUserChatDto
 import com.nikichxp.tgbot.dashboard.dto.KnownUserDto
 import com.nikichxp.tgbot.dashboard.dto.PeopleListDto
 import com.nikichxp.tgbot.dashboard.dto.PeopleListMemberDto
@@ -10,13 +9,15 @@ import com.nikichxp.tgbot.people.entity.PeopleList
 import com.nikichxp.tgbot.people.service.KnownUserService
 import com.nikichxp.tgbot.people.service.PeopleListService
 import com.nikichxp.tgbot.people.service.UserAvatarService
+import org.springframework.core.convert.ConversionService
 import org.springframework.stereotype.Service
 
 @Service
 class DashboardPeopleService(
     private val knownUserService: KnownUserService,
     private val peopleListService: PeopleListService,
-    private val userAvatarService: UserAvatarService
+    private val userAvatarService: UserAvatarService,
+    private val conversionService: ConversionService
 ) {
 
     suspend fun searchPeople(text: String?, limit: Int): List<KnownUserDto> =
@@ -25,9 +26,7 @@ class DashboardPeopleService(
     suspend fun avatar(userId: Long): ByteArray? = userAvatarService.getAvatar(userId)
 
     suspend fun lists(): List<PeopleListSummaryDto> =
-        peopleListService.findAll().map {
-            PeopleListSummaryDto(it.name, it.description, it.userIds.size, it.updatedAt.toString())
-        }
+        peopleListService.findAll().map { conversionService.convert(it, PeopleListSummaryDto::class.java)!! }
 
     suspend fun list(name: String): PeopleListDto = peopleListService.get(name).toDto()
 
@@ -53,19 +52,7 @@ class DashboardPeopleService(
         return PeopleListDto(name, description, members, createdAt.toString(), updatedAt.toString())
     }
 
-    private fun KnownUser.toDto() = KnownUserDto(
-        id = id,
-        username = username,
-        fullName = fullName,
-        languageCode = languageCode,
-        isPremium = isPremium,
-        firstSeenAt = firstSeenAt.toString(),
-        lastSeenAt = lastSeenAt.toString(),
-        bots = bots.sorted(),
-        chats = chats.values
-            .sortedByDescending { it.lastSeenAt }
-            .map { KnownUserChatDto(it.chatId, it.title, it.type, it.lastSeenAt.toString()) }
-    )
+    private fun KnownUser.toDto() = conversionService.convert(this, KnownUserDto::class.java)!!
 
     companion object {
         private const val MAX_SEARCH_LIMIT = 200

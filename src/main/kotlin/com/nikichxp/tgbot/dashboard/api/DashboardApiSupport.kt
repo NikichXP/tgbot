@@ -18,7 +18,9 @@ import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.server.ResponseStatusException
 
 @Component
-class DashboardApiSupport(private val authService: DashboardAuthService) {
+class DashboardApiSupport(
+    private val authService: DashboardAuthService
+) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 

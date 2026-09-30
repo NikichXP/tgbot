@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.server.awaitBody
 import org.springframework.web.reactive.function.server.bodyValueAndAwait
 import org.springframework.web.reactive.function.server.buildAndAwait
 import org.springframework.web.reactive.function.server.coRouter
+import java.net.URI
 import java.time.Duration
 
 @Configuration
@@ -28,50 +29,51 @@ class DashboardPeopleController(
                 next(request)
             }
 
-            GET("/people") { request ->
+            GET("/users") { request ->
                 val text = request.queryParam("query").orElse(null)
                 val limit = request.queryParam("limit").map { it.toIntOrNull() }.orElse(null) ?: DEFAULT_SEARCH_LIMIT
                 ok().bodyValueAndAwait(peopleService.searchPeople(text, limit))
             }
 
-            GET("/people/{id}/avatar") { request ->
-                val avatar = peopleService.avatar(request.userIdPathVariable("id"))
+            GET("/users/{userId}/avatar") { request ->
+                val avatar = peopleService.avatar(request.userIdPathVariable("userId"))
                     ?: return@GET noContent().buildAndAwait()
                 ok().contentType(MediaType.IMAGE_JPEG)
                     .cacheControl(CacheControl.maxAge(AVATAR_BROWSER_CACHE).cachePrivate())
                     .bodyValueAndAwait(avatar)
             }
 
-            GET("/people-lists") {
+            GET("/lists") {
                 ok().bodyValueAndAwait(peopleService.lists())
             }
 
-            POST("/people-lists") { request ->
+            POST("/lists") { request ->
                 val body = request.awaitBody<CreatePeopleListRequest>()
-                ok().bodyValueAndAwait(peopleService.createList(body.name, body.description))
+                val created = peopleService.createList(body.name, body.description)
+                created(URI.create("/admin/lists/${created.name}")).bodyValueAndAwait(created)
             }
 
-            GET("/people-lists/{name}") { request ->
+            GET("/lists/{name}") { request ->
                 ok().bodyValueAndAwait(peopleService.list(request.pathVariable("name")))
             }
 
-            PUT("/people-lists/{name}") { request ->
+            PATCH("/lists/{name}") { request ->
                 val body = request.awaitBody<UpdatePeopleListRequest>()
                 ok().bodyValueAndAwait(peopleService.updateListDescription(request.pathVariable("name"), body.description))
             }
 
-            DELETE("/people-lists/{name}") { request ->
+            DELETE("/lists/{name}") { request ->
                 peopleService.deleteList(request.pathVariable("name"))
                 noContent().buildAndAwait()
             }
 
-            PUT("/people-lists/{name}/members/{userId}") { request ->
+            PUT("/lists/{name}/members/{userId}") { request ->
                 ok().bodyValueAndAwait(
                     peopleService.addListMember(request.pathVariable("name"), request.userIdPathVariable("userId"))
                 )
             }
 
-            DELETE("/people-lists/{name}/members/{userId}") { request ->
+            DELETE("/lists/{name}/members/{userId}") { request ->
                 ok().bodyValueAndAwait(
                     peopleService.removeListMember(request.pathVariable("name"), request.userIdPathVariable("userId"))
                 )

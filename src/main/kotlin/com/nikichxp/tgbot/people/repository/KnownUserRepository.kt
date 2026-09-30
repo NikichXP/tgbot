@@ -16,7 +16,9 @@ import java.time.Instant
 import java.util.regex.Pattern
 
 @Repository
-class KnownUserRepository(private val mongoTemplate: MongoTemplate) {
+class KnownUserRepository(
+    private val mongoTemplate: MongoTemplate
+) {
 
     suspend fun upsertSeen(seen: SeenUser, at: Instant) {
         val user = seen.user

@@ -7,7 +7,9 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Service
 
 @Service
-class UserInteractionService(private val mongoTemplate: MongoTemplate) {
+class UserInteractionService(
+    private val mongoTemplate: MongoTemplate
+) {
 
     fun registerUserInteraction(userId: Long, botName: String): Boolean {
         val existing = mongoTemplate.findOne<UserInteraction>(

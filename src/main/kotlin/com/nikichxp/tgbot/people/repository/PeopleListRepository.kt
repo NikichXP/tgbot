@@ -17,7 +17,9 @@ import org.springframework.stereotype.Repository
 import java.time.Instant
 
 @Repository
-class PeopleListRepository(private val mongoTemplate: MongoTemplate) {
+class PeopleListRepository(
+    private val mongoTemplate: MongoTemplate
+) {
 
     suspend fun findAll(): List<PeopleList> = withContext(Dispatchers.IO) {
         mongoTemplate.find<PeopleList>(Query().with(Sort.by(PeopleList::name.name)))

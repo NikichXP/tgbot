@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service
 import java.time.Instant
 
 @Service
-class PeopleListService(private val peopleListRepository: PeopleListRepository) {
+class PeopleListService(
+    private val peopleListRepository: PeopleListRepository
+) {
 
     private val listNameRegex = Regex("^[a-z0-9_-]{1,64}$")
 

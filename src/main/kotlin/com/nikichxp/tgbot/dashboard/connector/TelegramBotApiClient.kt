@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component
  * TODO: This whole logic must be unified at some point, out of scope for now
  */
 @Component
-class TelegramBotApiClient(private val httpClient: HttpClient) {
+class TelegramBotApiClient(
+    private val httpClient: HttpClient
+) {
 
     suspend fun getMe(token: String): TgBotIdentity? {
         val response = httpClient.get("https://api.telegram.org/bot$token/getMe").body<JsonNode>()

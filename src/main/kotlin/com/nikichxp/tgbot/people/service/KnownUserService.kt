@@ -8,7 +8,9 @@ import java.time.Duration
 import java.time.Instant
 
 @Service
-class KnownUserService(private val knownUserRepository: KnownUserRepository) {
+class KnownUserService(
+    private val knownUserRepository: KnownUserRepository
+) {
 
     private val sameSightingThrottle = WriteThrottle(Duration.ofMinutes(10))
 

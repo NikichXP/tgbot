@@ -14,7 +14,9 @@ import org.springframework.core.convert.ConversionService
 import org.springframework.stereotype.Component
 
 @Component
-class TgUpdateContextMapper(private val conversionService: ConversionService) {
+class TgUpdateContextMapper(
+    private val conversionService: ConversionService
+) {
 
     fun mapToUpdateContext(update: Update, bot: TgBotInfo): TgUpdateContext {
         val updateContext = TgUpdateContext(bot)

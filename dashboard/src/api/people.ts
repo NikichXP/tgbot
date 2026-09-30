@@ -3,22 +3,22 @@ import { useEffect, useMemo } from 'react'
 import { apiWithTokenRefresh, blobOrNullIfNoContentWithTokenRefresh } from './client'
 import type { KnownUser, PeopleList, PeopleListSummary } from './types'
 
-const listPath = (name: string) => `/admin/people-lists/${encodeURIComponent(name)}`
+const listPath = (name: string) => `/admin/lists/${encodeURIComponent(name)}`
 
 export function useKnownUsers(query: string) {
   return useQuery({
-    queryKey: ['people', query],
-    queryFn: () => apiWithTokenRefresh<KnownUser[]>(`/admin/people?query=${encodeURIComponent(query)}&limit=100`),
+    queryKey: ['users', query],
+    queryFn: () => apiWithTokenRefresh<KnownUser[]>(`/admin/users?query=${encodeURIComponent(query)}&limit=100`),
     placeholderData: (previous) => previous,
   })
 }
 
 export function usePeopleLists() {
-  return useQuery({ queryKey: ['people-lists'], queryFn: () => apiWithTokenRefresh<PeopleListSummary[]>('/admin/people-lists') })
+  return useQuery({ queryKey: ['lists'], queryFn: () => apiWithTokenRefresh<PeopleListSummary[]>('/admin/lists') })
 }
 
 export function usePeopleList(name: string) {
-  return useQuery({ queryKey: ['people-list', name], queryFn: () => apiWithTokenRefresh<PeopleList>(listPath(name)) })
+  return useQuery({ queryKey: ['list', name], queryFn: () => apiWithTokenRefresh<PeopleList>(listPath(name)) })
 }
 
 function usePeopleListMutation<V>(request: (variables: V) => Promise<PeopleList | void>) {
@@ -26,21 +26,21 @@ function usePeopleListMutation<V>(request: (variables: V) => Promise<PeopleList 
   return useMutation({
     mutationFn: request,
     onSuccess: (list) => {
-      if (list) queryClient.setQueryData(['people-list', list.name], list)
-      return queryClient.invalidateQueries({ queryKey: ['people-lists'] })
+      if (list) queryClient.setQueryData(['list', list.name], list)
+      return queryClient.invalidateQueries({ queryKey: ['lists'] })
     },
   })
 }
 
 export function useCreatePeopleList() {
   return usePeopleListMutation(({ name, description }: { name: string; description?: string }) =>
-    apiWithTokenRefresh<PeopleList>('/admin/people-lists', { method: 'POST', body: JSON.stringify({ name, description }) }),
+    apiWithTokenRefresh<PeopleList>('/admin/lists', { method: 'POST', body: JSON.stringify({ name, description }) }),
   )
 }
 
 export function useUpdatePeopleListDescription(name: string) {
   return usePeopleListMutation((description: string) =>
-    apiWithTokenRefresh<PeopleList>(listPath(name), { method: 'PUT', body: JSON.stringify({ description }) }),
+    apiWithTokenRefresh<PeopleList>(listPath(name), { method: 'PATCH', body: JSON.stringify({ description }) }),
   )
 }
 
@@ -63,7 +63,7 @@ export function useRemovePeopleListMember(name: string) {
 export function useAvatarUrl(userId: number, enabled: boolean): string | null | undefined {
   const avatar = useQuery({
     queryKey: ['avatar', userId],
-    queryFn: () => blobOrNullIfNoContentWithTokenRefresh(`/admin/people/${userId}/avatar`),
+    queryFn: () => blobOrNullIfNoContentWithTokenRefresh(`/admin/users/${userId}/avatar`),
     enabled,
     staleTime: Infinity,
   })

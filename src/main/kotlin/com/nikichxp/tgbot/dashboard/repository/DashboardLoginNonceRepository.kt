@@ -6,7 +6,9 @@ import org.springframework.stereotype.Repository
 import java.time.Duration
 
 @Repository
-class DashboardLoginNonceRepository(private val redis: ReactiveStringRedisTemplate) {
+class DashboardLoginNonceRepository(
+    private val redis: ReactiveStringRedisTemplate
+) {
 
     suspend fun save(nonce: String, ttl: Duration) {
         redis.opsForValue().set(key(nonce), "1", ttl).awaitSingle()

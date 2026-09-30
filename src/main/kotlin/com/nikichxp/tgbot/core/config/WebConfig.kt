@@ -7,7 +7,9 @@ import org.springframework.web.cors.reactive.CorsWebFilter
 import java.time.Duration
 
 @Configuration
-class WebConfig(private val appConfig: AppConfig) {
+class WebConfig(
+    private val appConfig: AppConfig
+) {
 
     private val publicCors = CorsConfiguration().apply {
         allowedOrigins = listOf("*")
@@ -19,7 +21,7 @@ class WebConfig(private val appConfig: AppConfig) {
     private val dashboardCorsWithCredentials by lazy {
         CorsConfiguration().apply {
             allowedOrigins = appConfig.dashboard.allowedOrigins.map { it.trim() }.filter { it.isNotEmpty() }
-            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("Authorization", "Content-Type")
             allowCredentials = true
             setMaxAge(Duration.ofDays(1))

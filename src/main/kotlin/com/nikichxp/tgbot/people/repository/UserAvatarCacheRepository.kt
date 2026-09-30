@@ -9,7 +9,9 @@ import java.time.Duration
 import java.util.Base64
 
 @Repository
-class UserAvatarCacheRepository(private val redis: ReactiveStringRedisTemplate) {
+class UserAvatarCacheRepository(
+    private val redis: ReactiveStringRedisTemplate
+) {
 
     suspend fun find(userId: Long): CachedAvatar? {
         val value = redis.opsForValue().get(key(userId)).awaitSingleOrNull() ?: return null
