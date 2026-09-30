@@ -9,6 +9,7 @@ import com.nikichxp.tgbot.core.util.UserFormatter
 import com.nikichxp.tgbot.core.util.getMentionedMessage
 import com.nikichxp.tgbot.summary.entity.LoggedMessage
 import org.bson.Document
+import org.springframework.core.convert.ConversionService
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -19,7 +20,8 @@ import java.time.LocalDateTime
 @Service
 class SummaryMessageStorageService(
     private val mongoTemplate: MongoTemplate,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val conversionService: ConversionService
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -74,9 +76,5 @@ class SummaryMessageStorageService(
         document["replyText"] = reply?.text
     }
 
-    private fun User.toUserModel() = UserModel(
-        id = id,
-        username = username,
-        fullName = listOfNotNull(firstName, lastName).joinToString(" ")
-    )
+    private fun User.toUserModel() = conversionService.convert(this, UserModel::class.java)!!
 }

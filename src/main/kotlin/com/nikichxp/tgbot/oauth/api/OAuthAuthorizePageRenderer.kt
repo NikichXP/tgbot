@@ -8,7 +8,9 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 
 @Component
-class OAuthAuthorizePageRenderer(private val objectMapper: ObjectMapper) {
+class OAuthAuthorizePageRenderer(
+    private val objectMapper: ObjectMapper
+) {
 
     private val template: String by lazy {
         ClassPathResource(TEMPLATE_PATH).inputStream.use { String(it.readAllBytes()) }

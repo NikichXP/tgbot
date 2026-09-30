@@ -12,7 +12,9 @@ import org.springframework.data.mongodb.core.remove
 import org.springframework.stereotype.Repository
 
 @Repository
-class OAuthClientRepository(private val mongoTemplate: MongoTemplate) {
+class OAuthClientRepository(
+    private val mongoTemplate: MongoTemplate
+) {
 
     suspend fun findById(clientId: String): OAuthClient? = withContext(Dispatchers.IO) {
         mongoTemplate.findById<OAuthClient>(clientId)

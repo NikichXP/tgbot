@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class TelegramIdTokenVerifier(private val telegramJwkSource: JWKSource<SecurityContext>) {
+class TelegramIdTokenVerifier(
+    private val telegramJwkSource: JWKSource<SecurityContext>
+) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 

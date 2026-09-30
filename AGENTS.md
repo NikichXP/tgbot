@@ -62,7 +62,9 @@ React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.x
   frontend; the backend verifies it against Telegram's JWKS (`iss`, `aud` = client id, `exp`) and a one-time
   nonce (Redis `dashboard:nonce:*`, 10 min) issued by `POST /admin/auth/nonce`. The numeric user id is the `id` claim.
 - `/admin/*` (Bearer access token): `me`, `features`, `bots` (list/add), `bots/{name}/features`, `oauth-clients`
-  (list/add/rotate secret/delete).
+  (list/add/rotate secret/delete), `users` (search), `users/{userId}/avatar`, `lists` (CRUD: `POST` → 201,
+  `PATCH` description), `lists/{name}/members/{userId}` (`PUT`/`DELETE`). Auth filter and error mapping are shared via
+  `DashboardApiSupport`.
 - Access tokens: opaque, Redis (`dashboard:access:<sha256>`, TTL). Refresh tokens: opaque, HttpOnly cookie,
   SHA-256 stored in Mongo `dashboardSessions`, no expiry, revoked on logout.
 - @BotFather → bot → Login Widget must list `https://dashboard.tgbot.nikichxp.xyz` as a trusted origin and
@@ -91,6 +93,18 @@ tg-bot is an OAuth 2.0 authorization-code provider on top of "Log In with Telegr
 - @BotFather → Login Widget must also list `https://api.tgbot.nikichxp.xyz` (origin) and
   `https://api.tgbot.nikichxp.xyz/oauth/authorize` (redirect URI): telegram-login.js uses the page URL without query.
 
+## People registry and people lists (`com.nikichxp.tgbot.people`)
+
+- `KnownUserTrackingHandler` (all bots, no feature needed) records every non-bot user seen in an update
+  (`from` and the replied-to author) into Mongo `knownUsers`: profile, bots that saw them, chats (`chats.<chatId>`
+  with title/type/last seen). Writes are throttled per user+bot+chat (10 min) unless the profile or chat changed.
+  Optional profile fields (`languageCode`, `isPremium`) are only overwritten when present in the update.
+- `peopleLists` (Mongo): named lists of Telegram user ids, edited in the dashboard (`/admin/lists/**`).
+  Code references a list by its `name`; use `PeopleListService.isMember(name, userId)` instead of hardcoded ids
+  or env vars (e.g. `APP_TRUSTED_USERS` for summary is to be migrated to a list).
+- Avatars: `/admin/users/{userId}/avatar` downloads the current profile photo via any bot that saw the user
+  (`getUserProfilePhotos` → `getFile`), cached in Redis `people:avatar:<id>` (12 h; "no avatar" for 1 h → 204).
+
 ## Deployment & Infrastructure
 
 - **Cluster Manifests**: Managed in [`infra-scripts/manifests/tgbot/`](../infra-scripts/manifests/tgbot/).
@@ -118,7 +132,9 @@ tg-bot is an OAuth 2.0 authorization-code provider on top of "Log In with Telegr
    - `service/` — services (business logic);
    - `repository/` — repositories (MongoDB/Redis access); services don't call `MongoTemplate`/Redis directly;
    - `connector/` — clients of external systems (HTTP APIs etc.);
-   - `entity/` — persisted documents, `error/` — exceptions, `api/` — routers/controllers, `config/` — Spring config.
+   - `entity/` — persisted documents, `error/` — exceptions, `api/` — routers/controllers, `config/` — Spring config;
+   - `converters/` — Spring `Converter` beans for object → object mapping (entity → DTO, wire DTO → model),
+     used through `ConversionService` instead of hand-written `toDto()`/`toModel()` helpers in services.
 
    Exception: an interface following the `IFooService` pattern and its implementations
    (`FooServiceBarImpl`) may live together in one package. Applies to new and modified code; legacy
@@ -127,9 +143,14 @@ tg-bot is an OAuth 2.0 authorization-code provider on top of "Log In with Telegr
    through names (functions, variables, constants) and tests instead. No KDoc/Javadoc/JSDoc, no comments
    explaining what code does. Never touch `TODO` comments. Tool directives (`oxlint-disable…`,
    `/// <reference …>`) are not comments in this sense.
-7. **`Update` is a wire DTO**: `core.dto.Update` may only be used to (a) read/deserialise the raw
+7. **Constructor style**: a primary constructor with parameters is always multi-line, one parameter per
+   line, even when there is only one (`class Foo(\n    private val bar: Bar\n) {`).
+8. **REST paths**: plural nouns for collections (`/admin/users`, `/admin/lists/{name}/members/{userId}`),
+   `POST` creates (201 + `Location`), `PATCH` for partial updates, `PUT` for idempotent set, `DELETE` removes.
+9. **`Update` is a wire DTO**: `core.dto.Update` may only be used to (a) read/deserialise the raw
    Telegram request and (b) map that data into typed models (`UpdateContext` via
-   `TgUpdateContextMapper`, or `LoggedMessage`'s typed fields via `SummaryMessageStorageService`'s
+   `TgUpdateContextMapper`, which delegates each wire-DTO → model mapping to a Spring
+   `Converter` bean in `core/converters` via `ConversionService`, or `LoggedMessage`'s typed fields via `SummaryMessageStorageService`'s
    one-time legacy-record migration). It must never be stored on a domain entity or read again after
    mapping. Handlers and business logic must use `UpdateContext` and its typed models
    (`UserModel`/`ReplyModel`/`MessageModel`/`CallbackModel`) instead.

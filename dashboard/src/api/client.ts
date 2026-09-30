@@ -74,7 +74,7 @@ export function setOnSessionLost(handler: () => void) {
   onSessionLost = handler
 }
 
-export async function apiWithTokenRefresh<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function sendWithTokenRefresh(path: string, init: RequestInit): Promise<Response> {
   let response = await send(path, init)
   if (response.status === 401) {
     if (await refreshAccessToken()) {
@@ -82,9 +82,21 @@ export async function apiWithTokenRefresh<T>(path: string, init: RequestInit = {
     }
     if (response.status === 401) onSessionLost()
   }
+  return response
+}
+
+export async function apiWithTokenRefresh<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const response = await sendWithTokenRefresh(path, init)
   if (!response.ok) throw await toError(response)
   if (response.status === 204) return undefined as T
   return response.json() as Promise<T>
+}
+
+export async function blobOrNullIfNoContentWithTokenRefresh(path: string): Promise<Blob | null> {
+  const response = await sendWithTokenRefresh(path, {})
+  if (response.status === 204) return null
+  if (!response.ok) throw await toError(response)
+  return response.blob()
 }
 
 export async function authApi<T>(path: string, init: RequestInit = {}): Promise<T> {

@@ -48,3 +48,42 @@ export interface OAuthClientWithSecret {
   client: OAuthClient
   clientSecret: string
 }
+
+export interface KnownUserChat {
+  chatId: number
+  title: string
+  type: string
+  lastSeenAt: string
+}
+
+export interface KnownUser {
+  id: number
+  username?: string
+  fullName: string
+  languageCode?: string
+  isPremium?: boolean
+  firstSeenAt: string
+  lastSeenAt: string
+  bots: string[]
+  chats: KnownUserChat[]
+}
+
+export interface PeopleListSummary {
+  name: string
+  description?: string
+  memberCount: number
+  updatedAt: string
+}
+
+export interface PeopleListMember {
+  id: number
+  user?: KnownUser
+}
+
+export interface PeopleList {
+  name: string
+  description?: string
+  members: PeopleListMember[]
+  createdAt: string
+  updatedAt: string
+}

@@ -15,7 +15,9 @@ interface VoicePadProcessor {
 }
 
 @Service
-class CreatePromptProcessor(private val llmProvider: LLMProvider) : VoicePadProcessor {
+class CreatePromptProcessor(
+    private val llmProvider: LLMProvider
+) : VoicePadProcessor {
 
     override val command = "/create-prompt"
     override val outputFileName = "prompt.md"
@@ -73,7 +75,9 @@ class CreatePromptProcessor(private val llmProvider: LLMProvider) : VoicePadProc
 }
 
 @Service
-class CreateNotepadProcessor(private val llmProvider: LLMProvider) : VoicePadProcessor {
+class CreateNotepadProcessor(
+    private val llmProvider: LLMProvider
+) : VoicePadProcessor {
 
     override val command = "/create-notepad"
     override val outputFileName = "notepad.md"
