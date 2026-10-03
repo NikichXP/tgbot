@@ -17,14 +17,26 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 
 Gradle multi-module build (`settings.gradle.kts`):
 
-- root `build.gradle.kts` — plugin versions (`apply false`), `group`/`version`, repositories and settings shared by
-  all modules (JVM target, JUnit 5 only).
-- `tg-bot-production/` — the deployable Spring Boot app (`bootJar` → `tg-bot-production/build/libs/app.jar`).
-  For now it holds all the code.
+- root `build.gradle.kts` — plugin versions (`apply false`), shared versions (`ktorVersion`, `coroutinesVersion`),
+  `group`/`version`, repositories and settings for all modules (Spring Boot BOM, JVM target, JUnit 5 only).
+- `tg-bot-api/` — everything a bot implementation may use: Telegram wire DTOs (`core.dto`), `UpdateContext` and
+  typed models, handler contracts (`UpdateHandler`, `CommandHandler` + `@HandleCommand`, `CallbackHandler`,
+  `Authenticable`, `Features`), errors, `AppConfig`, stateless helpers, and service interfaces
+  (`ITgMessageService`, `ITgBotV2Service`, `IAppStorage`, `ITrustedUserService`, `ITgApiCallExecutor`).
+  No business logic here.
+- `tg-bot-core/` — the logic: `Update` → `UpdateContext` mapping, routing to handler beans, Telegram API calls,
+  webhook/polling registration, tracing, and the implementations of the `tg-bot-api` service interfaces.
+  Depends on `tg-bot-api` (`api(...)`).
+- `tg-bot-production/` — the deployable Spring Boot app (`bootJar` → `tg-bot-production/build/libs/app.jar`):
+  REST handlers (`InputController`, dashboard, oauth, discord), web config and, for now, the bots themselves.
 
-Planned split: `tg-bot-core` (`Update` handling and routing to handler beans), `tg-bot-api` (shared classes) and
-feature modules (`santa-bot`, `karma-bot`, `stats-bot`, …); `tg-bot-production` will then only assemble them via
-`implementation(project(":<module>"))`.
+Rules: bot code depends only on `tg-bot-api` types — never on `tg-bot-core` classes; when a bot needs something from
+core, expose it as an interface in `tg-bot-api` (`IFooService`) implemented in core (`FooServiceImpl`).
+Packages were kept as they were (`com.nikichxp.tgbot.core.*` lives in both api and core), so moving a file between
+modules doesn't change its package.
+
+Planned next: bots move out of `tg-bot-production` into feature modules (`santa-bot`, `karma-bot`, `stats-bot`, …)
+that depend only on `tg-bot-api`; `tg-bot-production` then just assembles them via `implementation(project(":<module>"))`.
 
 ## Configuration Architecture
 

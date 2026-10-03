@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.summary
 
-import com.nikichxp.tgbot.core.auth.TrustedUserService
+import com.nikichxp.tgbot.core.auth.ITrustedUserService
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
@@ -10,7 +10,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.summary.entity.RecapOptions
 import com.nikichxp.tgbot.summary.entity.RecapOptionsBuilder
@@ -23,11 +23,11 @@ import org.springframework.stereotype.Service
 
 @Service
 class SummaryCommandHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val summaryService: SummaryService,
     private val summaryMessageStorageService: SummaryMessageStorageService,
     private val authHelperService: AuthHelperService,
-    private val trustedUserService: TrustedUserService
+    private val trustedUserService: ITrustedUserService
 ) : CommandHandler, UpdateHandler {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

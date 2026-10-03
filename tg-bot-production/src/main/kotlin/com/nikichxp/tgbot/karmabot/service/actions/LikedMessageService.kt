@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.karmabot.service.actions
 
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.core.util.UserFormatter.getUserPrintName
 import com.nikichxp.tgbot.karmabot.service.UserService
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ import kotlin.math.pow
 @Service
 class LikedMessageService(
     private val userService: UserService,
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val likedHistoryService: LikedHistoryService
 ) {
 

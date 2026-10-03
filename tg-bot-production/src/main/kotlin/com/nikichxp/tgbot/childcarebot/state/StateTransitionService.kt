@@ -5,7 +5,7 @@ import com.nikichxp.tgbot.childcarebot.ChildActivityEventMessage
 import com.nikichxp.tgbot.childcarebot.ChildInfo
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class StateTransitionService(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val childActivityRepo: ChildActivityRepo,
     private val stateTransitionHelper: ChildStateTransitionProvider,
     private val transitionHandlers: List<StateTransitionHandler>,
@@ -39,11 +39,12 @@ class StateTransitionService(
 
                 withKeyboard(listOf(resultKeyboard))
                 withCallback {
-                    if (it.ok) {
+                    val sentMessage = it.result
+                    if (it.ok && sentMessage != null) {
                         childActivityRepo.addMessageToEvent(
                             event.id,
-                            chatId = it.result!!.chat.id,
-                            messageId = it.result.messageId
+                            chatId = sentMessage.chat.id,
+                            messageId = sentMessage.messageId
                         )
                     }
 

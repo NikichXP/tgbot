@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.debug
 
-import com.nikichxp.tgbot.core.util.AppStorage
+import com.nikichxp.tgbot.core.util.IAppStorage
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -10,7 +10,7 @@ import java.util.jar.Manifest
 
 @Component
 class VersionProvider(
-    private val appStorage: AppStorage,
+    private val appStorage: IAppStorage,
     private val sendMessageToAdminService: SendMessageToAdminService,
     private val coroutineScope: CoroutineScope
 ) {

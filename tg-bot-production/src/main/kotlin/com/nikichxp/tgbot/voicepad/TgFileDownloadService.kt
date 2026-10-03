@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.voicepad
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.dto.TgGetFileResponse
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 class TgFileDownloadService(
     private val client: HttpClient,
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgBotV2Service: ITgBotV2Service,
     private val objectMapper: ObjectMapper
 ) {
 

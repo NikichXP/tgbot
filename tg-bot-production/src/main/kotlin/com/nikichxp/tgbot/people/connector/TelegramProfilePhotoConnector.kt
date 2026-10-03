@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.nikichxp.tgbot.core.dto.files.PhotoSize
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
 @Component
 class TelegramProfilePhotoConnector(
     private val tgApiCallExecutor: ITgApiCallExecutor,
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgBotV2Service: ITgBotV2Service,
     private val httpClient: HttpClient,
     private val objectMapper: ObjectMapper
 ) {

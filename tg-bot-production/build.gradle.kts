@@ -1,16 +1,15 @@
 import java.text.SimpleDateFormat
 import java.util.Date
 
-val ktorVersion: String = "3.6.0"
+val ktorVersion: String by rootProject.extra
+val coroutinesVersion: String by rootProject.extra
 val kotlinVersion: String = "2.4.20"
-val coroutinesVersion: String = "1.11.0"
 
 val buildTime: String = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
 val versionName: String =
     if (project.hasProperty("appVersion")) project.property("appVersion").toString() else "unknown"
 
 description = "tgbot"
-java.sourceCompatibility = JavaVersion.VERSION_17
 
 plugins {
     id("org.springframework.boot")
@@ -20,9 +19,8 @@ plugins {
     kotlin("kapt")
 }
 
-extra["kotlin-coroutines.version"] = coroutinesVersion
-
 dependencies {
+    implementation(project(":tg-bot-core"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
@@ -44,15 +42,6 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation(kotlin("test-junit5"))
-}
-
-dependencyManagement {
-    dependencies {
-        dependency("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-        dependency("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:$coroutinesVersion")
-    }
 }
 
 tasks.bootJar {

@@ -3,12 +3,12 @@ package com.nikichxp.tgbot.debug
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.springframework.stereotype.Component
 
 @Component
 class VersionHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val versionProvider: VersionProvider
 ) : CommandHandler {
 

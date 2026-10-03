@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.core.api
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.error.NotAuthorizedException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.core.tooling.TracerService
 import com.nikichxp.tgbot.discord.DiscordService
 import com.nikichxp.tgbot.discord.InteractionResponse
@@ -18,7 +18,7 @@ import org.springframework.web.reactive.function.server.coRouter
 
 @Configuration
 class InputController(
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgBotV2Service: ITgBotV2Service,
     private val messageEntryPoint: MessageEntryPoint,
     private val appConfig: AppConfig,
     private val tracerService: TracerService,

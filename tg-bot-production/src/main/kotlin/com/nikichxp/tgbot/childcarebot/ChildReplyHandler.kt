@@ -7,7 +7,7 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.common.ReplyModel
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -17,7 +17,7 @@ import java.time.temporal.ChronoUnit
 class ChildReplyHandler(
     private val childActivityRepo: ChildActivityRepo,
     private val childTimezoneService: ChildTimezoneService,
-    private val tgMessageService: TgMessageService
+    private val tgMessageService: ITgMessageService
 ) : UpdateHandler {
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY)

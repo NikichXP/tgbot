@@ -9,7 +9,7 @@ import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import kotlinx.coroutines.currentCoroutineContext
 import org.springframework.stereotype.Service
 
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 class VoicePadCommandHandler(
     private val sessionService: VoicePadSessionService,
     private val executionService: VoicePadExecutionService,
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val appConfig: AppConfig
 ) : CommandHandler, UpdateHandler, Authenticable {
 

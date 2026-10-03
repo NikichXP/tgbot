@@ -7,7 +7,7 @@ import com.nikichxp.tgbot.core.error.DisplayableError
 import com.nikichxp.tgbot.core.error.ExpectedError
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component
 class UpdateProcessor(
     private val handlers: List<UpdateHandler>,
     private val objectMapper: ObjectMapper,
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val mongoTemplate: MongoTemplate
 ) {
 

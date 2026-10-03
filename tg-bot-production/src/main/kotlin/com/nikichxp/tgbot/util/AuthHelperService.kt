@@ -4,12 +4,12 @@ import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UserId
 import com.nikichxp.tgbot.core.error.PermissionDeniedError
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.springframework.stereotype.Service
 
 @Service
 class AuthHelperService(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val appConfig: AppConfig
 ) {
 

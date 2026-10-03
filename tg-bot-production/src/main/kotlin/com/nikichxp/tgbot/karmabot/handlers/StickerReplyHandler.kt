@@ -6,7 +6,7 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
 import kotlinx.coroutines.launch
@@ -18,7 +18,7 @@ import java.util.*
 
 @Service
 class StickerReplyHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val mongoTemplate: MongoTemplate,
     private val emojiService: EmojiService,
     private val likedMessageService: LikedMessageService,

@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.debug.SendMessageToAdminService
 import io.ktor.util.collections.*
 import org.springframework.stereotype.Service
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 @Service
 class NewUserInteractionHandler(
     private val userInteractionService: UserInteractionService,
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val sendMessageToAdminService: SendMessageToAdminService
 ) : UpdateHandler {
 

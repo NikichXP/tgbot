@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.okx
 
-import com.nikichxp.tgbot.core.service.TgBotV2Service
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.annotation.RabbitListener
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class OkxWatchNotificationListener(
-    private val tgMessageService: TgMessageService,
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgMessageService: ITgMessageService,
+    private val tgBotV2Service: ITgBotV2Service,
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

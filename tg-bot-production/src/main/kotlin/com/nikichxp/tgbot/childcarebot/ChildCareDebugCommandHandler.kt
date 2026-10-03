@@ -7,13 +7,13 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeFormatter
 
 @Service
 class ChildCareDebugCommandHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val childActivityRepo: ChildActivityRepo,
     private val stateTransitionHelper: ChildStateTransitionProvider,
     private val childInfoRepo: ChildInfoRepo,

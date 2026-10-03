@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.dashboard.service
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
 import com.nikichxp.tgbot.core.handlers.Features
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.TgRegisterUpdateFetchService
 import com.nikichxp.tgbot.dashboard.connector.TelegramBotApiClient
 import com.nikichxp.tgbot.dashboard.dto.CreateBotRequest
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class DashboardBotService(
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgBotV2Service: ITgBotV2Service,
     private val tgRegisterUpdateFetchService: TgRegisterUpdateFetchService,
     private val telegramBotApiClient: TelegramBotApiClient
 ) {

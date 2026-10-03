@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.people.service
 
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.people.connector.TelegramProfilePhotoConnector
 import com.nikichxp.tgbot.people.repository.KnownUserRepository
 import com.nikichxp.tgbot.people.repository.UserAvatarCacheRepository
@@ -13,7 +13,7 @@ import java.time.Duration
 @Service
 class UserAvatarService(
     private val knownUserRepository: KnownUserRepository,
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgBotV2Service: ITgBotV2Service,
     private val profilePhotoConnector: TelegramProfilePhotoConnector,
     private val avatarCache: UserAvatarCacheRepository
 ) {

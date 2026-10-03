@@ -5,9 +5,9 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import org.springframework.stereotype.Service
 
 @Service
-class TrustedUserService(
+class TrustedUserServiceImpl(
     private val appConfig: AppConfig
-) {
+) : ITrustedUserService {
 
     private data class ParsedEntries(
         val ids: Set<Long>,
@@ -16,14 +16,14 @@ class TrustedUserService(
 
     private val parsed: ParsedEntries by lazy { parse(appConfig.trustedUsers) }
 
-    fun isTrusted(userId: Long?, username: String?): Boolean {
+    override fun isTrusted(userId: Long?, username: String?): Boolean {
         if (userId != null && userId == appConfig.adminId) return true
         if (userId != null && userId in parsed.ids) return true
         val normalized = username?.removePrefix("@")?.lowercase()
         return normalized != null && normalized in parsed.usernames
     }
 
-    fun isTrusted(context: UpdateContext): Boolean {
+    override fun isTrusted(context: UpdateContext): Boolean {
         return isTrusted(context.from?.id, context.from?.username)
     }
 

@@ -7,13 +7,13 @@ import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
 class ChildCareCallbackHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val childInfoRepo: ChildInfoRepo,
     private val childReportHelper: ChildReportHelper,
 ) : Authenticable, CallbackHandler {

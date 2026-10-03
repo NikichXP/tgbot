@@ -5,7 +5,7 @@ import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.okx.connector.OkxCollectorClient
 import com.nikichxp.tgbot.util.AuthHelperService
 import org.slf4j.LoggerFactory
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class OkxCommandHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val okxCollectorClient: OkxCollectorClient,
     private val rabbitTemplate: RabbitTemplate,
     private val authHelperService: AuthHelperService

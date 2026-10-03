@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.core.service.tgapi
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgUpdateFetchType
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 class TgRegisterUpdateFetchService(
     private val tgBotWebhookService: TgBotWebhookService,
     private val tgUpdatePollService: TgUpdatePollService,
-    private val tgBotV2Service: TgBotV2Service,
+    private val tgBotV2Service: ITgBotV2Service,
     private val appConfig: AppConfig,
 ) {
 

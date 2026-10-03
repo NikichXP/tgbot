@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import kotlinx.coroutines.delay
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -30,7 +30,7 @@ class SpringTgApiCallExecutorImpl(
     private val restTemplate: RestTemplate,
     private val objectMapper: ObjectMapper,
     private val appConfig: AppConfig,
-    private val tgBotV2Service: TgBotV2Service
+    private val tgBotV2Service: ITgBotV2Service
 ): ITgApiCallExecutor {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

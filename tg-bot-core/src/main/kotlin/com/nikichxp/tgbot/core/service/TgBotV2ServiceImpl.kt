@@ -9,40 +9,40 @@ import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service
 
 @Service
-class TgBotV2Service(
+class TgBotV2ServiceImpl(
     private val mongoTemplate: MongoTemplate,
     private val appConfig: AppConfig
-) {
+) : ITgBotV2Service {
 
-    fun getAdminBot(): TgBotInfo {
+    override fun getAdminBot(): TgBotInfo {
         return appConfig.adminBot?.let { getBotById(it) } ?: throw IllegalStateException("Admin bot is not configured")
     }
 
-    fun getBotById(botId: String): TgBotInfo {
+    override fun getBotById(botId: String): TgBotInfo {
         return TgBotInfo(getBotEntityById(botId))
     }
 
-    fun getBaseApiFor(botInfo: TgBotInfo): String {
+    override fun getBaseApiFor(botInfo: TgBotInfo): String {
         return "https://api.telegram.org/bot${getTokenById(botInfo.name)}"
     }
 
-    fun listBots(): List<TgBotInfo> {
+    override fun listBots(): List<TgBotInfo> {
         return mongoTemplate.findAll<TgBotInfoV2Entity>().map { TgBotInfo(it) }
     }
 
-    fun findBotEntity(botId: String): TgBotInfoV2Entity? {
+    override fun findBotEntity(botId: String): TgBotInfoV2Entity? {
         return mongoTemplate.findById<TgBotInfoV2Entity>(botId)
     }
 
-    fun saveBotEntity(entity: TgBotInfoV2Entity): TgBotInfoV2Entity {
+    override fun saveBotEntity(entity: TgBotInfoV2Entity): TgBotInfoV2Entity {
         return mongoTemplate.save(entity)
     }
 
-    fun listBotEntities(): List<TgBotInfoV2Entity> {
+    override fun listBotEntities(): List<TgBotInfoV2Entity> {
         return mongoTemplate.findAll<TgBotInfoV2Entity>()
     }
 
-    fun getTokenById(botId: String): String {
+    override fun getTokenById(botId: String): String {
         return getBotEntityById(botId).token
     }
 

@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.karmabot.commands
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.karmabot.service.UserInfo
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class TopKarmaHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val mongoTemplate: MongoTemplate
 ) : CommandHandler {
 

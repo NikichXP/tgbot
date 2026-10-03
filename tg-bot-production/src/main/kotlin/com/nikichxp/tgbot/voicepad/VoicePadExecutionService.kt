@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.voicepad
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,7 +15,7 @@ class VoicePadExecutionService(
     private val sessionService: VoicePadSessionService,
     private val fileDownloadService: TgFileDownloadService,
     private val transcriptionService: VoiceTranscriptionService,
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val processors: List<VoicePadProcessor>
 ) {
 

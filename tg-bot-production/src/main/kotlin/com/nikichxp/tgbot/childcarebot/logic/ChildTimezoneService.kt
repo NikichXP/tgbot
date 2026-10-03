@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.childcarebot.logic
 
-import com.nikichxp.tgbot.core.util.AppStorage
+import com.nikichxp.tgbot.core.util.IAppStorage
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -9,7 +9,7 @@ import java.time.ZonedDateTime
 // TODO This should become a cross-app service
 @Service
 class ChildTimezoneService(
-    private val appStorage: AppStorage
+    private val appStorage: IAppStorage
 ) {
 
     fun fromDBToUI(date: LocalDateTime): LocalDateTime {

@@ -5,8 +5,8 @@ import com.nikichxp.tgbot.childcarebot.ChildInfo
 import com.nikichxp.tgbot.childcarebot.getDurationStringBetween
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
-import com.nikichxp.tgbot.core.util.AppStorage
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
+import com.nikichxp.tgbot.core.util.IAppStorage
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -14,11 +14,11 @@ import java.util.*
 
 @Service
 class ChildReportHelper(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val childInfoRepo: ChildInfoRepo,
     private val childActivityRepo: ChildActivityRepo,
     private val childTimezoneService: ChildTimezoneService,
-    private val appStorage: AppStorage
+    private val appStorage: IAppStorage
 ) {
 
     suspend fun sleepReport(callbackContext: CallbackContext) {

@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.summary
 
 import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.core.util.AppStorage
+import com.nikichxp.tgbot.core.util.IAppStorage
 import com.nikichxp.tgbot.summary.ai.LLMProvider
 import com.nikichxp.tgbot.summary.ai.LLMRequest
 import com.nikichxp.tgbot.summary.entity.LoggedMessage
@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 @Service
 class SummaryService(
     private val summaryMessageStorageService: SummaryMessageStorageService,
-    private val appStorage: AppStorage,
+    private val appStorage: IAppStorage,
     private val chatUpdatesToPromptSerializerService: ChatUpdatesToPromptSerializerService,
     private val llmProvider: LLMProvider
 ) {

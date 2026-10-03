@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
@@ -14,7 +14,7 @@ import java.util.*
 @Service
 class SantaBotCommandHandler(
     private val mongoTemplate: MongoTemplate,
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
 ) : CommandHandler {
 
     private val rand = Random()

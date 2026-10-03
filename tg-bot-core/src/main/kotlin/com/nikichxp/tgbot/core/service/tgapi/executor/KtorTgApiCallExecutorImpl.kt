@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.service.TgBotV2Service
+import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent
@@ -29,7 +29,7 @@ class KtorTgApiCallExecutorImpl(
     private val httpClient: HttpClient,
     private val objectMapper: ObjectMapper,
     private val appConfig: AppConfig,
-    private val tgBotV2Service: TgBotV2Service
+    private val tgBotV2Service: ITgBotV2Service
 ) : ITgApiCallExecutor {
 
     private val logger = LoggerFactory.getLogger(this::class.java)

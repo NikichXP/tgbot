@@ -9,7 +9,7 @@ import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 
 @Component
 class TestCommandHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
 ) : CommandHandler, CallbackHandler {
 
     private val startTime = LocalDateTime.now()

@@ -14,19 +14,19 @@ import org.springframework.stereotype.Service
 // TODO make message service non-bound to telegram, it should create a message-to-send entity and route it
 //  to correct method executor
 @Service
-class TgMessageService(
+class TgMessageServiceImpl(
     private val tgApiCallExecutor: ITgApiCallExecutor,
     private val objectMapper: ObjectMapper
-) {
+) : ITgMessageService {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     private suspend fun getCurrentContext(): UpdateContext = getCurrentUpdateContext()
 
-    suspend fun sendMessage(
+    override suspend fun sendMessage(
         chatId: Long,
         text: String,
-        replyToMessageId: Long? = null
+        replyToMessageId: Long?
     ) {
         sendMessage {
             this.chatId = chatId
@@ -35,18 +35,18 @@ class TgMessageService(
         }
     }
 
-    suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
+    override suspend fun sendMessage(messageDSL: suspend TgSendMessage.() -> Unit) {
         val tgBotInfo = getCurrentUpdateContext().getBotInfo() as? TgBotInfo
             ?: throw IllegalArgumentException("TgBotInfo is not an instance of TgBotInfo")
         sendMessage(tgBotInfo, messageDSL)
     }
 
-    suspend fun sendMessage(tgBot: TgBotInfo, messageDSL: suspend TgSendMessage.() -> Unit) {
+    override suspend fun sendMessage(tgBot: TgBotInfo, messageDSL: suspend TgSendMessage.() -> Unit) {
         val message = TgSendMessage.create(messageDSL)
         sendMessage(message, tgBot)
     }
 
-    suspend fun sendMessage(
+    override suspend fun sendMessage(
         message: TgSendMessage,
         tgBot: TgBotInfo,
     ) {
@@ -55,7 +55,7 @@ class TgMessageService(
         message.callbacks.forEach { it(response) }
     }
 
-    suspend fun replyToCurrentMessage(text: String, replyMarkup: TgReplyMarkup? = null) {
+    override suspend fun replyToCurrentMessage(text: String, replyMarkup: TgReplyMarkup?) {
 
         val context = getCurrentContext()
         context.chat?.id?.let {
@@ -63,12 +63,12 @@ class TgMessageService(
         } ?: throw TgApiCallException("Cannot send message reply to current message: $text, context=$context")
     }
 
-    suspend fun editMessageText(
+    override suspend fun editMessageText(
         chatId: Long,
         messageId: Long,
         text: String,
         bot: TgBotInfo,
-        replyMarkup: TgReplyMarkup? = null,
+        replyMarkup: TgReplyMarkup?,
     ) {
 
         val args = mutableMapOf<String, Any>(
@@ -86,20 +86,20 @@ class TgMessageService(
         logger.info("Edit message text: ${response.content}")
     }
 
-    suspend fun editMessageText(
+    override suspend fun editMessageText(
         chatId: Long,
         messageId: Long,
         text: String,
-        replyMarkup: TgReplyMarkup? = null,
+        replyMarkup: TgReplyMarkup?,
     ) {
         val tgBotInfo = getCurrentUpdateContext().getBotInfo() as? TgBotInfo
             ?: throw IllegalArgumentException("TgBotInfo is not an instance of TgBotInfo")
         editMessageText(chatId, messageId, text, tgBotInfo, replyMarkup)
     }
 
-    suspend fun editMessageText(
+    override suspend fun editMessageText(
         text: String,
-        replyMarkup: TgReplyMarkup? = null,
+        replyMarkup: TgReplyMarkup?,
     ) {
         val context = getCurrentContext()
         val chatId = context.chat?.id
@@ -114,13 +114,13 @@ class TgMessageService(
     }
 
     // TODO this has multiple parameters, use class as parameter
-    suspend fun sendDocument(
+    override suspend fun sendDocument(
         chatId: Long,
         bot: TgBotInfo,
         fileName: String,
         fileContent: ByteArray,
-        caption: String? = null,
-        replyToMessageId: Long? = null
+        caption: String?,
+        replyToMessageId: Long?
     ) {
         val parts = mutableListOf<TgMultipartPart>(
             TgMultipartPart.Text("chat_id", chatId.toString())

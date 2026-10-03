@@ -5,14 +5,14 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import org.springframework.stereotype.Component
 
 @Component
 class RegisterEmojiHandler(
-    private val tgMessageService: TgMessageService,
+    private val tgMessageService: ITgMessageService,
     private val emojiService: EmojiService,
     appConfig: AppConfig,
 ) : CommandHandler {
