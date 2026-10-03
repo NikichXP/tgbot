@@ -3,22 +3,18 @@ name: Dashboard Build and Deploy
 on:
   push:
     branches:
-      - master
+      - "**"
     paths:
       - "dashboard/**"
       - ".github/workflows/dashboard.yml"
   workflow_dispatch:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
 
 env:
   NAMESPACE: tgbot
   API_BASE_URL: https://api.tgbot.nikichxp.xyz
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -38,6 +34,18 @@ jobs:
           npm ci
           npm run lint
           npm run build
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
