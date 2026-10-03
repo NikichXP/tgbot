@@ -11,7 +11,20 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 - **Build Tool**: Gradle (Kotlin DSL, `./gradlew`)
 - **Cache/session store**: Redis (reactive, dashboard tokens)
 - **Tests**: JUnit 5 only (`org.junit.jupiter.api.Test`; `kotlin.test` asserts via `kotlin-test-junit5`). JUnit 4 and
-  the vintage engine are excluded in `build.gradle.kts` — don't add them back.
+  the vintage engine are excluded for all modules in the root `build.gradle.kts` — don't add them back.
+
+## Module Layout
+
+Gradle multi-module build (`settings.gradle.kts`):
+
+- root `build.gradle.kts` — plugin versions (`apply false`), `group`/`version`, repositories and settings shared by
+  all modules (JVM target, JUnit 5 only).
+- `tg-bot-production/` — the deployable Spring Boot app (`bootJar` → `tg-bot-production/build/libs/app.jar`).
+  For now it holds all the code.
+
+Planned split: `tg-bot-core` (`Update` handling and routing to handler beans), `tg-bot-api` (shared classes) and
+feature modules (`santa-bot`, `karma-bot`, `stats-bot`, …); `tg-bot-production` will then only assemble them via
+`implementation(project(":<module>"))`.
 
 ## Configuration Architecture
 
