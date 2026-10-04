@@ -3,7 +3,7 @@ package com.nikichxp.tgbot.debug.handler
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.core.handlers.Features
+import com.nikichxp.tgbot.debug.DebugFeature
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
@@ -40,7 +40,7 @@ class TestCommandHandler(
         tgMessageService.replyToCurrentMessage("Uptime: $formattedUptime")
     }
 
-    override fun requiredFeatures() = setOf(Features.DEBUG)
+    override fun requiredFeatures() = setOf(DebugFeature)
 
     @HandleCommand("/ping")
     suspend fun processCommand(): Boolean {

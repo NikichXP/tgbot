@@ -1,11 +1,11 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildTimezoneService
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.common.ReplyModel
-import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.springframework.stereotype.Service
@@ -22,7 +22,7 @@ class ChildReplyHandler(
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY)
 
-    override fun requiredFeatures(): Set<String> = setOf(Features.CHILD_TRACKER)
+    override fun requiredFeatures(): Set<BotFeature> = setOf(ChildTrackerFeature)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
         val text = updateContext.message?.text ?: return

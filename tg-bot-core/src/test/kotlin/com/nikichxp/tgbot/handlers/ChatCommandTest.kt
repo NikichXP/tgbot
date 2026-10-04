@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.handlers
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.common.MessageModel
+import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.core.handlers.ChatCommandsHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
@@ -49,7 +50,7 @@ class ChatCommandTest {
     fun `test how commands are parsed`(command: String, expectedArgs: List<String>) {
 
         whatWeExpect.set(expectedArgs)
-        val bot = mock<TgBotInfo>()
+        val bot = TgBotInfo("test-bot", emptySet())
 
         class TestHandler : CommandHandler {
             @HandleCommand("/hello")
@@ -57,7 +58,7 @@ class ChatCommandTest {
                 assertThat(args).isEqualTo(whatWeExpect.get())
             }
 
-            override fun requiredFeatures() = setOf<String>()
+            override fun requiredFeatures() = setOf<BotFeature>()
         }
 
         val updateContext = mock<UpdateContext>()

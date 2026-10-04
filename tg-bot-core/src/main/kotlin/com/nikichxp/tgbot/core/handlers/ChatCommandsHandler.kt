@@ -21,7 +21,7 @@ class ChatCommandsHandler(
         commandHandlerScanner.getHandlers().groupBy { it.command }
     }
 
-    override fun requiredFeatures() = setOf<String>()
+    override fun requiredFeatures() = setOf<BotFeature>()
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_TEXT)
 
@@ -60,7 +60,7 @@ class ChatCommandsHandler(
     }
 
     private fun isRequiredFeatureSupported(handler: SingleCommandHandler, updateContext: UpdateContext): Boolean {
-        return updateContext.getBotInfo().getSupportedFeatures().containsAll(handler.handler.requiredFeatures())
+        return updateContext.getBotInfo().supports(handler.handler.requiredFeatures())
     }
 
 }

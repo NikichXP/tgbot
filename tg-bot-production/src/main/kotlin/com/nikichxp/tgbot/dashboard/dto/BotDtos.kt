@@ -16,3 +16,9 @@ data class CreateBotRequest(
 )
 
 data class UpdateBotFeaturesRequest(val supportedFeatures: Set<String>)
+
+data class DashboardFeatureDto(
+    val id: String,
+    val title: String,
+    val description: String
+)

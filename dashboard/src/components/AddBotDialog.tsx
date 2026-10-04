@@ -14,13 +14,13 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 import { useCreateBot } from '../api/bots'
-import type { UpdateFetchType } from '../api/types'
+import type { Feature, UpdateFetchType } from '../api/types'
 import { FeaturePicker } from './FeaturePicker'
 
 interface Props {
   open: boolean
   onClose: () => void
-  availableFeatures: string[]
+  availableFeatures: Feature[]
 }
 
 export function AddBotDialog({ open, onClose, availableFeatures }: Props) {

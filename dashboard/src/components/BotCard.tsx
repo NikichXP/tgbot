@@ -1,12 +1,12 @@
 import { Alert, Button, Card, CardActions, CardContent, Chip, Stack, Typography } from '@mui/material'
 import { useState } from 'react'
 import { useUpdateBotFeatures } from '../api/bots'
-import type { Bot } from '../api/types'
+import type { Bot, Feature } from '../api/types'
 import { FeaturePicker } from './FeaturePicker'
 
 const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x))
 
-export function BotCard({ bot, availableFeatures }: { bot: Bot; availableFeatures: string[] }) {
+export function BotCard({ bot, availableFeatures }: { bot: Bot; availableFeatures: Feature[] }) {
   const [draft, setDraft] = useState<string[]>(bot.supportedFeatures)
   const update = useUpdateBotFeatures()
   const dirty = !sameSet(draft, bot.supportedFeatures)

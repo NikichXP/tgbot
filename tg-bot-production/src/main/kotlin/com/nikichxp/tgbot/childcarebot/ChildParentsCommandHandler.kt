@@ -3,7 +3,6 @@ package com.nikichxp.tgbot.childcarebot
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
-import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
@@ -18,7 +17,7 @@ class ChildParentsCommandHandler(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
+    override fun requiredFeatures() = setOf(ChildTrackerFeature)
 
     override suspend fun authenticate(context: UpdateContext): Boolean {
         val userId = context.from?.id ?: return false

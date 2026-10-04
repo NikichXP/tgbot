@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.people.handler
 
+import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
@@ -14,7 +15,7 @@ class KnownUserTrackingHandler(
 ) : UpdateHandler {
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.ALL)
-    override fun requiredFeatures(): Set<String> = emptySet()
+    override fun requiredFeatures(): Set<BotFeature> = emptySet()
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
         val botName = (updateContext.getBotInfo() as TgBotInfo).name

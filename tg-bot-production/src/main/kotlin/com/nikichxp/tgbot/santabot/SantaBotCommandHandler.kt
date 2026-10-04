@@ -1,7 +1,6 @@
 package com.nikichxp.tgbot.santabot
 
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
@@ -20,7 +19,7 @@ class SantaBotCommandHandler(
     private val rand = Random()
     private val log = LoggerFactory.getLogger(this::class.java)
 
-    override fun requiredFeatures() = setOf(Features.SANTA)
+    override fun requiredFeatures() = setOf(SantaFeature)
 
     @HandleCommand("/create")
     private suspend fun commandCreate(args: List<String>, context: UpdateContext): Boolean {

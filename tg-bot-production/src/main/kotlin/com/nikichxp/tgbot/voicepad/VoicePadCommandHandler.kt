@@ -5,7 +5,6 @@ import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
-import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -24,7 +23,7 @@ class VoicePadCommandHandler(
     override suspend fun authenticate(context: UpdateContext): Boolean =
         context.from?.id == appConfig.adminId
 
-    override fun requiredFeatures() = setOf(Features.TOOLBOX)
+    override fun requiredFeatures() = setOf(ToolboxFeature)
 
     // UpdateHandler: fires for voice messages that are replies (to capture voices added to a session)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.HAS_VOICE, UpdateMarker.REPLY)

@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
@@ -20,7 +21,7 @@ class ChildCareDebugCommandHandler(
     private val childCareCommandHandler: ChildCareCommandHandler
 ) : CommandHandler, Authenticable {
 
-    override fun requiredFeatures(): Set<String> = childCareCommandHandler.requiredFeatures()
+    override fun requiredFeatures(): Set<BotFeature> = childCareCommandHandler.requiredFeatures()
 
     override suspend fun authenticate(context: UpdateContext): Boolean = childCareCommandHandler.authenticate(context)
 

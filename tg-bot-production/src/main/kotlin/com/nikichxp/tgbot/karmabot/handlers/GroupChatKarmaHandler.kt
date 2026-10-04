@@ -7,7 +7,7 @@ import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.UpdateMarker.HAS_TEXT
 import com.nikichxp.tgbot.core.entity.UpdateMarker.MESSAGE_IN_GROUP
 import com.nikichxp.tgbot.core.entity.common.UserModel
-import com.nikichxp.tgbot.core.handlers.Features
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.karmabot.service.DynamicTextClassifier
 import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
@@ -23,7 +23,7 @@ class GroupChatKarmaHandler(
         return setOf(HAS_TEXT, MESSAGE_IN_GROUP)
     }
 
-    override fun requiredFeatures() = setOf(Features.KARMA)
+    override fun requiredFeatures() = setOf(KarmaFeature)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
         val messageAuthor = getMessageAuthorId(updateContext)

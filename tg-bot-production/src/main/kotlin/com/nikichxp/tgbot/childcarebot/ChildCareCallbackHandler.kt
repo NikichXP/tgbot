@@ -4,7 +4,6 @@ import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
-import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
@@ -32,7 +31,7 @@ class ChildCareCallbackHandler(
         return true
     }
 
-    override fun requiredFeatures() = setOf(Features.CHILD_TRACKER)
+    override fun requiredFeatures() = setOf(ChildTrackerFeature)
 
     override fun isCallbackSupported(callbackContext: CallbackContext): Boolean = true // TODO add filtering on command
 

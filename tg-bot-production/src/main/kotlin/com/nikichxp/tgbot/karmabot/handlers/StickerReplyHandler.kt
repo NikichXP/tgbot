@@ -4,7 +4,7 @@ import com.nikichxp.tgbot.core.entity.InteractionRole
 import com.nikichxp.tgbot.core.entity.MessageInteractionResult
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.handlers.Features
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.karmabot.service.EmojiService
@@ -24,7 +24,7 @@ class StickerReplyHandler(
     private val likedMessageService: LikedMessageService,
 ) : UpdateHandler {
 
-    override fun requiredFeatures() = setOf(Features.KARMA)
+    override fun requiredFeatures() = setOf(KarmaFeature)
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.REPLY, UpdateMarker.HAS_STICKER)
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {

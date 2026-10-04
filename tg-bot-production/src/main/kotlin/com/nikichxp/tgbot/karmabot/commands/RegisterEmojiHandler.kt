@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.karmabot.commands
 
 import com.nikichxp.tgbot.core.config.AppConfig
 import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.handlers.Features
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
@@ -19,7 +19,7 @@ class RegisterEmojiHandler(
 
     private var ownerId = appConfig.adminId
 
-    override fun requiredFeatures() = setOf(Features.KARMA)
+    override fun requiredFeatures() = setOf(KarmaFeature)
 
     @HandleCommand("/emoji")
     suspend fun processCommand(args: List<String>, command: String, context: UpdateContext): Boolean {

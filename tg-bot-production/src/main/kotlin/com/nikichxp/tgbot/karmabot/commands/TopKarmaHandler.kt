@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.karmabot.commands
 
-import com.nikichxp.tgbot.core.handlers.Features
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
@@ -17,7 +17,7 @@ class TopKarmaHandler(
     private val mongoTemplate: MongoTemplate
 ) : CommandHandler {
 
-    override fun requiredFeatures() = setOf(Features.KARMA)
+    override fun requiredFeatures() = setOf(KarmaFeature)
 
     // TODO add realtop
     @HandleCommand("/top")

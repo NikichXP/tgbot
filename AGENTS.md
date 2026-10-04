@@ -21,9 +21,9 @@ Gradle multi-module build (`settings.gradle.kts`):
   `group`/`version`, repositories and settings for all modules (Spring Boot BOM, JVM target, JUnit 5 only).
 - `tg-bot-api/` — everything a bot implementation may use: Telegram wire DTOs (`core.dto`), `UpdateContext` and
   typed models, handler contracts (`UpdateHandler`, `CommandHandler` + `@HandleCommand`, `CallbackHandler`,
-  `Authenticable`, `Features`), errors, `AppConfig`, stateless helpers, and service interfaces
+  `Authenticable`, `BotFeature`), errors, `AppConfig`, stateless helpers, and service interfaces
   (`ITgMessageService`, `ITgBotV2Service`, `IAppStorage`, `ITrustedUserService`, `ITgApiCallExecutor`,
-  `IAdminNotificationService` — Telegram message to `APP_ADMIN_ID` via the admin bot).
+  `IAdminNotificationService` — Telegram message to `APP_ADMIN_ID` via the admin bot, `IFeatureRegistry`).
   No business logic here.
 - `tg-bot-core/` — the logic: `Update` → `UpdateContext` mapping, routing to handler beans, Telegram API calls,
   webhook/polling registration, tracing, the implementations of the `tg-bot-api` service interfaces, and admin
@@ -39,6 +39,12 @@ Rules: bot code depends only on `tg-bot-api` types — never on `tg-bot-core` cl
 core, expose it as an interface in `tg-bot-api` (`IFooService`) implemented in core (`FooServiceImpl`).
 Packages were kept as they were (`com.nikichxp.tgbot.core.*` lives in both api and core), so moving a file between
 modules doesn't change its package.
+
+Bot features: there is no central list. Each module declares its feature next to its code
+(`object KarmaFeature : BotFeature(id = "karma", title = ..., description = ...)`) and its handlers return it from
+`requiredFeatures(): Set<BotFeature>`. `FeatureRegistryImpl` (core) collects the features of all `BotSupportFeature`
+beans at startup and fails it if two different features share an `id`. Mongo stores only which feature ids each bot
+has enabled (`tgBotInfo.supportedFeatures`); the `id` is that persisted contract — never rename it.
 
 Planned next: the remaining bots move out of `tg-bot-production` into feature modules (`santa-bot`, `karma-bot`,
 `stats-bot`, …) that, like `debug-bot`, depend only on `tg-bot-api`; `tg-bot-production` then just assembles them via `implementation(project(":<module>"))`.
@@ -99,7 +105,7 @@ React admin UI (Vite + TS + MUI + TanStack Query) at `dashboard.tgbot.nikichxp.x
   SHA-256 stored in Mongo `dashboardSessions`, no expiry, revoked on logout.
 - @BotFather → bot → Login Widget must list `https://dashboard.tgbot.nikichxp.xyz` as a trusted origin and
   `https://dashboard.tgbot.nikichxp.xyz/` as a redirect URI (the login page is always served on `/`).
-- Features offered in the UI come from `Features.ALL` — add new feature constants there too.
+- Features offered in the UI (`/admin/features` → `{id, title, description}`) come from `IFeatureRegistry`.
 
 ## Telegram login for other services (`oauth/`)
 

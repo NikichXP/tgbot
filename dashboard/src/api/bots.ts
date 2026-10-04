@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiWithTokenRefresh } from './client'
-import type { Bot, CreateBotRequest } from './types'
+import type { Bot, CreateBotRequest, Feature } from './types'
 
 export function useBots() {
   return useQuery({ queryKey: ['bots'], queryFn: () => apiWithTokenRefresh<Bot[]>('/admin/bots') })
 }
 
 export function useFeatures() {
-  return useQuery({ queryKey: ['features'], queryFn: () => apiWithTokenRefresh<string[]>('/admin/features') })
+  return useQuery({ queryKey: ['features'], queryFn: () => apiWithTokenRefresh<Feature[]>('/admin/features') })
 }
 
 export function useCreateBot() {

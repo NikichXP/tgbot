@@ -6,7 +6,6 @@ import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.error.ConfigMapViolationException
 import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -32,7 +31,7 @@ class SummaryCommandHandler(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override fun requiredFeatures() = setOf(Features.SUMMARY)
+    override fun requiredFeatures() = setOf(SummaryFeature)
 
     override fun getMarkers() = setOf(UpdateMarker.MESSAGE_IN_GROUP)
 

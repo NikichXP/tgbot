@@ -2,7 +2,6 @@ package com.nikichxp.tgbot.okx
 
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.handlers.Features
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
@@ -22,7 +21,7 @@ class OkxCommandHandler(
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override fun requiredFeatures() = setOf(Features.OKX)
+    override fun requiredFeatures() = setOf(OkxFeature)
 
     @HandleCommand("/prices")
     suspend fun prices(): Boolean {

@@ -1,5 +1,11 @@
 export type UpdateFetchType = 'WEBHOOK' | 'POLLING'
 
+export interface Feature {
+  id: string
+  title: string
+  description: string
+}
+
 export interface Bot {
   name: string
   updateFetchType: UpdateFetchType

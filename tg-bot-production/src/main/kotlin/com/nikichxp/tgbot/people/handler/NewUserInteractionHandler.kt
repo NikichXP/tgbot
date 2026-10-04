@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.people.handler
 
+import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
@@ -18,7 +19,7 @@ class NewUserInteractionHandler(
     private val interactionCache = ConcurrentSet<String>()
 
     override fun getMarkers(): Set<UpdateMarker> = setOf(UpdateMarker.ALL)
-    override fun requiredFeatures(): Set<String> = setOf()
+    override fun requiredFeatures(): Set<BotFeature> = setOf()
 
     override suspend fun handleUpdate(updateContext: UpdateContext) {
         val userId = updateContext.chat?.id ?: return
