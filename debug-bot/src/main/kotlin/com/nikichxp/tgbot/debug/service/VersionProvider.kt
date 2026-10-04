@@ -1,5 +1,6 @@
-package com.nikichxp.tgbot.debug
+package com.nikichxp.tgbot.debug.service
 
+import com.nikichxp.tgbot.core.service.IAdminNotificationService
 import com.nikichxp.tgbot.core.util.IAppStorage
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.CoroutineScope
@@ -11,7 +12,7 @@ import java.util.jar.Manifest
 @Component
 class VersionProvider(
     private val appStorage: IAppStorage,
-    private val sendMessageToAdminService: SendMessageToAdminService,
+    private val adminNotificationService: IAdminNotificationService,
     private val coroutineScope: CoroutineScope
 ) {
 
@@ -25,14 +26,14 @@ class VersionProvider(
             val errorMessage = "Failed to load version from manifest"
             log.warn(errorMessage)
             coroutineScope.launch {
-                sendMessageToAdminService.sendMessage(errorMessage)
+                adminNotificationService.notifyAdmin(errorMessage)
             }
         } else {
             val previousVersion = appStorage.getData(VERSION_KEY)
             if (appVersion != previousVersion?.value) {
                 appStorage.saveData(VERSION_KEY, appVersion)
                 coroutineScope.launch {
-                    sendMessageToAdminService.sendMessage("New version deployed: $appVersion")
+                    adminNotificationService.notifyAdmin("New version deployed: $appVersion")
                 }
             }
         }

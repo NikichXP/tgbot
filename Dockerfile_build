@@ -7,6 +7,8 @@ COPY tg-bot-api/build.gradle.kts ./tg-bot-api/
 COPY tg-bot-api/src ./tg-bot-api/src
 COPY tg-bot-core/build.gradle.kts ./tg-bot-core/
 COPY tg-bot-core/src ./tg-bot-core/src
+COPY debug-bot/build.gradle.kts ./debug-bot/
+COPY debug-bot/src ./debug-bot/src
 COPY tg-bot-production/build.gradle.kts ./tg-bot-production/
 COPY tg-bot-production/src ./tg-bot-production/src
 RUN gradle build --no-daemon

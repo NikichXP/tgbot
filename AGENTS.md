@@ -22,21 +22,26 @@ Gradle multi-module build (`settings.gradle.kts`):
 - `tg-bot-api/` — everything a bot implementation may use: Telegram wire DTOs (`core.dto`), `UpdateContext` and
   typed models, handler contracts (`UpdateHandler`, `CommandHandler` + `@HandleCommand`, `CallbackHandler`,
   `Authenticable`, `Features`), errors, `AppConfig`, stateless helpers, and service interfaces
-  (`ITgMessageService`, `ITgBotV2Service`, `IAppStorage`, `ITrustedUserService`, `ITgApiCallExecutor`).
+  (`ITgMessageService`, `ITgBotV2Service`, `IAppStorage`, `ITrustedUserService`, `ITgApiCallExecutor`,
+  `IAdminNotificationService` — Telegram message to `APP_ADMIN_ID` via the admin bot).
   No business logic here.
 - `tg-bot-core/` — the logic: `Update` → `UpdateContext` mapping, routing to handler beans, Telegram API calls,
-  webhook/polling registration, tracing, and the implementations of the `tg-bot-api` service interfaces.
+  webhook/polling registration, tracing, the implementations of the `tg-bot-api` service interfaces, and admin
+  notifications about core events (`UnparsedMessageService`, `TgUpdateFieldService` — new `Update` JSON fields).
   Depends on `tg-bot-api` (`api(...)`).
 - `tg-bot-production/` — the deployable Spring Boot app (`bootJar` → `tg-bot-production/build/libs/app.jar`):
-  REST handlers (`InputController`, dashboard, oauth, discord), web config and, for now, the bots themselves.
+  REST handlers (`InputController`, dashboard, oauth, discord), web config and, for now, most bots.
+- `debug-bot/` — first extracted bot module (depends only on `tg-bot-api`), feature `debug`: `/ping`, `/uptime`,
+  `/myid`, keyboard demos, `/error`; admin-only (`Authenticable` via `ITrustedUserService.isAdmin`, `from.id == APP_ADMIN_ID`)
+  `/version` and `/memstatus`; `VersionProvider` notifies the admin about a new deployed version.
 
 Rules: bot code depends only on `tg-bot-api` types — never on `tg-bot-core` classes; when a bot needs something from
 core, expose it as an interface in `tg-bot-api` (`IFooService`) implemented in core (`FooServiceImpl`).
 Packages were kept as they were (`com.nikichxp.tgbot.core.*` lives in both api and core), so moving a file between
 modules doesn't change its package.
 
-Planned next: bots move out of `tg-bot-production` into feature modules (`santa-bot`, `karma-bot`, `stats-bot`, …)
-that depend only on `tg-bot-api`; `tg-bot-production` then just assembles them via `implementation(project(":<module>"))`.
+Planned next: the remaining bots move out of `tg-bot-production` into feature modules (`santa-bot`, `karma-bot`,
+`stats-bot`, …) that, like `debug-bot`, depend only on `tg-bot-api`; `tg-bot-production` then just assembles them via `implementation(project(":<module>"))`.
 
 ## Configuration Architecture
 
@@ -127,6 +132,8 @@ tg-bot is an OAuth 2.0 authorization-code provider on top of "Log In with Telegr
 - `peopleLists` (Mongo): named lists of Telegram user ids, edited in the dashboard (`/admin/lists/**`).
   Code references a list by its `name`; use `PeopleListService.isMember(name, userId)` instead of hardcoded ids
   or env vars (e.g. `APP_TRUSTED_USERS` for summary is to be migrated to a list).
+- `NewUserInteractionHandler` (all bots) notifies the admin the first time a chat talks to a bot (Mongo
+  `userInteraction`, keyed by chat id + bot name).
 - Avatars: `/admin/users/{userId}/avatar` downloads the current profile photo via any bot that saw the user
   (`getUserProfilePhotos` → `getFile`), cached in Redis `people:avatar:<id>` (12 h; "no avatar" for 1 h → 204).
 

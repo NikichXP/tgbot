@@ -21,6 +21,7 @@ plugins {
 
 dependencies {
     implementation(project(":tg-bot-core"))
+    implementation(project(":debug-bot"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")

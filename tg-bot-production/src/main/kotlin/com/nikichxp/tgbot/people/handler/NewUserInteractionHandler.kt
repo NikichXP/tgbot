@@ -1,19 +1,18 @@
-package com.nikichxp.tgbot.debug.interaction
+package com.nikichxp.tgbot.people.handler
 
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
-import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
-import com.nikichxp.tgbot.debug.SendMessageToAdminService
+import com.nikichxp.tgbot.core.service.IAdminNotificationService
+import com.nikichxp.tgbot.people.service.UserInteractionService
 import io.ktor.util.collections.*
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 
-@Service
+@Component
 class NewUserInteractionHandler(
     private val userInteractionService: UserInteractionService,
-    private val tgMessageService: ITgMessageService,
-    private val sendMessageToAdminService: SendMessageToAdminService
+    private val adminNotificationService: IAdminNotificationService
 ) : UpdateHandler {
 
     private val interactionCache = ConcurrentSet<String>()
@@ -34,7 +33,7 @@ class NewUserInteractionHandler(
 
         if (newInteraction) {
             val involvedParties = describeInvolvedParties(updateContext)
-            sendMessageToAdminService.sendMessage(
+            adminNotificationService.notifyAdmin(
                 "New user interaction detected: User ID $userId with bot $botName. Involved parties: $involvedParties"
             )
         }

@@ -1,4 +1,4 @@
-package com.nikichxp.tgbot.debug
+package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
 import kotlinx.coroutines.runBlocking
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class UnparsedMessageService(
-    private val sendMessageToAdminService: SendMessageToAdminService,
+    private val adminNotificationService: IAdminNotificationService,
     private val mongoTemplate: MongoTemplate
 ) : ApplicationListener<UnparsedMessageEvent> {
 
@@ -16,7 +16,7 @@ class UnparsedMessageService(
         val unparsedMessage = event.unparsedMessage
         mongoTemplate.save(unparsedMessage)
         runBlocking { // TODO fix that
-            sendMessageToAdminService.sendMessage("New unparsed message (/unparsed)")
+            adminNotificationService.notifyAdmin("New unparsed message")
         }
     }
 

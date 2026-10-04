@@ -1,4 +1,4 @@
-package com.nikichxp.tgbot.debug
+package com.nikichxp.tgbot.debug.handler
 
 import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo

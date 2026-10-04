@@ -51,6 +51,7 @@ class TgUpdatePollService(
                     rawResponse.success -> {
                         val responseBody = objectMapper.treeToValue(rawResponse.content, TgResponse::class.java)
                         for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
+                            logger.info("Received update for {}: {}", info.bot.name, objectMapper.writeValueAsString(update))
                             messageEntryPoint.proceedUpdate(update, info.bot)
                             info.onProcess(update.updateId)
                         }

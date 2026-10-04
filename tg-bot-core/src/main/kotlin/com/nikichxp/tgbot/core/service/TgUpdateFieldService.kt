@@ -1,4 +1,4 @@
-package com.nikichxp.tgbot.debug
+package com.nikichxp.tgbot.core.service
 
 import com.nikichxp.tgbot.core.entity.TgUpdateField
 import com.nikichxp.tgbot.core.entity.TgUpdateFieldsEvent
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class TgUpdateFieldService(
-    private val sendMessageToAdminService: SendMessageToAdminService,
+    private val adminNotificationService: IAdminNotificationService,
     private val mongoTemplate: MongoTemplate,
     private val coroutineScope: CoroutineScope
 ) : ApplicationListener<TgUpdateFieldsEvent> {
@@ -43,7 +43,7 @@ class TgUpdateFieldService(
                         existingFieldsCache.add(path)
                     }
                     coroutineScope.launch {
-                        sendMessageToAdminService.sendMessage("New update field: `$path` (bot: ${event.bot.name})")
+                        adminNotificationService.notifyAdmin("New update field: `$path` (bot: ${event.bot.name})")
                     }
                     log.info("New update field detected: {} (bot: {})", path, event.bot.name)
                 } else {
