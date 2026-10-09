@@ -22,6 +22,12 @@ plugins {
 dependencies {
     implementation(project(":tg-bot-core"))
     implementation(project(":debug-bot"))
+    implementation(project(":karma-bot"))
+    implementation(project(":santa-bot"))
+    implementation(project(":child-care-bot"))
+    implementation(project(":summary-bot"))
+    implementation(project(":voicepad-bot"))
+    implementation(project(":okx-bot"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
