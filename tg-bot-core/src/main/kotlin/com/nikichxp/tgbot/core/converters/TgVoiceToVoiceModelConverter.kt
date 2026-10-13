@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.converters
 
+import com.nikichxp.bot.common.entity.model.VoiceModel
 import com.nikichxp.tgbot.core.dto.files.Voice
-import com.nikichxp.tgbot.core.entity.common.VoiceModel
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 

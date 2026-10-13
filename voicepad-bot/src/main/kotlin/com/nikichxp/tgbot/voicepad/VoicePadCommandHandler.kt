@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.voicepad
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler

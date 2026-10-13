@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.util
 
+import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import kotlinx.coroutines.coroutineScope
 
 suspend fun getCurrentUpdateContext(): UpdateContext = coroutineScope {

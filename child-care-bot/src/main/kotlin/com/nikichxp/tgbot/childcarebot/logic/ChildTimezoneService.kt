@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.childcarebot.logic
 
-import com.nikichxp.tgbot.core.util.IAppStorage
+import com.nikichxp.bot.common.util.IAppStorage
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.ZoneId

@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.converters
 
+import com.nikichxp.bot.common.entity.model.StickerModel
 import com.nikichxp.tgbot.core.dto.stickers.Sticker
-import com.nikichxp.tgbot.core.entity.common.StickerModel
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 

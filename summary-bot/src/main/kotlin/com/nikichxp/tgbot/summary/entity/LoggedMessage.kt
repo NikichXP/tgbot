@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.summary.entity
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.util.UserFormatter
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.util.UserFormatter
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import java.time.LocalDateTime

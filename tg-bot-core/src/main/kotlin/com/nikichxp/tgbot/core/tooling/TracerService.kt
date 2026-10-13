@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.tooling
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope

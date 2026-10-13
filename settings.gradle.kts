@@ -1,7 +1,10 @@
 rootProject.name = "tg-bot"
 
+include("common-bot-api")
 include("tg-bot-api")
 include("tg-bot-core")
+include("discord-bot-api")
+include("discord-bot-core")
 include("tg-bot-production")
 include("debug-bot")
 include("karma-bot")

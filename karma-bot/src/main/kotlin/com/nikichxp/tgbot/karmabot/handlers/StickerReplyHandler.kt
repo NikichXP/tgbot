@@ -1,12 +1,12 @@
 package com.nikichxp.tgbot.karmabot.handlers
 
-import com.nikichxp.tgbot.core.entity.InteractionRole
-import com.nikichxp.tgbot.core.entity.MessageInteractionResult
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.InteractionRole
+import com.nikichxp.bot.common.entity.MessageInteractionResult
+import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
 import kotlinx.coroutines.launch

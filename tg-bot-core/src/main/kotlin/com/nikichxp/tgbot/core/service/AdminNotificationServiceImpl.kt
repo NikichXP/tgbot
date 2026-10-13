@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.core.service
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.service.IAdminNotificationService
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service

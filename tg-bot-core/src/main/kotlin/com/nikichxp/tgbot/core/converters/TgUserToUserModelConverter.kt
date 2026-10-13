@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.converters
 
+import com.nikichxp.bot.common.entity.model.UserModel
 import com.nikichxp.tgbot.core.dto.User
-import com.nikichxp.tgbot.core.entity.common.UserModel
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 

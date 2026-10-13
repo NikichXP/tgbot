@@ -1,9 +1,9 @@
 package com.nikichxp.tgbot.summary
 
-import com.nikichxp.tgbot.core.dto.ai.LLMRequest
-import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.core.service.ai.ILLMProvider
-import com.nikichxp.tgbot.core.util.IAppStorage
+import com.nikichxp.bot.common.dto.ai.LLMRequest
+import com.nikichxp.bot.common.error.DisplayableError
+import com.nikichxp.bot.common.service.ai.ILLMProvider
+import com.nikichxp.bot.common.util.IAppStorage
 import com.nikichxp.tgbot.summary.entity.LoggedMessage
 import com.nikichxp.tgbot.summary.entity.RecapOptions
 import com.nikichxp.tgbot.summary.entity.RecapResponse

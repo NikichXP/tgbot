@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.service
 
+import com.nikichxp.bot.common.service.IAdminNotificationService
 import com.nikichxp.tgbot.core.entity.TgUpdateField
 import com.nikichxp.tgbot.core.entity.TgUpdateFieldsEvent
 import io.ktor.util.collections.ConcurrentSet

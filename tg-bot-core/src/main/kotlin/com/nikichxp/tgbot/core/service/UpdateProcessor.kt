@@ -1,10 +1,11 @@
 package com.nikichxp.tgbot.core.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.error.DisplayableError
+import com.nikichxp.bot.common.error.ExpectedError
 import com.nikichxp.tgbot.core.entity.StoredError
-import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.core.error.ExpectedError
+import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
@@ -25,7 +26,7 @@ class UpdateProcessor(
 
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    suspend fun proceedUpdate(updateContext: UpdateContext) {
+    suspend fun proceedUpdate(updateContext: TgUpdateContext) {
         val supportedHandlers = handlers
             .filter { isHandlerSupportedForV2(updateContext, it) }
         if (supportedHandlers.isEmpty()) {
@@ -70,7 +71,7 @@ class UpdateProcessor(
         }
     }
 
-    private suspend fun isHandlerSupportedForV2(context: UpdateContext, handler: UpdateHandler): Boolean {
+    private suspend fun isHandlerSupportedForV2(context: TgUpdateContext, handler: UpdateHandler): Boolean {
         val botInfo = context.getBotInfo()
         val markerSupported = context.markers.containsAll(handler.getMarkers())
         val botSupported = botInfo.supports(handler.requiredFeatures())

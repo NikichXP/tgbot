@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.auth
 
-import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.entity.UpdateContext
 import org.springframework.stereotype.Service
 
 // TODO Migrate that to user lists

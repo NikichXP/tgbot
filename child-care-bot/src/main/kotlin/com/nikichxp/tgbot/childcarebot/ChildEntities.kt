@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.bot.common.entity.UserId
 import com.nikichxp.tgbot.childcarebot.state.TransitionDetails
-import com.nikichxp.tgbot.core.entity.UserId
 import org.bson.types.ObjectId
 import org.springframework.context.ApplicationEvent
 import java.time.LocalDateTime

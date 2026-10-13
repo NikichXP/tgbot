@@ -1,4 +1,4 @@
-package com.nikichxp.tgbot.core.dto.ai
+package com.nikichxp.bot.common.dto.ai
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

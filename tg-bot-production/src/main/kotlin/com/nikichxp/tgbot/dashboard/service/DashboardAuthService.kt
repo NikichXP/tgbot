@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.dashboard.service
 
-import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.util.SecureTokens
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.util.SecureTokens
 import com.nikichxp.tgbot.dashboard.dto.DashboardPrincipal
 import com.nikichxp.tgbot.dashboard.dto.DashboardUserDto
 import com.nikichxp.tgbot.dashboard.dto.IssuedTokens

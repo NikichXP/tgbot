@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.debug
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
+import com.nikichxp.bot.common.handlers.BotFeature
 
 object DebugFeature : BotFeature(
     id = "debug",

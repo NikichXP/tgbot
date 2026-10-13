@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.voicepad
 
-import com.nikichxp.tgbot.core.dto.ai.LLMRequest
-import com.nikichxp.tgbot.core.service.ai.ILLMProvider
+import com.nikichxp.bot.common.dto.ai.LLMRequest
+import com.nikichxp.bot.common.service.ai.ILLMProvider
 import org.springframework.stereotype.Service
 
 interface VoicePadProcessor {

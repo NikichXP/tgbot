@@ -1,12 +1,12 @@
 package com.nikichxp.tgbot.karmabot.commands
 
-import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.karmabot.KarmaFeature
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.core.util.ChatCommandParser
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.karmabot.service.EmojiService
 import org.springframework.stereotype.Component
 

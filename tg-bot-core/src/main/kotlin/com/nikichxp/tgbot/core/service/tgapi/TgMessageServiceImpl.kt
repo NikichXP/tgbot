@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.error.TgApiCallException
 import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor

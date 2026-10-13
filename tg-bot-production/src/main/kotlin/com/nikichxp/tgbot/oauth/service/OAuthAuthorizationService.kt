@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.oauth.service
 
-import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.util.SecureTokens
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.util.SecureTokens
 import com.nikichxp.tgbot.dashboard.service.TelegramIdTokenVerifier
 import com.nikichxp.tgbot.oauth.dto.OAuthAuthorizationGrant
 import com.nikichxp.tgbot.oauth.dto.OAuthAuthorizePage

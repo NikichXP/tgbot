@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.handlers.commands
 
-import com.nikichxp.tgbot.core.handlers.BotSupportFeature
+import com.nikichxp.bot.common.handlers.BotSupportFeature
 import org.springframework.stereotype.Indexed
 
 @Indexed

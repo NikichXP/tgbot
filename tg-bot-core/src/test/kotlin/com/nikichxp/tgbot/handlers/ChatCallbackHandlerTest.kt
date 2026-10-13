@@ -1,18 +1,18 @@
 package com.nikichxp.tgbot.handlers
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.entity.model.CallbackModel
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.entity.common.CallbackModel
 import com.nikichxp.tgbot.core.handlers.Authenticable
-import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.core.handlers.ChatCallbackHandler
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 
 class ChatCallbackHandlerTest {
 

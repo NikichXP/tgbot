@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.handlers.commands
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
 import org.springframework.stereotype.Component
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KTypeProjection

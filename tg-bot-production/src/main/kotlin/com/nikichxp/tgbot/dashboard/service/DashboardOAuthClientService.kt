@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.dashboard.service
 
-import com.nikichxp.tgbot.core.util.SecureTokens
+import com.nikichxp.bot.common.util.SecureTokens
 import com.nikichxp.tgbot.dashboard.dto.CreateOAuthClientRequest
 import com.nikichxp.tgbot.dashboard.dto.OAuthClientDto
 import com.nikichxp.tgbot.dashboard.dto.OAuthClientWithSecretDto

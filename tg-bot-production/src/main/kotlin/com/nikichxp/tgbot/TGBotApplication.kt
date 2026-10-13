@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 
 @EnableScheduling
 @EnableCaching
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = ["com.nikichxp.tgbot", "com.nikichxp.bot"])
 @EnableConfigurationProperties(AppConfig::class)
 class TGBotApplication
 

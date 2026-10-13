@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.karmabot.service.actions
 
-import com.nikichxp.tgbot.core.error.DuplicatedRatingError
+import com.nikichxp.bot.common.error.DuplicatedRatingError
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.find

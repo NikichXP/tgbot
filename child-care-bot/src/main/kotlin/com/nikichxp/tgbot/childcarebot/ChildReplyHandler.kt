@@ -1,11 +1,11 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.entity.model.ReplyModel
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildTimezoneService
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.entity.common.ReplyModel
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import org.springframework.stereotype.Service

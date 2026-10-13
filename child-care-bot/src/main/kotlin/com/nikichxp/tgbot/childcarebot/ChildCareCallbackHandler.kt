@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.childcarebot
 
+import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler

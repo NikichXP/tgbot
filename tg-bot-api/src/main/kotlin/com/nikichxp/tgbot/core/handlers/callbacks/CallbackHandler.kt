@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.handlers.callbacks
 
-import com.nikichxp.tgbot.core.handlers.BotSupportFeature
+import com.nikichxp.bot.common.handlers.BotSupportFeature
 
 interface CallbackHandler : BotSupportFeature {
 

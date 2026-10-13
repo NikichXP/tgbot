@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.santabot
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
+import com.nikichxp.bot.common.handlers.BotFeature
 
 object SantaFeature : BotFeature(
     id = "santa",

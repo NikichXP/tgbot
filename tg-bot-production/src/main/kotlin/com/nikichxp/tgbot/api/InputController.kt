@@ -1,12 +1,12 @@
 package com.nikichxp.tgbot.api
 
-import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.error.NotAuthorizedException
-import com.nikichxp.tgbot.core.service.MessageEntryPoint
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.error.NotAuthorizedException
+import com.nikichxp.bot.discord.dto.InteractionResponse
+import com.nikichxp.bot.discord.service.IDiscordInteractionService
 import com.nikichxp.tgbot.core.service.ITgBotV2Service
+import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.tooling.TracerService
-import com.nikichxp.tgbot.discord.DiscordService
-import com.nikichxp.tgbot.discord.InteractionResponse
 import org.bson.Document
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,7 +22,7 @@ class InputController(
     private val messageEntryPoint: MessageEntryPoint,
     private val appConfig: AppConfig,
     private val tracerService: TracerService,
-    private val discordService: DiscordService
+    private val discordInteractionService: IDiscordInteractionService
 ) {
 
     @Bean
@@ -46,7 +46,7 @@ class InputController(
             val timestamp = it.headers().firstHeader("X-Signature-Timestamp")
             val bodyString = it.awaitBody<String>()
 
-            when (val response = discordService.handleInteraction(signature, timestamp, bodyString, token)) {
+            when (val response = discordInteractionService.handleInteraction(signature, timestamp, bodyString, token)) {
                 is InteractionResponse.Unauthenticated -> ServerResponse.status(401).bodyValueAndAwait("Invalid signature")
                 is InteractionResponse.Pong -> ServerResponse.ok().bodyValueAndAwait(Document("type", 1))
                 is InteractionResponse.Ok -> ServerResponse.ok().bodyValueAndAwait("ok")

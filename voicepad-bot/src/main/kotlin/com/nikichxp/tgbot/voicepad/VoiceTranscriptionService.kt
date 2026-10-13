@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.voicepad
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.MultiPartFormDataContent

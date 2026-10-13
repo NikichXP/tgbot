@@ -1,9 +1,9 @@
 package com.nikichxp.tgbot.handlers
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.entity.model.MessageModel
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.entity.common.MessageModel
-import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.core.handlers.ChatCommandsHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
@@ -15,8 +15,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.bean.override.mockito.MockitoBean

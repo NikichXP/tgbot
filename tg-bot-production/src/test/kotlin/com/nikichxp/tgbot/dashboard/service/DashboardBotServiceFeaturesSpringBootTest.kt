@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.dashboard.service
 
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
-import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.service.FeatureRegistryImpl
 import com.nikichxp.tgbot.core.service.ITgBotV2Service
@@ -18,9 +18,9 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.`when`
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.convert.ApplicationConversionService
 import org.springframework.boot.test.context.SpringBootTest

@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.summary
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
+import com.nikichxp.bot.common.handlers.BotFeature
 
 object SummaryFeature : BotFeature(
     id = "summary",

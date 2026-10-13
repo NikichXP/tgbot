@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.oauth.api
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import com.nikichxp.tgbot.dashboard.service.TelegramIdTokenVerifier
 import com.nikichxp.tgbot.oauth.dto.OAuthAuthorizePage
 import com.nikichxp.tgbot.oauth.dto.OAuthResponseMode

@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.service
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
 import org.springframework.data.mongodb.core.MongoTemplate

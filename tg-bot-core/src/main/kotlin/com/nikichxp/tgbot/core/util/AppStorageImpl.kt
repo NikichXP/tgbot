@@ -1,5 +1,7 @@
 package com.nikichxp.tgbot.core.util
 
+import com.nikichxp.bot.common.util.AppData
+import com.nikichxp.bot.common.util.IAppStorage
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service

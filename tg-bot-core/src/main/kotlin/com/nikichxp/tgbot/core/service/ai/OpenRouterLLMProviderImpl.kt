@@ -1,13 +1,13 @@
-package com.nikichxp.tgbot.core.service.ai
+package com.nikichxp.bot.common.service.ai
 
-import com.nikichxp.tgbot.core.config.AppConfig
-import com.nikichxp.tgbot.core.dto.ai.LLMRequest
-import com.nikichxp.tgbot.core.dto.ai.LLMResponse
-import com.nikichxp.tgbot.core.dto.ai.LLMUsage
-import com.nikichxp.tgbot.core.dto.ai.OpenRouterChatRequest
-import com.nikichxp.tgbot.core.dto.ai.OpenRouterChatResponse
-import com.nikichxp.tgbot.core.dto.ai.OpenRouterMessage
-import com.nikichxp.tgbot.core.dto.ai.OpenRouterModelsResponse
+import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.dto.ai.LLMRequest
+import com.nikichxp.bot.common.dto.ai.LLMResponse
+import com.nikichxp.bot.common.dto.ai.LLMUsage
+import com.nikichxp.bot.common.dto.ai.OpenRouterChatRequest
+import com.nikichxp.bot.common.dto.ai.OpenRouterChatResponse
+import com.nikichxp.bot.common.dto.ai.OpenRouterMessage
+import com.nikichxp.bot.common.dto.ai.OpenRouterModelsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get

@@ -19,19 +19,28 @@ Gradle multi-module build (`settings.gradle.kts`):
 
 - root `build.gradle.kts` — plugin versions (`apply false`), shared versions (`ktorVersion`, `coroutinesVersion`),
   `group`/`version`, repositories and settings for all modules (Spring Boot BOM, JVM target, JUnit 5 only).
-- `tg-bot-api/` — everything a bot implementation may use: Telegram wire DTOs (`core.dto`), `UpdateContext` and
-  typed models, handler contracts (`UpdateHandler`, `CommandHandler` + `@HandleCommand`, `CallbackHandler`,
-  `Authenticable`, `BotFeature`), errors, `AppConfig`, stateless helpers, and service interfaces
-  (`ITgMessageService`, `ITgBotV2Service`, `IAppStorage`, `ITrustedUserService`, `ITgApiCallExecutor`,
-  `IAdminNotificationService` — Telegram message to `APP_ADMIN_ID` via the admin bot, `IFeatureRegistry`,
-  `ILLMProvider` — LLM completions, implemented in core by `OpenRouterLLMProviderImpl`).
-  No business logic here.
-- `tg-bot-core/` — the logic: `Update` → `UpdateContext` mapping, routing to handler beans, Telegram API calls,
+- `common-bot-api/` (`com.nikichxp.bot.common.*`) — platform-independent contracts shared by Telegram and Discord:
+  `UpdateContext` (interface) and typed models (`entity.model`: `UserModel`/`ChatModel`/`MessageModel`/`ReplyModel`/
+  `CallbackModel`), `BotInfo`/`BotType`, `BotFeature`/`BotSupportFeature`, errors (`ExpectedError`, `DisplayableError`,
+  `NotAuthorizedException`…), `AppConfig`, `IAppStorage`, `IAdminNotificationService` — Telegram message to
+  `APP_ADMIN_ID` via the admin bot, `IFeatureRegistry`, `ILLMProvider` — LLM completions, implemented in core by
+  `OpenRouterLLMProviderImpl`. Must not depend on Telegram or Discord wire DTOs. No business logic here.
+- `tg-bot-api/` — everything a Telegram bot implementation may use on top of `common-bot-api` (`api(...)`): Telegram
+  wire DTOs (`core.dto`), `TgUpdateContext` with `UpdateMarker`s (markers read the wire `Update`, so they are not
+  part of the common `UpdateContext`), handler contracts (`UpdateHandler`, `CommandHandler` + `@HandleCommand`,
+  `CallbackHandler`, `Authenticable`), stateless helpers, and service interfaces (`ITgMessageService`,
+  `ITgBotV2Service`, `ITrustedUserService`, `ITgApiCallExecutor`). No business logic here.
+- `tg-bot-core/` — the logic: `Update` → `TgUpdateContext` mapping, routing to handler beans, Telegram API calls,
   webhook/polling registration, tracing, the implementations of the `tg-bot-api` service interfaces, and admin
   notifications about core events (`UnparsedMessageService`, `TgUpdateFieldService` — new `Update` JSON fields).
   Depends on `tg-bot-api` (`api(...)`).
+- `discord-bot-api/` (`com.nikichxp.bot.discord.*`) — Discord contracts on top of `common-bot-api`: wire DTOs
+  (`DiscordInteraction`), `DiscordBotInfo`, service interfaces (`IDiscordInteractionService`). No business logic here.
+- `discord-bot-core/` (`com.nikichxp.bot.discord.*`) — Discord logic: interaction signature verification
+  (`DiscordSignatureVerifier`, Ed25519 with `DISCORD_PUBLIC_KEY`), raw interaction storage (Mongo `storedJson`), the
+  implementations of the `discord-bot-api` interfaces. Depends on `discord-bot-api` (`api(...)`).
 - `tg-bot-production/` — the deployable Spring Boot app (`bootJar` → `tg-bot-production/build/libs/app.jar`):
-  REST handlers (`InputController`, dashboard, oauth, discord), web config, people registry, RabbitMQ setup; assembles
+  REST handlers (`InputController` incl. `POST /discord/{token}`, dashboard, oauth), web config, people registry, RabbitMQ setup; assembles
   the bot modules via `implementation(project(":<module>"))`.
 - `debug-bot/` — first extracted bot module (depends only on `tg-bot-api`), feature `debug`: `/ping`, `/uptime`,
   `/myid`, keyboard demos, `/error`; admin-only (`Authenticable` via `ITrustedUserService.isAdmin`, `from.id == APP_ADMIN_ID`)
@@ -45,8 +54,11 @@ Gradle multi-module build (`settings.gradle.kts`):
 
 Rules: bot code depends only on `tg-bot-api` types — never on `tg-bot-core` classes; when a bot needs something from
 core, expose it as an interface in `tg-bot-api` (`IFooService`) implemented in core (`FooServiceImpl`).
-Packages were kept as they were (`com.nikichxp.tgbot.core.*` lives in both api and core), so moving a file between
-modules doesn't change its package.
+Discord code follows the same rule with `discord-bot-api`/`discord-bot-core`; code that is not specific to one platform
+goes to `common-bot-api`. Telegram packages were kept as they were (`com.nikichxp.tgbot.core.*` lives in both
+`tg-bot-api` and `tg-bot-core`), so moving a file between those modules doesn't change its package; `common-bot-api` and
+the Discord modules use `com.nikichxp.bot.*`, which is why `TGBotApplication` scans both `com.nikichxp.tgbot` and
+`com.nikichxp.bot`.
 
 Bot features: there is no central list. Each module declares its feature next to its code
 (`object KarmaFeature : BotFeature(id = "karma", title = ..., description = ...)`) and its handlers return it from

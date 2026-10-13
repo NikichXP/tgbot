@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.dashboard.api
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import com.nikichxp.tgbot.dashboard.dto.AuthConfigResponse
 import com.nikichxp.tgbot.dashboard.dto.CreateBotRequest
 import com.nikichxp.tgbot.dashboard.dto.CreateOAuthClientRequest

@@ -1,9 +1,9 @@
 package com.nikichxp.tgbot.karmabot.service.actions
 
-import com.nikichxp.tgbot.core.entity.MessageInteractionResult
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.MessageInteractionResult
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.util.UserFormatter.getUserPrintName
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
-import com.nikichxp.tgbot.core.util.UserFormatter.getUserPrintName
 import com.nikichxp.tgbot.karmabot.service.UserService
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

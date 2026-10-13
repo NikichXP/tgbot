@@ -1,16 +1,16 @@
 package com.nikichxp.tgbot.debug.handler
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.error.DisplayableError
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.debug.DebugFeature
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
-import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.TgInlineKeyboard
 import com.nikichxp.tgbot.core.service.tgapi.TgSendMessage
+import com.nikichxp.tgbot.debug.DebugFeature
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime

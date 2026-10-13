@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.dashboard.converters
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.dashboard.dto.DashboardFeatureDto
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component

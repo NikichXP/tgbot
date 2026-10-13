@@ -1,14 +1,14 @@
 package com.nikichxp.tgbot.core.service
 
+import com.nikichxp.bot.common.entity.model.CallbackModel
+import com.nikichxp.bot.common.entity.model.ChatModel
+import com.nikichxp.bot.common.entity.model.MessageModel
+import com.nikichxp.bot.common.entity.model.ReplyModel
+import com.nikichxp.bot.common.entity.model.UserModel
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.entity.common.CallbackModel
-import com.nikichxp.tgbot.core.entity.common.ChatModel
-import com.nikichxp.tgbot.core.entity.common.MessageModel
-import com.nikichxp.tgbot.core.entity.common.ReplyModel
-import com.nikichxp.tgbot.core.entity.common.UserModel
 import com.nikichxp.tgbot.core.util.getMentionedMessage
 import org.springframework.core.convert.ConversionService
 import org.springframework.stereotype.Component

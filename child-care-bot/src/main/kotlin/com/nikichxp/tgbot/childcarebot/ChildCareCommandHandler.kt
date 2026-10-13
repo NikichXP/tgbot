@@ -1,12 +1,12 @@
 package com.nikichxp.tgbot.childcarebot
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.childcarebot.logic.ChildActivityRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildInfoRepo
 import com.nikichxp.tgbot.childcarebot.logic.ChildReportHelper
 import com.nikichxp.tgbot.childcarebot.logic.ChildStateTransitionProvider
 import com.nikichxp.tgbot.childcarebot.state.StateTransitionService
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.Authenticable
 import com.nikichxp.tgbot.core.handlers.UpdateHandler

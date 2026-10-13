@@ -1,12 +1,12 @@
 package com.nikichxp.tgbot.karmabot.handlers
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.error.NotHandledSituationError
+import com.nikichxp.bot.common.util.UserFormatter
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.error.NotHandledSituationError
-import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
-import com.nikichxp.tgbot.core.util.UserFormatter
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.data.annotation.Id

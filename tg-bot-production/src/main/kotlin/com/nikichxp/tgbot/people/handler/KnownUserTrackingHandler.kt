@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.people.handler
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.UpdateHandler

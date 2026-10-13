@@ -1,6 +1,7 @@
 package com.nikichxp.tgbot.core.handlers
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerExecutor
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandlerScanner

@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.debug.service
 
-import com.nikichxp.tgbot.core.service.IAdminNotificationService
-import com.nikichxp.tgbot.core.util.IAppStorage
+import com.nikichxp.bot.common.service.IAdminNotificationService
+import com.nikichxp.bot.common.util.IAppStorage
 import jakarta.annotation.PostConstruct
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

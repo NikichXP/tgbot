@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.core.handlers.callbacks
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.entity.bots.BotInfo
-import com.nikichxp.tgbot.core.entity.common.CallbackModel
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.entity.bots.BotInfo
+import com.nikichxp.bot.common.entity.model.CallbackModel
 
 data class CallbackContext(
     var userId: Long,

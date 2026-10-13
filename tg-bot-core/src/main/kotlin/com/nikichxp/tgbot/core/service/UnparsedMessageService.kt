@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.service
 
+import com.nikichxp.bot.common.service.IAdminNotificationService
 import com.nikichxp.tgbot.core.entity.UnparsedMessageEvent
 import kotlinx.coroutines.runBlocking
 import org.springframework.context.ApplicationListener

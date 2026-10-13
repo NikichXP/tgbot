@@ -1,12 +1,12 @@
 package com.nikichxp.tgbot.summary
 
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.error.ConfigMapViolationException
+import com.nikichxp.bot.common.error.DisplayableError
+import com.nikichxp.bot.common.error.PermissionDeniedError
 import com.nikichxp.tgbot.core.auth.ITrustedUserService
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.error.ConfigMapViolationException
-import com.nikichxp.tgbot.core.error.DisplayableError
-import com.nikichxp.tgbot.core.error.PermissionDeniedError
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
@@ -114,7 +114,7 @@ class SummaryCommandHandler(
     }
 
     private suspend fun checkAccess(updateContext: UpdateContext) {
-        if (!updateContext.markers.contains(UpdateMarker.MESSAGE_IN_GROUP)) {
+        if (!(updateContext as TgUpdateContext).markers.contains(UpdateMarker.MESSAGE_IN_GROUP)) {
             tgMessageService.replyToCurrentMessage("This command is available only in group chats")
         }
 

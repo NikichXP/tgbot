@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.service.tgapi
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgUpdateFetchType
 import com.nikichxp.tgbot.core.service.ITgBotV2Service

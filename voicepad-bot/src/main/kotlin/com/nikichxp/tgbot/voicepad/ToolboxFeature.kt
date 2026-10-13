@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.voicepad
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
+import com.nikichxp.bot.common.handlers.BotFeature
 
 object ToolboxFeature : BotFeature(
     id = "toolbox",

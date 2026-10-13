@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.converters
 
+import com.nikichxp.bot.common.entity.model.ChatModel
 import com.nikichxp.tgbot.core.dto.Chat
-import com.nikichxp.tgbot.core.entity.common.ChatModel
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 

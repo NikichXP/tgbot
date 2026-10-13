@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.voicepad
 
+import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.TgUpdateContext
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import kotlinx.coroutines.CoroutineScope

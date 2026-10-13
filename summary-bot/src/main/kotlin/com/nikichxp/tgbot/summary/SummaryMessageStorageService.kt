@@ -1,16 +1,16 @@
 package com.nikichxp.tgbot.summary
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.entity.model.UserModel
+import com.nikichxp.bot.common.util.UserFormatter
 import com.nikichxp.tgbot.core.dto.Update
 import com.nikichxp.tgbot.core.dto.User
-import com.nikichxp.tgbot.core.entity.UpdateContext
-import com.nikichxp.tgbot.core.entity.common.UserModel
-import com.nikichxp.tgbot.core.util.UserFormatter
 import com.nikichxp.tgbot.core.util.getMentionedMessage
 import com.nikichxp.tgbot.summary.entity.LoggedMessage
 import org.bson.Document
-import org.springframework.core.convert.ConversionService
 import org.slf4j.LoggerFactory
+import org.springframework.core.convert.ConversionService
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query

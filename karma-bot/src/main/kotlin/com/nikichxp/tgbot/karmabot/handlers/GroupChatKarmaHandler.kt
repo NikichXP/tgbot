@@ -1,14 +1,14 @@
 package com.nikichxp.tgbot.karmabot.handlers
 
-import com.nikichxp.tgbot.core.entity.InteractionRole
-import com.nikichxp.tgbot.core.entity.MessageInteractionResult
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.InteractionRole
+import com.nikichxp.bot.common.entity.MessageInteractionResult
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.entity.model.UserModel
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.UpdateMarker.HAS_TEXT
 import com.nikichxp.tgbot.core.entity.UpdateMarker.MESSAGE_IN_GROUP
-import com.nikichxp.tgbot.core.entity.common.UserModel
-import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
+import com.nikichxp.tgbot.karmabot.KarmaFeature
 import com.nikichxp.tgbot.karmabot.service.DynamicTextClassifier
 import com.nikichxp.tgbot.karmabot.service.actions.LikedMessageService
 import org.springframework.stereotype.Component

@@ -3,6 +3,8 @@ FROM gradle:jdk21 as builder
 WORKDIR /app
 
 COPY settings.gradle.kts build.gradle.kts ./
+COPY common-bot-api/build.gradle.kts ./common-bot-api/
+COPY common-bot-api/src ./common-bot-api/src
 COPY tg-bot-api/build.gradle.kts ./tg-bot-api/
 COPY tg-bot-api/src ./tg-bot-api/src
 COPY tg-bot-core/build.gradle.kts ./tg-bot-core/
@@ -21,6 +23,10 @@ COPY voicepad-bot/build.gradle.kts ./voicepad-bot/
 COPY voicepad-bot/src ./voicepad-bot/src
 COPY okx-bot/build.gradle.kts ./okx-bot/
 COPY okx-bot/src ./okx-bot/src
+COPY discord-bot-api/build.gradle.kts ./discord-bot-api/
+COPY discord-bot-api/src ./discord-bot-api/src
+COPY discord-bot-core/build.gradle.kts ./discord-bot-core/
+COPY discord-bot-core/src ./discord-bot-core/src
 COPY tg-bot-production/build.gradle.kts ./tg-bot-production/
 COPY tg-bot-production/src ./tg-bot-production/src
 RUN gradle build --no-daemon

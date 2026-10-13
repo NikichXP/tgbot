@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.core.service.tgapi.executor
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import kotlinx.coroutines.delay

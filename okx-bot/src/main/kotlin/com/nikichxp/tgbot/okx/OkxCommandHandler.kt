@@ -1,9 +1,9 @@
 package com.nikichxp.tgbot.okx
 
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.error.PermissionDeniedError
 import com.nikichxp.tgbot.core.auth.ITrustedUserService
-import com.nikichxp.tgbot.core.entity.UpdateContext
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
-import com.nikichxp.tgbot.core.error.PermissionDeniedError
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService

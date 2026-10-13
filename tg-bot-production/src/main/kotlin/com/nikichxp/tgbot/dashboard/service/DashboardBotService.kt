@@ -1,8 +1,8 @@
 package com.nikichxp.tgbot.dashboard.service
 
+import com.nikichxp.bot.common.service.IFeatureRegistry
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfoV2Entity
-import com.nikichxp.tgbot.core.service.IFeatureRegistry
 import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.TgRegisterUpdateFetchService
 import com.nikichxp.tgbot.dashboard.connector.TelegramBotApiClient

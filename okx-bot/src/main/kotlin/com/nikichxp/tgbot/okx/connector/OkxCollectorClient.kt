@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.okx.connector
 
-import com.nikichxp.tgbot.core.config.AppConfig
+import com.nikichxp.bot.common.config.AppConfig
 import com.nikichxp.tgbot.okx.dto.OkxPrice
 import com.nikichxp.tgbot.okx.error.OkxCollectorException
 import io.ktor.client.HttpClient

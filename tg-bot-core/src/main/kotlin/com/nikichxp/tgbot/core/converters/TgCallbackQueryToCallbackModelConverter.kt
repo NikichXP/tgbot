@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.converters
 
+import com.nikichxp.bot.common.entity.model.CallbackModel
 import com.nikichxp.tgbot.core.dto.CallbackQuery
-import com.nikichxp.tgbot.core.entity.common.CallbackModel
 import org.springframework.core.convert.converter.Converter
 import org.springframework.stereotype.Component
 

@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.karmabot.service
 
-import com.nikichxp.tgbot.core.entity.common.UserModel
+import com.nikichxp.bot.common.entity.model.UserModel
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById

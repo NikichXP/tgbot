@@ -1,6 +1,6 @@
 package com.nikichxp.tgbot.core.auth
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
 
 interface ITrustedUserService {
     fun isTrusted(userId: Long?, username: String?): Boolean

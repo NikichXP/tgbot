@@ -1,8 +1,9 @@
 package com.nikichxp.tgbot.core.service
 
-import com.nikichxp.tgbot.core.entity.UpdateContext
+import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.handlers.BotFeature
+import com.nikichxp.bot.common.service.IFeatureRegistry
 import com.nikichxp.tgbot.core.entity.UpdateMarker
-import com.nikichxp.tgbot.core.handlers.BotFeature
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackContext
 import com.nikichxp.tgbot.core.handlers.callbacks.CallbackHandler

@@ -21,6 +21,7 @@ plugins {
 
 dependencies {
     implementation(project(":tg-bot-core"))
+    implementation(project(":discord-bot-core"))
     implementation(project(":debug-bot"))
     implementation(project(":karma-bot"))
     implementation(project(":santa-bot"))

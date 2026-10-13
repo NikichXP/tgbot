@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.service
 
-import com.nikichxp.tgbot.core.handlers.BotFeature
-import com.nikichxp.tgbot.core.handlers.BotSupportFeature
+import com.nikichxp.bot.common.handlers.BotFeature
+import com.nikichxp.bot.common.handlers.BotSupportFeature
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

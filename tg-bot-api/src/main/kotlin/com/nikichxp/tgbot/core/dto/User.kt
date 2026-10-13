@@ -1,7 +1,7 @@
 package com.nikichxp.tgbot.core.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.nikichxp.tgbot.core.entity.UserId
+import com.nikichxp.bot.common.entity.UserId
 
 /**
  * Represents a Telegram user or bot.
