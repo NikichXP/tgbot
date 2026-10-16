@@ -10,7 +10,8 @@ Telegram bot backend service supporting multiple bots, child-care tracking, karm
 - **HTTP Client**: Ktor Client (`io.ktor:ktor-client-cio-jvm`)
 - **Build Tool**: Gradle (Kotlin DSL, `./gradlew`)
 - **Cache/session store**: Redis (reactive, dashboard tokens)
-- **Tests**: JUnit 5 only (`org.junit.jupiter.api.Test`; `kotlin.test` asserts via `kotlin-test-junit5`). JUnit 4 and
+- **Tests**: JUnit 5 only (`org.junit.jupiter.api.Test`). Assertions: AssertJ (`assertThat`, from
+  `spring-boot-starter-test`) is preferred in new and modified tests over `kotlin.test` asserts. JUnit 4 and
   the vintage engine are excluded for all modules in the root `build.gradle.kts` — don't add them back.
 
 ## Module Layout

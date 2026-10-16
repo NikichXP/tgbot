@@ -11,6 +11,7 @@ import com.nikichxp.tgbot.core.handlers.UpdateHandler
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
+import com.nikichxp.tgbot.core.service.tgapi.TgReplyParameters
 import com.nikichxp.tgbot.core.util.ChatCommandParser
 import com.nikichxp.tgbot.summary.entity.RecapOptions
 import com.nikichxp.tgbot.summary.entity.RecapOptionsBuilder
@@ -47,7 +48,7 @@ class SummaryCommandHandler(
 
     @HandleCommand("/whatsup")
     suspend fun whatsup(args: List<String>, updateContext: UpdateContext): Boolean {
-        val chatId = updateContext.chat?.id ?: throw IllegalArgumentException("Can't get chat id")
+        val chatId = updateContext.chat?.id ?: throw DisplayableError("Не удалось определить чат")
 
         if (!summaryService.getFeatureEnabledStatus(chatId)) {
             // ignore, don't let people know this feature exists so far
@@ -55,9 +56,12 @@ class SummaryCommandHandler(
         }
 
         val options = getRecapOptions(args, chatId, updateContext)
+        val header = "Генерирую сводку... ${options.getExtraOptionsString()}"
+        var statusMessageId: Long? = null
         tgMessageService.sendMessage {
             replyToCurrentMessage()
-            text = "Генерирую сводку... ${options.getExtraOptionsString()}"
+            text = header
+            withCallback { statusMessageId = it.result?.messageId }
         }
 
         CoroutineScope(Dispatchers.IO + updateContext as TgUpdateContext).launch {
@@ -66,11 +70,25 @@ class SummaryCommandHandler(
 
                 logger.info("Recap generated: $recap")
 
-                val textToDisplay = recap.recap
-
+                val parts = RecapMessageSplitter.split("$header\n\n${recap.recap}")
+                var messageId = statusMessageId ?: throw DisplayableError("Не удалось найти сообщение для сводки")
+                parts.forEachIndexed { index, part ->
+                    tgMessageService.editMessageText(chatId, messageId, part)
+                    if (index < parts.lastIndex) {
+                        var nextMessageId: Long? = null
+                        tgMessageService.sendMessage {
+                            this.chatId = chatId
+                            text = RECAP_IN_PROGRESS_TEXT
+                            replyParameters = TgReplyParameters(chatId, messageId)
+                            withCallback { nextMessageId = it.result?.messageId }
+                        }
+                        messageId = nextMessageId ?: throw DisplayableError("Не удалось отправить продолжение сводки")
+                    }
+                }
+            } catch (e: DisplayableError) {
                 tgMessageService.sendMessage {
                     replyToCurrentMessage()
-                    text = textToDisplay
+                    text = e.displayedMessage
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -152,6 +170,10 @@ class SummaryCommandHandler(
         }
 
         return recapOptionsBuilder.build(chatId)
+    }
+
+    companion object {
+        private const val RECAP_IN_PROGRESS_TEXT = "Сводка в прогрессе..."
     }
 
 }
