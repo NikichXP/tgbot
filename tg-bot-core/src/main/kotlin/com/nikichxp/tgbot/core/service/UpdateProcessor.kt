@@ -76,11 +76,7 @@ class UpdateProcessor(
         val markerSupported = context.markers.containsAll(handler.getMarkers())
         val botSupported = botInfo.supports(handler.requiredFeatures())
         val handlerAllows = handler.canHandle(context)
-        val isAuthenticated = if (handler is Authenticable) {
-            handler.authenticate(context)
-        } else {
-            true
-        }
+        val isAuthenticated = botSupported && (handler !is Authenticable || handler.authenticate(context))
         return markerSupported && botSupported && handlerAllows && isAuthenticated
     }
 
