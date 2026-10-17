@@ -3,6 +3,7 @@ package com.nikichxp.tgbot.people.handler
 import com.nikichxp.bot.common.entity.UpdateContext
 import com.nikichxp.bot.common.handlers.BotFeature
 import com.nikichxp.bot.common.service.IAdminNotificationService
+import com.nikichxp.bot.common.util.UserFormatter
 import com.nikichxp.tgbot.core.entity.UpdateMarker
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
 import com.nikichxp.tgbot.core.handlers.UpdateHandler
@@ -44,17 +45,9 @@ class NewUserInteractionHandler(
 
     private fun describeInvolvedParties(updateContext: UpdateContext): String {
         val parts = mutableListOf<String>()
-        updateContext.from?.let {
-            parts += "from.id:${it.id}"
-            it.username?.let { username -> parts += "from.username:$username" }
-            parts += "from.fullName:${it.fullName}"
-        }
+        updateContext.from?.let { parts += UserFormatter.diagnostic(it, "from") }
         updateContext.reply?.let { reply ->
-            reply.from?.let {
-                parts += "replyTo.id:${it.id}"
-                it.username?.let { username -> parts += "replyTo.username:$username" }
-                parts += "replyTo.fullName:${it.fullName}"
-            }
+            reply.from?.let { parts += UserFormatter.diagnostic(it, "replyTo") }
             parts += "replyTo.messageId:${reply.messageId}"
             parts += "replyTo.text:${reply.text ?: ""}"
             parts += "replyTo.chatId:${reply.chat.id}"

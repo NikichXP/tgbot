@@ -27,9 +27,9 @@ data class LoggedMessage(
             return LoggedMessage(
                 updateContext = context,
                 authorId = from?.id,
-                authorName = from?.let { UserFormatter.getUserPrintName(it) },
+                authorName = from?.let { UserFormatter.mention(it) },
                 text = context.message?.text ?: context.message?.sticker?.emoji ?: "",
-                replyAuthorName = reply?.from?.let { UserFormatter.getUserPrintName(it) },
+                replyAuthorName = reply?.from?.let { UserFormatter.mention(it) },
                 replyText = reply?.text,
                 chatId = chatId
             )

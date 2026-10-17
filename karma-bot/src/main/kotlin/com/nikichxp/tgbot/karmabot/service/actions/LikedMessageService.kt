@@ -2,7 +2,7 @@ package com.nikichxp.tgbot.karmabot.service.actions
 
 import com.nikichxp.bot.common.entity.MessageInteractionResult
 import com.nikichxp.bot.common.entity.UpdateContext
-import com.nikichxp.bot.common.util.UserFormatter.getUserPrintName
+import com.nikichxp.bot.common.util.UserFormatter
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import com.nikichxp.tgbot.karmabot.service.UserService
 import kotlinx.coroutines.launch
@@ -38,8 +38,8 @@ class LikedMessageService(
         }
         sendKarmaMsg(
             context = context,
-            actor = getUserPrintName(actor),
-            target = getUserPrintName(target),
+            actor = UserFormatter.displayName(actor),
+            target = UserFormatter.displayName(target),
             actorKarma = actorInfo.rating,
             targetKarma = result.get(),
             diff = diff

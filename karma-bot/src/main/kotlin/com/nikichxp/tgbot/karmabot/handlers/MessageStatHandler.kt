@@ -98,7 +98,7 @@ class MessageStatHandler(
 
     private fun getIdAndName(context: UpdateContext): Pair<Long, String> {
         val user = context.from ?: throw NotHandledSituationError()
-        return user.id to UserFormatter.getUserPrintName(user)
+        return user.id to UserFormatter.displayName(user)
     }
 }
 

@@ -70,9 +70,9 @@ class SummaryMessageStorageService(
         val reply = message?.replyToMessage
 
         document["authorId"] = message?.from?.id
-        document["authorName"] = message?.from?.let { UserFormatter.getUserPrintName(it.toUserModel()) }
+        document["authorName"] = message?.from?.let { UserFormatter.mention(it.toUserModel()) }
         document["text"] = message?.text ?: message?.sticker?.emoji ?: ""
-        document["replyAuthorName"] = reply?.from?.let { UserFormatter.getUserPrintName(it.toUserModel()) }
+        document["replyAuthorName"] = reply?.from?.let { UserFormatter.mention(it.toUserModel()) }
         document["replyText"] = reply?.text
     }
 
