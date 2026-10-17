@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 open class AppConfig(
     var adminId: Long = 0L,
     var adminBot: String? = null,
+    var logChannelId: Long? = null,
     var webhook: String = "",
     var localEnv: Boolean = false,
     var tracer: Tracer = Tracer(),
