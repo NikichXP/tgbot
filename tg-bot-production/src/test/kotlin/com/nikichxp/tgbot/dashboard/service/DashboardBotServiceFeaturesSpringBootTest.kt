@@ -11,7 +11,6 @@ import com.nikichxp.tgbot.dashboard.converters.BotFeatureToDashboardFeatureDtoCo
 import com.nikichxp.tgbot.dashboard.dto.DashboardFeatureDto
 import com.nikichxp.tgbot.dashboard.dto.UpdateBotFeaturesRequest
 import com.nikichxp.tgbot.debug.DebugFeature
-import com.nikichxp.tgbot.karmabot.KarmaFeature
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -53,7 +52,7 @@ class DashboardBotServiceFeaturesSpringBootTest {
 
     private val bot = TgBotInfoV2Entity(BOT_NAME).apply {
         token = "token"
-        supportedFeatures = setOf(KarmaFeature.id, LEGACY_FEATURE_ID)
+        supportedFeatures = setOf(DummyFeature.id, LEGACY_FEATURE_ID)
     }
 
     @BeforeEach
@@ -68,7 +67,7 @@ class DashboardBotServiceFeaturesSpringBootTest {
     fun `available features come from the handlers deployed in the application`() {
         assertThat(dashboardBotService.availableFeatures()).containsExactly(
             DashboardFeatureDto(DebugFeature.id, DebugFeature.title, DebugFeature.description),
-            DashboardFeatureDto(KarmaFeature.id, KarmaFeature.title, KarmaFeature.description)
+            DashboardFeatureDto(DummyFeature.id, DummyFeature.title, DummyFeature.description)
         )
     }
 
@@ -114,12 +113,18 @@ class DashboardBotServiceFeaturesSpringBootTest {
         fun debugCommandHandler(): CommandHandler = commandHandler(DebugFeature)
 
         @Bean
-        fun karmaCommandHandler(): CommandHandler = commandHandler(KarmaFeature)
+        fun dummyCommandHandler(): CommandHandler = commandHandler(DummyFeature)
 
         private fun commandHandler(vararg features: BotFeature) = object : CommandHandler {
             override fun requiredFeatures() = features.toSet()
         }
     }
+
+    object DummyFeature : BotFeature(
+        id = "dummy",
+        title = "Dummy",
+        description = "Test-only feature"
+    )
 
     companion object {
         const val BOT_NAME = "test-bot"

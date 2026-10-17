@@ -1,14 +1,16 @@
 package com.nikichxp.tgbot.santabot
 
 import com.nikichxp.bot.common.entity.UpdateContext
+import com.nikichxp.bot.common.util.UserFormatter
 import com.nikichxp.tgbot.core.handlers.commands.CommandHandler
 import com.nikichxp.tgbot.core.handlers.commands.HandleCommand
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
+import com.nikichxp.tgbot.santabot.entity.SecretSantaGame
+import com.nikichxp.tgbot.santabot.entity.SecretSantaPlayer
 import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.findById
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class SantaBotCommandHandler(
@@ -16,7 +18,6 @@ class SantaBotCommandHandler(
     private val tgMessageService: ITgMessageService,
 ) : CommandHandler {
 
-    private val rand = Random()
     private val log = LoggerFactory.getLogger(this::class.java)
 
     override fun requiredFeatures() = setOf(SantaFeature)
@@ -84,7 +85,7 @@ class SantaBotCommandHandler(
             return true
         }
 
-        val players = game.players.joinToString("\n") { '@' + it.username }
+        val players = game.players.joinToString("\n") { UserFormatter.mention(it.user) }
         tgMessageService.replyToCurrentMessage("Игроки в игре \"$gameId\":\n$players")
         return true
     }
@@ -97,15 +98,15 @@ class SantaBotCommandHandler(
         }
 
         val gameId = args[0]
-        val ignored = args[1]
+        val ignoredUsername = args[1].removePrefix("@").lowercase()
         val game = getGame(gameId) ?: return noGameFound()
         val playerId = getSantaUserPlayerFromUpdate(context).id
         val player = game.players.find { it.id == playerId }
             ?: throw IllegalArgumentException("register in game first")
-        player.ignores += ignored.replace("@", "").lowercase()
+        player.ignoredUsernames += ignoredUsername
         mongoTemplate.save(game)
         tgMessageService.replyToCurrentMessage(
-            "Вы добавили @${ignored} как свою вторую половинку! " +
+            "Вы добавили @$ignoredUsername как свою вторую половинку! " +
                     "Теперь вы не будете дарить ему подарок, а он не будет дарить подарок вам."
         )
         return true
@@ -121,9 +122,11 @@ class SantaBotCommandHandler(
             return true
         }
 
-        val playerPairs = calculatePlayers(game)
+        val playerPairs = findPairs(game) ?: return true
         tgMessageService.replyToCurrentMessage(
-            playerPairs.joinToString("\n") { (user, target) -> "@${user.username} -> @$target" }
+            playerPairs.joinToString("\n") { (santa, target) ->
+                "${UserFormatter.mention(santa.user)} -> ${UserFormatter.mention(target.user)}"
+            }
         )
         return true
     }
@@ -138,7 +141,7 @@ class SantaBotCommandHandler(
             game.players.size < 3 -> tgMessageService.replyToCurrentMessage("Недостаточно игроков")
             game.createdBy != context.from?.id -> tgMessageService.replyToCurrentMessage("Вы не создатель игры")
             else -> {
-                val playerPairs = calculatePlayers(game)
+                val playerPairs = findPairs(game) ?: return true
                 startGame(playerPairs)
                 game.isStarted = true
                 mongoTemplate.save(game)
@@ -156,84 +159,25 @@ class SantaBotCommandHandler(
         return true
     }
 
-    private suspend fun calculatePlayers(game: SecretSantaGame): List<Pair<SecretSantaPlayer, String>> {
-        val users = game.players
-        val targets = game.players.map { it.username }.toMutableList()
-
-        val playerCount = users.size
-        var iteration = 0
-        val iterationLimit = playerCount * playerCount * 2
-
-        while (!isConditionOk(users, targets) && iteration < iterationLimit) {
-            val a = rand.nextInt(playerCount)
-            val b = rand.nextInt(playerCount)
-            val tmp = targets[a]
-            targets[a] = targets[b]
-            targets[b] = tmp
-            iteration++
-        }
-
-        if (iteration >= iterationLimit) {
+    private suspend fun findPairs(game: SecretSantaGame): List<Pair<SecretSantaPlayer, SecretSantaPlayer>>? {
+        val pairs = SecretSantaPairing.findPairs(game.players)
+        if (pairs == null) {
             tgMessageService.replyToCurrentMessage("Не удалось найти подходящие пары. Попробуйте еще раз")
-            return emptyList()
-        } else {
-            return users.zip(targets)
         }
+        return pairs
     }
 
-    private suspend fun startGame(playerPairs: List<Pair<SecretSantaPlayer, String>>) {
-        playerPairs.forEach { (user, target) ->
-            log.info("${user.username} дарит $target")
+    private suspend fun startGame(playerPairs: List<Pair<SecretSantaPlayer, SecretSantaPlayer>>) {
+        playerPairs.forEach { (santa, target) ->
+            log.info("${UserFormatter.diagnostic(santa.user, "santa")} дарит ${UserFormatter.diagnostic(target.user, "target")}")
             tgMessageService.sendMessage(
-                user.id,
-                "Ваша цель: @$target"
+                santa.id,
+                "Ваша цель: ${UserFormatter.mention(target.user)}"
             )
         }
     }
 
-    fun isConditionOk(users: List<SecretSantaPlayer>, targets: List<String>, nonPairGifting: Boolean = true): Boolean {
-        val userPairs = users.zip(targets)
-        val individualUserConditionsMet = userPairs.all { (user, target) ->
-
-            val iDontIgnoreTarget = user.ignores.none {
-                target.lowercase().contains(it.lowercase())
-            }
-
-            val targetDoesntIgnoreMe = users.find { it.username == target }?.ignores?.none {
-                user.username.lowercase().contains(it.lowercase())
-            } != false
-
-            val itsNotMe = user.username.lowercase() != target.lowercase()
-
-            return@all iDontIgnoreTarget && targetDoesntIgnoreMe && itsNotMe
-        }
-
-        val hasCircles = userPairs.any { (user, target) ->
-            userPairs.find { (isTarget, _) -> isTarget.username == target }?.second == user.username
-        }
-        val circularConditionMet = !nonPairGifting || !hasCircles
-
-        return individualUserConditionsMet && circularConditionMet
-    }
-
     private fun getSantaUserPlayerFromUpdate(context: UpdateContext): SecretSantaPlayer {
-        return SecretSantaPlayer(
-            id = context.from?.id ?: throw IllegalArgumentException("not expected"),
-            username = context.from?.username ?: throw IllegalArgumentException("you must have a username")
-        )
+        return SecretSantaPlayer(context.from ?: throw IllegalArgumentException("not expected"))
     }
-}
-
-class SecretSantaGame {
-    var id: String = UUID.randomUUID().toString().substring(0 until 8)
-    var players: List<SecretSantaPlayer> = listOf()
-    var isStarted = false
-    var createdBy: Long = 0
-}
-
-data class SecretSantaPlayer(
-    var id: Long,
-    var username: String
-) {
-    var ignores = setOf<String>()
 }

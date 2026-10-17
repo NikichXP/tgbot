@@ -1,6 +1,8 @@
 package com.nikichxp.tgbot.dashboard.service
 
 import com.nikichxp.bot.common.config.AppConfig
+import com.nikichxp.bot.common.entity.model.UserModel
+import com.nikichxp.bot.common.util.UserFormatter
 import com.nikichxp.bot.common.util.SecureTokens
 import com.nikichxp.tgbot.dashboard.dto.DashboardPrincipal
 import com.nikichxp.tgbot.dashboard.dto.DashboardUserDto
@@ -13,6 +15,7 @@ import com.nikichxp.tgbot.dashboard.repository.DashboardAccessTokenRepository
 import com.nikichxp.tgbot.dashboard.repository.DashboardLoginNonceRepository
 import com.nikichxp.tgbot.dashboard.repository.DashboardSessionRepository
 import org.slf4j.LoggerFactory
+import org.springframework.core.convert.ConversionService
 import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.Instant
@@ -23,7 +26,8 @@ class DashboardAuthService(
     private val idTokenVerifier: TelegramIdTokenVerifier,
     private val sessionRepository: DashboardSessionRepository,
     private val accessTokenRepository: DashboardAccessTokenRepository,
-    private val nonceRepository: DashboardLoginNonceRepository
+    private val nonceRepository: DashboardLoginNonceRepository,
+    private val conversionService: ConversionService
 ) {
 
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -44,7 +48,8 @@ class DashboardAuthService(
             throw DashboardUnauthorizedException("Login expired, please try again")
         }
         if (user.id != appConfig.adminId) {
-            logger.warn("Dashboard login rejected for non-admin telegram user ${user.id} (@${user.username})")
+            val userModel = conversionService.convert(user, UserModel::class.java)!!
+            logger.warn("Dashboard login rejected for non-admin telegram user ${UserFormatter.diagnostic(userModel, "user")}")
             throw DashboardForbiddenException("Only the bot admin may use the dashboard")
         }
 
