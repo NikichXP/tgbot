@@ -20,7 +20,7 @@ class TelegramLogChannelService(
     private val appConfig: AppConfig
 ) {
 
-    private val queue = LinkedBlockingQueue<String>(QUEUE_CAPACITY)
+    private val queue = LinkedBlockingQueue<BotAppLogEvent>(QUEUE_CAPACITY)
     private val appender = TelegramLogAppender(queue).apply { name = "TELEGRAM_CHANNEL" }
     private val rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as Logger
 
@@ -41,14 +41,14 @@ class TelegramLogChannelService(
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
     fun flush() {
         val channelId = appConfig.logChannelId ?: return
-        val lines = mutableListOf<String>()
-        queue.drainTo(lines)
-        if (lines.isEmpty()) return
+        val events = mutableListOf<BotAppLogEvent>()
+        queue.drainTo(events)
+        if (events.isEmpty()) return
 
         runCatching {
             val bot = botV2Service.getAdminBot()
             runBlocking {
-                lines.joinToString("\n").chunked(MAX_MESSAGE_LENGTH).forEach { part ->
+                events.joinToString("\n") { it.toFormattedString() }.chunked(MAX_MESSAGE_LENGTH).forEach { part ->
                     tgMessageService.sendMessage(bot) {
                         chatId = channelId
                         text = part

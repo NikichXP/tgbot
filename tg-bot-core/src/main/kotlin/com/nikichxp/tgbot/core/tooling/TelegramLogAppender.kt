@@ -6,11 +6,18 @@ import ch.qos.logback.core.AppenderBase
 import java.util.concurrent.BlockingQueue
 
 class TelegramLogAppender(
-    private val queue: BlockingQueue<String>
+    private val queue: BlockingQueue<BotAppLogEvent>
 ) : AppenderBase<ILoggingEvent>() {
 
     override fun append(event: ILoggingEvent) {
         val throwable = event.throwableProxy?.let { "\n" + ThrowableProxyUtil.asString(it) }.orEmpty()
-        queue.offer("${event.level} ${event.loggerName.substringAfterLast('.')}: ${event.formattedMessage}$throwable")
+        queue.offer(
+            BotAppLogEvent(
+                message = event.formattedMessage + throwable,
+                level = event.level,
+                loggerName = event.loggerName,
+                time = event.instant
+            )
+        )
     }
 }
