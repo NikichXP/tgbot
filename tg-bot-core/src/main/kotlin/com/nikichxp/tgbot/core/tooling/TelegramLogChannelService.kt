@@ -6,6 +6,8 @@ import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
@@ -17,7 +19,8 @@ import java.util.concurrent.TimeUnit
 class TelegramLogChannelService(
     private val tgMessageService: ITgMessageService,
     private val botV2Service: ITgBotV2Service,
-    private val appConfig: AppConfig
+    private val appConfig: AppConfig,
+    private val coroutineScope: CoroutineScope
 ) {
 
     private val queue = LinkedBlockingQueue<BotAppLogEvent>(QUEUE_CAPACITY)
@@ -45,17 +48,20 @@ class TelegramLogChannelService(
         queue.drainTo(events)
         if (events.isEmpty()) return
 
-        runCatching {
+        coroutineScope.launch {
             val bot = botV2Service.getAdminBot()
-            runBlocking {
-                events.joinToString("\n") { it.toFormattedString() }.chunked(MAX_MESSAGE_LENGTH).forEach { part ->
+            try {
+                events.forEach { event ->
                     tgMessageService.sendMessage(bot) {
                         chatId = channelId
-                        text = part
+                        text = event.toFormattedString()
                     }
                 }
+            } catch (e: Exception) {
+                LoggerFactory.getLogger(this::class.java)
+                    .warn("Failed to send logs to channel {}: {}", channelId, e.message)
             }
-        }.onFailure { LoggerFactory.getLogger(this::class.java).warn("Failed to send logs to channel {}: {}", channelId, it.message) }
+        }
     }
 
     companion object {
