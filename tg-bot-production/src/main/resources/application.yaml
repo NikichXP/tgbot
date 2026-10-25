@@ -1,6 +1,10 @@
 server:
   port: ${SERVER_PORT:8080}
 
+logging:
+  level:
+    com.nikichxp: DEBUG
+
 management:
   endpoints:
     web:
@@ -45,6 +49,7 @@ app:
   adminId: ${APP_ADMIN_ID:0}
   adminBot: ${APP_ADMIN_BOT:}
   logChannelId: ${APP_LOG_CHANNEL_ID:}
+  debugLogChannelId: ${APP_DEBUG_LOG_CHANNEL_ID:}
   webhook: ${APP_WEBHOOK:https://bot.nikichxp.xyz/handle}
   localEnv: ${APP_LOCAL_ENV:false}
   suspendBotRegistering: ${APP_SUSPEND_BOT_REGISTERING:false}

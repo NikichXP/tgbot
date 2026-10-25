@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.core.tooling
 
+import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.nikichxp.bot.common.config.AppConfig
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
@@ -33,6 +34,15 @@ class TelegramLogChannelServiceTest {
     }
 
     @Test
+    fun `debug log channel id is null when the env var is missing or empty`() {
+        contextRunner.run { assertThat(it.getBean(AppConfig::class.java).debugLogChannelId).isNull() }
+        contextRunner.withPropertyValues("app.debugLogChannelId=")
+            .run { assertThat(it.getBean(AppConfig::class.java).debugLogChannelId).isNull() }
+        contextRunner.withPropertyValues("app.debugLogChannelId=-1004456741367")
+            .run { assertThat(it.getBean(AppConfig::class.java).debugLogChannelId).isEqualTo(-1004456741367) }
+    }
+
+    @Test
     fun `without log channel id nothing is attached or sent`() {
         val calls = mutableListOf<String>()
         val service = TelegramLogChannelService(
@@ -62,13 +72,39 @@ class TelegramLogChannelServiceTest {
         )
 
         service.attach()
-        LoggerFactory.getLogger("com.example.FooService").warn("hello {}", "channel")
+        fooLogger().warn("hello {}", "channel")
+        fooLogger().debug("debug line")
         service.detach()
 
         assertThat(sent).isNotEmpty.allSatisfy { assertThat(it.chatId).isEqualTo(LOG_CHANNEL_ID) }
         assertThat(sent.joinToString("\n") { it.text })
             .containsPattern("""\d{2}:\d{2}:\d{2}\.\d{3} WARN \[FooService] hello channel""")
+            .doesNotContain("debug line")
     }
+
+    @Test
+    fun `debug channel receives every level while log channel skips debug`() {
+        val sent = mutableListOf<TgSendMessage>()
+        val service = TelegramLogChannelService(
+            capturingMessageService(sent),
+            stub<ITgBotV2Service> { TgBotInfo("admin", emptySet()) },
+            AppConfig(logChannelId = LOG_CHANNEL_ID, debugLogChannelId = DEBUG_LOG_CHANNEL_ID),
+            CoroutineScope(Dispatchers.Unconfined)
+        )
+
+        service.attach()
+        fooLogger().warn("warn line")
+        fooLogger().debug("debug line")
+        service.detach()
+
+        assertThat(chatsReceiving(sent, "warn line")).containsExactly(LOG_CHANNEL_ID, DEBUG_LOG_CHANNEL_ID)
+        assertThat(chatsReceiving(sent, "debug line")).containsExactly(DEBUG_LOG_CHANNEL_ID)
+    }
+
+    private fun fooLogger() = (LoggerFactory.getLogger("com.example.FooService") as Logger).apply { level = Level.DEBUG }
+
+    private fun chatsReceiving(sent: List<TgSendMessage>, text: String) =
+        sent.filter { it.text.endsWith("[FooService] $text") }.map { it.chatId }
 
     private fun capturingMessageService(sent: MutableList<TgSendMessage>): ITgMessageService =
         stub { args ->
@@ -91,5 +127,6 @@ class TelegramLogChannelServiceTest {
 
     companion object {
         private const val LOG_CHANNEL_ID = -1004334163893
+        private const val DEBUG_LOG_CHANNEL_ID = -1004456741367
     }
 }

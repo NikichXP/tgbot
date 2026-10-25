@@ -94,6 +94,7 @@ has enabled (`tgBotInfo.supportedFeatures`); the `id` is that persisted contract
 | `APP_ADMIN_ID` | Telegram User ID of the bot admin/owner | `0` (loaded from `.env` / secret) |
 | `APP_ADMIN_BOT` | Name of the primary admin bot (bot entities/tokens are loaded from MongoDB) | `null` |
 | `APP_LOG_CHANNEL_ID` | Telegram channel id receiving every app log line (root logger, batched every 5 s) via the admin bot, which must be a channel admin; empty disables it | `null` |
+| `APP_DEBUG_LOG_CHANNEL_ID` | Telegram channel id for debug logs via the admin bot (channel admin); empty disables it | `null` |
 | `APP_WEBHOOK` | Base webhook URL registered with Telegram API | `https://bot.nikichxp.xyz/handle` |
 | `APP_LOCAL_ENV` | When true, skips webhook registration | `false` |
 | `APP_SUSPEND_BOT_REGISTERING` | When true, suspends bot webhook registration | `false` |

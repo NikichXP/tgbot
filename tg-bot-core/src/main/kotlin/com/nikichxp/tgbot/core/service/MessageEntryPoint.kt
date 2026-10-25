@@ -24,7 +24,7 @@ class MessageEntryPoint(
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     suspend fun proceedRawData(body: Document, bot: TgBotInfo) {
-        logger.info("Received message: $body")
+        logger.debug("Received message: {}", body)
         tracerService.logEvent(body)
         try {
             val update = converter.convert(body, bot)
