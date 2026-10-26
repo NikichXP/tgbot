@@ -31,7 +31,7 @@ COPY tg-bot-production/build.gradle.kts ./tg-bot-production/
 COPY tg-bot-production/src ./tg-bot-production/src
 RUN gradle build --no-daemon
 
-FROM amazoncorretto:21-alpine
+FROM amazoncorretto:25-alpine
 
 WORKDIR /app
 
