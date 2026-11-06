@@ -12,6 +12,7 @@ import io.ktor.client.request.forms.formData
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
@@ -93,40 +94,15 @@ class KtorTgApiCallExecutorImpl(
         retryNumber: Int,
         retry: suspend () -> TgApiResponse
     ): TgApiResponse {
-        return when (response.status.value) {
-            HttpStatusCode.TooManyRequests.value -> {
-                if (retryNumber < appConfig.maxRetryCount) {
-                    delay(1.seconds)
-                    return retry()
-                }
-                handleError(response, method, TgResponseStatus.TOO_MANY_REQUESTS, response.body<JsonNode>())
-            }
-            HttpStatusCode.Conflict.value -> {
-                handleError(response, method, TgResponseStatus.CONFLICT, response.body<JsonNode>())
-            }
-            in 400..599 -> {
-                val errorBody = response.body<JsonNode>()
-                val description = errorBody.get("description")?.asText().orEmpty()
-                if (description.contains("message is too long", ignoreCase = true)) {
-                    handleError(response, method, TgResponseStatus.MESSAGE_TOO_LONG, errorBody)
-                } else {
-                    handleError(response, method, TgResponseStatus.UNKNOWN_ERROR, errorBody)
-                }
-            }
-            in 200..299 -> TgApiResponse(response.body<JsonNode>())
-            else -> throw IllegalStateException("Unexpected server response")
+        val status = response.status.value
+        if (status in 200..299) return TgApiResponse(response.body<JsonNode>())
+        if (status == HttpStatusCode.TooManyRequests.value && retryNumber < appConfig.maxRetryCount) {
+            delay(1.seconds)
+            return retry()
         }
-    }
-
-    private fun handleError(
-        response: HttpResponse,
-        method: String,
-        responseStatus: TgResponseStatus,
-        errorBody: JsonNode
-    ): TgApiResponse {
+        val errorBody = response.bodyAsText()
         logger.error("Tg API error: status={}, method={}, body={}", response.status, method, errorBody)
-
-        return TgApiResponse(errorBody, success = false, responseStatus = responseStatus)
+        throw tgApiErrorFor(method, status, errorBody, objectMapper)
     }
 
 }

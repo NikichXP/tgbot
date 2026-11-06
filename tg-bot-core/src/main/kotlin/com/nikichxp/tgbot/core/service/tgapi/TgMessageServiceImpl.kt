@@ -131,13 +131,7 @@ class TgMessageServiceImpl(
         }
         parts.add(TgMultipartPart.FilePart("document", fileName, "text/markdown", fileContent))
 
-        val response = tgApiCallExecutor.callEndpointMultipart(bot, "sendDocument", parts)
-
-        if (!response.success) {
-            logger.warn("sendDocument failed: chatId={}, body={}", chatId, response.content)
-            throw TgApiCallException("sendDocument failed: ${response.content}")
-        }
-
+        tgApiCallExecutor.callEndpointMultipart(bot, "sendDocument", parts)
         logger.info("Sent document {} to chatId={}", fileName, chatId)
     }
 }

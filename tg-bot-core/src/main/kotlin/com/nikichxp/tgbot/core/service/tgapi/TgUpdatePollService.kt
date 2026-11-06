@@ -2,9 +2,10 @@ package com.nikichxp.tgbot.core.service.tgapi
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
+import com.nikichxp.tgbot.core.error.TgApiErrorException
+import com.nikichxp.tgbot.core.error.TgConflictException
 import com.nikichxp.tgbot.core.service.MessageEntryPoint
 import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor
-import com.nikichxp.tgbot.core.service.tgapi.executor.TgResponseStatus
 import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,24 +47,18 @@ class TgUpdatePollService(
         val jobs = activePollingInfo.map { info ->
             scope.launch {
                 val params = buildGetUpdatesParams(info)
-                val rawResponse = tgApiCallExecutor.callEndpoint(info.bot, "getUpdates", params)
-                when {
-                    rawResponse.success -> {
-                        val responseBody = objectMapper.treeToValue(rawResponse.content, TgResponse::class.java)
-                        for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
-                            logger.info("Received update for {}: {}", info.bot.name, objectMapper.writeValueAsString(update))
-                            messageEntryPoint.proceedUpdate(update, info.bot)
-                            info.onProcess(update.updateId)
-                        }
+                try {
+                    val rawResponse = tgApiCallExecutor.callEndpoint(info.bot, "getUpdates", params)
+                    val responseBody = objectMapper.treeToValue(rawResponse.content, TgResponse::class.java)
+                    for (update in responseBody.result.filter { info.shouldBeProcessed(it.updateId) }) {
+                        logger.info("Received update for {}: {}", info.bot.name, objectMapper.writeValueAsString(update))
+                        messageEntryPoint.proceedUpdate(update, info.bot)
+                        info.onProcess(update.updateId)
                     }
-
-                    rawResponse.responseStatus == TgResponseStatus.CONFLICT -> {
-                        tgBotWebhookService.unregister(info.bot)
-                    }
-
-                    else -> {
-                        logger.warn("Failed to fetch updates for ${info.bot.name}, error: ${rawResponse.content}")
-                    }
+                } catch (_: TgConflictException) {
+                    tgBotWebhookService.unregister(info.bot)
+                } catch (e: TgApiErrorException) {
+                    logger.warn("Failed to fetch updates for ${info.bot.name}, error: ${e.message}")
                 }
             }
         }

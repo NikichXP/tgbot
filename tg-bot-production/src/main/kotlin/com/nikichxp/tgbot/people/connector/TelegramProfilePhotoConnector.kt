@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.nikichxp.tgbot.core.dto.files.PhotoSize
 import com.nikichxp.tgbot.core.entity.bots.TgBotInfo
+import com.nikichxp.tgbot.core.error.TgApiErrorException
 import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.executor.ITgApiCallExecutor
 import io.ktor.client.HttpClient
@@ -31,17 +32,21 @@ class TelegramProfilePhotoConnector(
     }
 
     private suspend fun currentProfilePhotoSizes(bot: TgBotInfo, userId: Long): List<PhotoSize> {
-        val response = tgApiCallExecutor.callEndpoint(
-            bot, "getUserProfilePhotos", mapOf("user_id" to userId, "limit" to 1)
-        )
-        if (!response.success) return emptyList()
+        val response = try {
+            tgApiCallExecutor.callEndpoint(bot, "getUserProfilePhotos", mapOf("user_id" to userId, "limit" to 1))
+        } catch (_: TgApiErrorException) {
+            return emptyList()
+        }
         val currentPhoto = response.content.path("result").path("photos").path(0)
         return if (currentPhoto.isArray) objectMapper.convertValue(currentPhoto) else emptyList()
     }
 
     private suspend fun filePath(bot: TgBotInfo, fileId: String): String? {
-        val response = tgApiCallExecutor.callEndpoint(bot, "getFile", mapOf("file_id" to fileId))
-        if (!response.success) return null
+        val response = try {
+            tgApiCallExecutor.callEndpoint(bot, "getFile", mapOf("file_id" to fileId))
+        } catch (_: TgApiErrorException) {
+            return null
+        }
         return response.content.path("result").path("file_path").takeIf { it.isTextual }?.asText()
     }
 

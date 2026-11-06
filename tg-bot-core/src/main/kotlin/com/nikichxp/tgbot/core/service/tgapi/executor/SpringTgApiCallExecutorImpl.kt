@@ -11,7 +11,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -112,21 +111,10 @@ class SpringTgApiCallExecutorImpl(
         }
     }
 
-    private fun handleError(exception: HttpStatusCodeException, method: String): TgApiResponse {
-        val errorBody = runCatching { objectMapper.readTree(exception.responseBodyAsString) }
-            .getOrDefault(objectMapper.createObjectNode())
+    private fun handleError(exception: HttpStatusCodeException, method: String): Nothing {
+        val errorBody = exception.responseBodyAsString
         logger.error("Tg API error: status={}, method={}, body={}", exception.statusCode, method, errorBody)
-
-        val description = errorBody.get("description")?.asText().orEmpty()
-
-        val responseStatus = when {
-            exception is HttpClientErrorException.TooManyRequests -> TgResponseStatus.TOO_MANY_REQUESTS
-            exception.statusCode == HttpStatus.CONFLICT -> TgResponseStatus.CONFLICT
-            description.contains("message is too long", ignoreCase = true) -> TgResponseStatus.MESSAGE_TOO_LONG
-            else -> TgResponseStatus.UNKNOWN_ERROR
-        }
-
-        return TgApiResponse(errorBody, success = false, responseStatus = responseStatus)
+        throw tgApiErrorFor(method, exception.statusCode.value(), errorBody, objectMapper)
     }
 
 }
