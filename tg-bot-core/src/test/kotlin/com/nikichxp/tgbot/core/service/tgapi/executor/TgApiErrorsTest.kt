@@ -39,4 +39,14 @@ class TgApiErrorsTest {
         assertThat(fromJson.errorCode).isEqualTo(400)
         assertThat(fromHtml.description).isEqualTo("<html>Bad Gateway</html>")
     }
+
+    @Test
+    fun `rate limit carries retry after from telegram parameters`() {
+        val body = """{"ok":false,"error_code":429,"description":"Too Many Requests: retry after 30","parameters":{"retry_after":30}}"""
+
+        val error = tgApiErrorFor("sendMessage", 429, body, objectMapper)
+
+        assertThat(error).isInstanceOf(TgTooManyRequestsException::class.java)
+        assertThat((error as TgTooManyRequestsException).retryAfterSeconds).isEqualTo(30)
+    }
 }

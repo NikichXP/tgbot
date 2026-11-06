@@ -88,16 +88,22 @@ class TelegramLogChannelService(
     private fun packIntoMessages(lines: List<String>): List<String> {
         val messages = mutableListOf<String>()
         val current = StringBuilder()
-        for (chunk in lines.flatMap { it.chunked(MAX_MESSAGE_LENGTH) }) {
-            if (current.isNotEmpty() && current.length + 1 + chunk.length > MAX_MESSAGE_LENGTH) {
+        for (line in lines.map(::fitIntoMessage)) {
+            if (current.isNotEmpty() && current.length + 1 + line.length > MAX_MESSAGE_LENGTH) {
                 messages += current.toString()
                 current.clear()
             }
             if (current.isNotEmpty()) current.append('\n')
-            current.append(chunk)
+            current.append(line)
         }
         if (current.isNotEmpty()) messages += current.toString()
         return messages
+    }
+
+    private fun fitIntoMessage(line: String): String {
+        if (line.length <= MAX_MESSAGE_LENGTH) return line
+        val truncated = line.take(MAX_MESSAGE_LENGTH)
+        return if (truncated.last().isHighSurrogate()) truncated.dropLast(1) else truncated
     }
 
     private suspend fun sendUntilNotRateLimited(bot: TgBotInfo, channelId: Long, text: String) {
@@ -105,8 +111,8 @@ class TelegramLogChannelService(
             try {
                 send(bot, channelId, text)
                 return
-            } catch (_: TgTooManyRequestsException) {
-                delay(RATE_LIMIT_RETRY_DELAY)
+            } catch (e: TgTooManyRequestsException) {
+                delay(maxOf(MIN_RATE_LIMIT_RETRY_DELAY, (e.retryAfterSeconds ?: 0).seconds))
             } catch (e: Exception) {
                 logger.warn("Failed to send logs to channel {}: {}...", channelId, e.message?.take(3000))
                 return
@@ -124,6 +130,6 @@ class TelegramLogChannelService(
     companion object {
         private const val QUEUE_CAPACITY = 10_000
         private const val MAX_MESSAGE_LENGTH = 4000
-        private val RATE_LIMIT_RETRY_DELAY = 1.seconds
+        private val MIN_RATE_LIMIT_RETRY_DELAY = 1.seconds
     }
 }

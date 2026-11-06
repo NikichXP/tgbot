@@ -1,5 +1,6 @@
 package com.nikichxp.tgbot.okx
 
+import com.nikichxp.tgbot.core.error.TgApiErrorException
 import com.nikichxp.tgbot.core.service.ITgBotV2Service
 import com.nikichxp.tgbot.core.service.tgapi.ITgMessageService
 import kotlinx.coroutines.runBlocking
@@ -24,11 +25,15 @@ class OkxWatchNotificationListener(
             return
         }
         val text = WatchNotificationFormatter.format(notification)
-        runBlocking {
-            tgMessageService.sendMessage(bot) {
-                chatId = notification.chatId
-                this.text = text
+        try {
+            runBlocking {
+                tgMessageService.sendMessage(bot) {
+                    chatId = notification.chatId
+                    this.text = text
+                }
             }
+        } catch (e: TgApiErrorException) {
+            logger.warn("Dropping watch notification {} rejected by Telegram: {}", notification, e.message)
         }
     }
 }

@@ -131,26 +131,41 @@ class TelegramLogChannelServiceTest {
     }
 
     @Test
-    fun `log lines are packed into few messages within telegram length limit`() {
+    fun `whole log lines are packed until the next one would exceed the limit`() {
         val sent = mutableListOf<TgSendMessage>()
-        val service = TelegramLogChannelService(
-            capturingMessageService(sent),
-            stub<ITgBotV2Service> { TgBotInfo("admin", emptySet()) },
-            AppConfig(logChannelId = LOG_CHANNEL_ID),
-            CoroutineScope(Dispatchers.Unconfined)
-        )
+        val service = logChannelService(sent)
+        val prefixLength = "00:00:00.000 WARN [FooService] ".length
 
         service.attach()
-        repeat(100) { fooLogger().warn("batched line $it ${"x".repeat(100)}") }
-        fooLogger().warn("huge line ${"y".repeat(9000)}")
+        repeat(100) { fooLogger().warn("%03d".format(it) + "x".repeat(100 - prefixLength - 3)) }
         service.detach()
 
-        val batched = sent.filter { it.text.contains("batched line") || it.text.contains("yyy") }
-        assertThat(batched.size).isBetween(4, 8)
-        assertThat(sent).allSatisfy { assertThat(it.text.length).isLessThanOrEqualTo(4000) }
-        assertThat(chatsReceiving(sent, "batched line 99 ${"x".repeat(100)}")).containsExactly(LOG_CHANNEL_ID)
-        assertThat(sent.joinToString("") { it.text }).contains("y".repeat(9000).take(3900))
+        assertThat(sent.map { it.text.lines().size }).containsExactly(39, 39, 22)
+        assertThat(sent).allSatisfy { assertThat(it.text.lines()).allSatisfy { line -> assertThat(line).hasSize(100) } }
     }
+
+    @Test
+    fun `oversized line is truncated without splitting an emoji`() {
+        val sent = mutableListOf<TgSendMessage>()
+        val service = logChannelService(sent)
+
+        service.attach()
+        fooLogger().warn("😀".repeat(3000))
+        fooLogger().warn("a" + "😀".repeat(3000))
+        service.detach()
+
+        assertThat(sent).hasSize(2).allSatisfy {
+            assertThat(it.text.length).isBetween(3999, 4000)
+            assertThat(it.text.last().isHighSurrogate()).isFalse()
+        }
+    }
+
+    private fun logChannelService(sent: MutableList<TgSendMessage>) = TelegramLogChannelService(
+        capturingMessageService(sent),
+        stub<ITgBotV2Service> { TgBotInfo("admin", emptySet()) },
+        AppConfig(logChannelId = LOG_CHANNEL_ID),
+        CoroutineScope(Dispatchers.Unconfined)
+    )
 
     private fun fooLogger() = (LoggerFactory.getLogger("com.example.FooService") as Logger).apply { level = Level.DEBUG }
 

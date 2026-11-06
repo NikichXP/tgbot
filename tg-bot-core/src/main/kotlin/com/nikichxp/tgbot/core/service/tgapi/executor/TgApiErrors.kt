@@ -12,7 +12,12 @@ import com.nikichxp.tgbot.core.error.TgTooManyRequestsException
 import com.nikichxp.tgbot.core.error.TgUnauthorizedException
 import com.nikichxp.tgbot.core.error.TgUnexpectedApiErrorException
 
-fun tgApiErrorFor(method: String, errorCode: Int, description: String): TgApiErrorException = when (errorCode) {
+fun tgApiErrorFor(
+    method: String,
+    errorCode: Int,
+    description: String,
+    retryAfterSeconds: Long? = null
+): TgApiErrorException = when (errorCode) {
     400 if description.contains("message is too long", ignoreCase = true) ->
         TgMessageTooLongException(method, description)
     400 -> TgBadRequestException(method, description)
@@ -20,15 +25,14 @@ fun tgApiErrorFor(method: String, errorCode: Int, description: String): TgApiErr
     403 -> TgForbiddenException(method, description)
     404 -> TgNotFoundException(method, description)
     409 -> TgConflictException(method, description)
-    429 -> TgTooManyRequestsException(method, description)
+    429 -> TgTooManyRequestsException(method, description, retryAfterSeconds)
     in 500..599 -> TgServerErrorException(method, errorCode, description)
     else -> TgUnexpectedApiErrorException(method, errorCode, description)
 }
 
 fun tgApiErrorFor(method: String, errorCode: Int, errorBody: String, objectMapper: ObjectMapper): TgApiErrorException {
-    val description = runCatching { objectMapper.readTree(errorBody).path("description").asText() }
-        .getOrNull()
-        ?.takeIf { it.isNotEmpty() }
-        ?: errorBody
-    return tgApiErrorFor(method, errorCode, description)
+    val json = runCatching { objectMapper.readTree(errorBody) }.getOrNull()
+    val description = json?.path("description")?.asText()?.takeIf { it.isNotEmpty() } ?: errorBody
+    val retryAfterSeconds = json?.path("parameters")?.path("retry_after")?.takeIf { it.canConvertToLong() }?.asLong()
+    return tgApiErrorFor(method, errorCode, description, retryAfterSeconds)
 }

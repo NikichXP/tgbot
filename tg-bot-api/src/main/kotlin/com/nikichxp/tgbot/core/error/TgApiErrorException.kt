@@ -38,7 +38,8 @@ class TgConflictException(
 
 class TgTooManyRequestsException(
     method: String,
-    description: String
+    description: String,
+    val retryAfterSeconds: Long? = null
 ) : TgApiErrorException(method, 429, description)
 
 class TgServerErrorException(
