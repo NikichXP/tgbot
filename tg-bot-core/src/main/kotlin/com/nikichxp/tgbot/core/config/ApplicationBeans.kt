@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -50,20 +51,11 @@ class ApplicationBeans {
     fun cacheManager(): CacheManager = ConcurrentMapCacheManager()
 
     @Bean
-    fun ktorHttpClient(): HttpClient = HttpClient(CIO) {
+    fun ktorHttpClient(
+        objectMapper: ObjectMapper
+    ): HttpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
-            // TODO use bean from above
-            jackson {
-                registerModule(JavaTimeModule())
-                registerKotlinModule()
-                setDefaultPropertyInclusion(
-                    JsonInclude.Value.construct(
-                        JsonInclude.Include.NON_NULL,
-                        JsonInclude.Include.USE_DEFAULTS
-                    )
-                )
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            }
+            register(ContentType.Application.Json, JacksonConverter(objectMapper))
         }
         engine {
             maxConnectionsCount = 1000
