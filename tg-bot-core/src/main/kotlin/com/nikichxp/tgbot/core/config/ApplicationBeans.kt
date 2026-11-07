@@ -31,7 +31,12 @@ class ApplicationBeans {
     fun objectMapper(): ObjectMapper = ObjectMapper()
         .registerKotlinModule()
         .registerModule(JavaTimeModule())
-        .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+        .setDefaultPropertyInclusion(
+            JsonInclude.Value.construct(
+                JsonInclude.Include.NON_NULL,
+                JsonInclude.Include.USE_DEFAULTS
+            )
+        )
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     @Bean
@@ -51,7 +56,12 @@ class ApplicationBeans {
             jackson {
                 registerModule(JavaTimeModule())
                 registerKotlinModule()
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                setDefaultPropertyInclusion(
+                    JsonInclude.Value.construct(
+                        JsonInclude.Include.NON_NULL,
+                        JsonInclude.Include.USE_DEFAULTS
+                    )
+                )
                 configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             }
         }

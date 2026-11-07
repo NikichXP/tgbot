@@ -49,22 +49,27 @@ class TelegramLogChannelService(
         flush()
     }
 
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
     fun flush() {
-        val channelId = appConfig.logChannelId ?: return
         if (sendingLock.isLocked) return
+
         val events = mutableListOf<BotAppLogEvent>()
         queue.drainTo(events)
         if (events.isEmpty()) return
 
         coroutineScope.launch {
             sendingLock.withLock {
-                val bot = botV2Service.getAdminBot()
-                for ((targetChannelId, lines) in linesByChannel(events, channelId)) {
-                    for (text in packIntoMessages(lines)) {
-                        sendUntilNotRateLimited(bot, targetChannelId, text)
-                    }
-                }
+                sendEvents(events)
+            }
+        }
+    }
+
+    private suspend fun sendEvents(events: List<BotAppLogEvent>) {
+        val channelId = appConfig.logChannelId ?: return
+        val bot = botV2Service.getAdminBot()
+        for ((targetChannelId, lines) in linesByChannel(events, channelId)) {
+            for (text in packIntoMessages(lines)) {
+                sendWithRetryOnRateLimit(bot, targetChannelId, text)
             }
         }
     }
@@ -106,7 +111,7 @@ class TelegramLogChannelService(
         return if (truncated.last().isHighSurrogate()) truncated.dropLast(1) else truncated
     }
 
-    private suspend fun sendUntilNotRateLimited(bot: TgBotInfo, channelId: Long, text: String) {
+    private suspend fun sendWithRetryOnRateLimit(bot: TgBotInfo, channelId: Long, text: String) {
         while (true) {
             try {
                 send(bot, channelId, text)
