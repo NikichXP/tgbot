@@ -85,6 +85,7 @@ has enabled (`tgBotInfo.supportedFeatures`); the `id` is that persisted contract
 
 | Variable | Description | Default |
 |---|---|---|
+| `TZ` | Server time zone of the app (JVM default; logs, `LocalDateTime.now()`, Mongo `LocalDateTime` conversion); per-user zones (child-care `ChildTimezoneService`) are converted from it. Set in `infra-scripts/manifests/tgbot/20-tgbot.yaml`, never in a Dockerfile or code; always an IANA id so DST switches automatically | `Europe/Berlin` in the cluster, host zone locally |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/tg-bot` |
 | `MONGODB_DATABASE` | MongoDB database name | `tg-bot` |
 | `RABBITMQ_HOST` | RabbitMQ host | `localhost` |

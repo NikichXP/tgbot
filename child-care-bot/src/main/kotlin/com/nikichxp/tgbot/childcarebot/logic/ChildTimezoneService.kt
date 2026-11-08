@@ -14,7 +14,7 @@ class ChildTimezoneService(
 
     fun fromDBToUI(date: LocalDateTime): LocalDateTime {
         return date
-            .atZone(ZoneId.of(getHostTimeZone()))
+            .atZone(ZoneId.systemDefault())
             .withZoneSameInstant(ZoneId.of(getUserTimeZone()))
             .toLocalDateTime()
     }
@@ -22,7 +22,7 @@ class ChildTimezoneService(
     fun fromUItoDB(date: LocalDateTime): LocalDateTime {
         return date
             .atZone(ZoneId.of(getUserTimeZone()))
-            .withZoneSameInstant(ZoneId.of(getHostTimeZone()))
+            .withZoneSameInstant(ZoneId.systemDefault())
             .toLocalDateTime()
     }
 
@@ -33,10 +33,9 @@ class ChildTimezoneService(
 
     fun nowInDB(): LocalDateTime {
         return ZonedDateTime.now()
-            .withZoneSameInstant(ZoneId.of(getHostTimeZone())).toLocalDateTime()
+            .withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
     }
 
-    private fun getHostTimeZone() = appStorage.getOrPut("timezone.child.host", "UTC+2")
     private fun getUserTimeZone() = appStorage.getOrPut("timezone.child.user", "UTC+1")
 
 }
